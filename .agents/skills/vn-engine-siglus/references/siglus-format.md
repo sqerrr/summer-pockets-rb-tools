@@ -1,7 +1,7 @@
 # SiglusEngine format reference
 
 Verified against Summer Pockets REFLECTION BLUE, SiglusEngine 1.1.134.
-All offsets are little-endian. Reference implementations: `_tools/siglus.py`
+All offsets are little-endian. Reference implementations: `game-tools/siglus.py`
 (Python) and `SPTranslate/uSiglus.pas` (Delphi, production).
 
 ## Scene.pck header
@@ -103,7 +103,7 @@ U+0141          ->  ё
 ```
 
 Implemented by `EncodeRussian` and `DecodeRussian` in `uSiglus.pas`, mirrored by
-`_tools/encode_ru.py`. Any change to the table must be applied to the font
+`game-tools/encode_ru.py`. Any change to the table must be applied to the font
 builder, both codecs and any already built `Scene.pck` at the same time.
 
 Punctuation notes:
@@ -123,7 +123,7 @@ half-width cell. Cap height already matches Latin (782 against 781), so only
 horizontal scaling is needed. No Cyrillic glyph is composite, so the transform
 is safe.
 
-Built by `_tools/build_font.py`, always from `font01.ttf.orig` and
+Built by `game-tools/build_font.py`, always from `font01.ttf.orig` and
 `font02.ttf.orig`, so the operation is idempotent.
 
 ## Not yet analysed
@@ -132,3 +132,6 @@ Built by `_tools/build_font.py`, always from `font01.ttf.orig` and
   geometry.
 - `dat/*.dbs` hold CG gallery, music and minigame text, roughly 15 000 Japanese
   characters.
+- `sub_69D402` classifies kana and Japanese punctuation, apparently for line
+  breaking rules. Russian wraps correctly as it is, so this was left alone;
+  the address is noted in case wrapping misbehaves later.

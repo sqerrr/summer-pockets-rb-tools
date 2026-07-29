@@ -1,8 +1,11 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import paths
 import sys, struct, collections
-sys.path.insert(0, r"A:\Projects\_tools")
 from siglus import ScenePack, Scene
 
-pck = ScenePack(r"A:\Projects\Summer Pockets REFLECTION BLUE\Scene.pck")
+pck = ScenePack(paths.SCENE_PCK)
 ok = bad = 0
 total_strings = 0
 total_chars = 0

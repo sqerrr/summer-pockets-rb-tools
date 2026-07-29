@@ -14,6 +14,10 @@ Layout (matches EncodeRussian/DecodeRussian in uSiglus.pas):
 Cyrillic outlines are also condensed horizontally, because they are drawn as
 full-width designs and would otherwise overflow a half-width cell.
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import paths
 import os, shutil, sys
 from fontTools.ttLib import TTFont
 from fontTools.pens.ttGlyphPen import TTGlyphPen
@@ -21,7 +25,7 @@ from fontTools.pens.transformPen import TransformPen
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.misc.transform import Transform
 
-DAT = r"A:\Projects\Summer Pockets REFLECTION BLUE\dat"
+DAT = str(paths.DAT_DIR)
 HALF = 512
 INK_BUDGET = 470
 

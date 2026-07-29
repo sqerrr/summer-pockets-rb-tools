@@ -1,11 +1,12 @@
-"""Control experiment: does the engine honour hmtx advance widths at all?
+"""Which codepoint ranges does the engine treat as half-width?
 
-Cyrillic keeps the half-width patch (advance 512). On top of that two Latin
-letters get deliberately wrong advances without touching their outlines:
-    W -> 1024  (should become widely spaced if the engine reads the font)
-    M ->  256  (should collide with its neighbour for the same reason)
-Everything else is left alone, so the rendered line answers the question.
+Ж/Ш/Щ outlines are mapped onto probe codepoints in several ranges. Whatever
+renders tightly in game is a usable carrier for Russian text.
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import paths
 import os, shutil
 from fontTools.ttLib import TTFont
 from fontTools.pens.ttGlyphPen import TTGlyphPen
@@ -13,9 +14,16 @@ from fontTools.pens.transformPen import TransformPen
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.misc.transform import Transform
 
-DAT = r"A:\Projects\Summer Pockets REFLECTION BLUE\dat"
+DAT = str(paths.DAT_DIR)
 HALF, BUDGET = 512, 480
-PROBES = {"W": 1024, "M": 256}
+SRC = "ЖШЩ"
+PROBES = {
+    "ascii":  (0x71, 0x77, 0x65),     # q w e
+    "latin1": (0xE0, 0xE1, 0xE2),     # à á â
+    "extA":   (0x100, 0x101, 0x102),  # Ā ā Ă
+    "extB":   (0x180, 0x181, 0x182),  # ƀ Ɓ Ƃ
+    "greek":  (0x3B1, 0x3B2, 0x3B3),  # α β γ
+}
 
 
 def patch(name):
@@ -23,7 +31,6 @@ def patch(name):
     bak = src + ".orig"
     if not os.path.exists(bak):
         shutil.copy2(src, bak)
-
     f = TTFont(bak)
     glyf, hmtx, gs = f["glyf"], f["hmtx"], f.getGlyphSet()
     cmap = f.getBestCmap()
@@ -43,32 +50,30 @@ def patch(name):
         pen = TTGlyphPen(gs)
         gs[g].draw(TransformPen(pen, Transform(k, 0, 0, 1, dx, 0)))
         built[g] = (pen.glyph(), HALF, round(x0 * k + dx))
-
     for g, (gl, adv, lsb) in built.items():
         if gl is not None:
             glyf[g] = gl
             gl.recalcBounds(glyf)
         hmtx[g] = (adv, lsb)
 
-    probe_report = []
-    for ch, adv in PROBES.items():
-        g = cmap.get(ord(ch))
-        old = hmtx[g][0]
-        hmtx[g] = (adv, hmtx[g][1])
-        probe_report.append(f"{ch}: {old} -> {adv}")
-
+    targets = [cmap[ord(ch)] for ch in SRC]
+    for label, cps in PROBES.items():
+        for cp, gname in zip(cps, targets):
+            for t in f["cmap"].tables:
+                if t.isUnicode():
+                    t.cmap[cp] = gname
+            if hmtx[gname][0] != HALF:
+                hmtx[gname] = (HALF, hmtx[gname][1])
     f.save(src)
     f.close()
-    return probe_report
 
 
 for fn in ("font01.ttf", "font02.ttf"):
-    print(fn, "|", ", ".join(patch(fn)))
+    patch(fn)
+    print("patched", fn)
 
-print("\nverification:")
-for fn in ("font01.ttf", "font02.ttf"):
-    f = TTFont(os.path.join(DAT, fn))
-    cmap, hmtx = f.getBestCmap(), f["hmtx"]
-    print(" ", fn, " ".join(
-        f"{c}={hmtx[cmap[ord(c)]][0]}" for c in "WMQBXЖШПро"))
-    f.close()
+line = " ".join(
+    "".join(chr(c) for c in cps) + "=" + label for label, cps in PROBES.items())
+print("\nMarker line to put into the scene:")
+print(line)
+open(str(Path(__file__).resolve().parent / "marker.txt"), "w", encoding="utf-8").write(line + " | ")

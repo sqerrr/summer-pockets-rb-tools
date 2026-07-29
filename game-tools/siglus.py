@@ -1,4 +1,8 @@
 """Siglus Scene.pck reader: header parse + XOR decrypt + LZSS decompress."""
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import paths
 import struct
 
 KEY = bytes.fromhex(
@@ -109,7 +113,7 @@ class Scene:
 
 if __name__ == "__main__":
     import sys
-    pck = ScenePack(r"A:\Projects\Summer Pockets REFLECTION BLUE\Scene.pck")
+    pck = ScenePack(paths.SCENE_PCK)
     print("scenes:", pck.count)
     i = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     raw = decrypt(pck.raw(i))

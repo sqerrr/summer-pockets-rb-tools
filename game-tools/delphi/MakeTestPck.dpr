@@ -4,7 +4,8 @@
 
 uses
   System.SysUtils,
-  uSiglus in '..\SPTranslate\uSiglus.pas';
+  uSiglus in '..\..\SPTranslate\uSiglus.pas',
+  uPaths in 'uPaths.pas';
 
 type
   TPatch = record
@@ -58,8 +59,8 @@ var
 
 begin
   try
-    SrcFile := 'A:\Projects\Summer Pockets REFLECTION BLUE\Scene.pck.orig';
-    DstFile := 'A:\Projects\Summer Pockets REFLECTION BLUE\Scene.pck';
+    SrcFile := ScenePckOrig;
+    DstFile := ScenePck;
 
     Add(4, 'Вдали начали проступать очертания острова.');
     Add(5, 'Динамики парома объявили о скором прибытии.');

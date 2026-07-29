@@ -5,6 +5,10 @@ glyphs wider than the half-width box are condensed to fit, narrower ones keep
 their natural width (standard monospace practice), and the advance is set to
 the same 512 units the Latin glyphs use.
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import paths
 import os, shutil, sys
 from fontTools.ttLib import TTFont
 from fontTools.pens.ttGlyphPen import TTGlyphPen
@@ -12,7 +16,7 @@ from fontTools.pens.transformPen import TransformPen
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.misc.transform import Transform
 
-DAT = r"A:\Projects\Summer Pockets REFLECTION BLUE\dat"
+DAT = str(paths.DAT_DIR)
 HALF_ADVANCE = 512
 INK_BUDGET = 480          # max ink width allowed inside the half-width box
 

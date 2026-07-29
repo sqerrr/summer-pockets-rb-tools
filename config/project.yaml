@@ -30,10 +30,10 @@ paths:
 integration:
   # Существующий инструментарий (GUI, CLI пока нет).
   translator_gui: SPTranslate/SPTranslate.exe
-  siglus_lib: _tools/siglus.py
+  siglus_lib: game-tools/siglus.py
   siglus_unit: SPTranslate/uSiglus.pas
-  font_builder: _tools/build_font.py
-  game_control: _tools/game.ps1
+  font_builder: game-tools/build_font.py
+  game_control: game-tools/game.ps1
   # Заполнить после создания CLI-обёрток (см. game-tools/ADAPTER_CONTRACT.md).
   parse_command: ""
   build_command: ""

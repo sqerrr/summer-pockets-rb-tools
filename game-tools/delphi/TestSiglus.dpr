@@ -4,7 +4,9 @@ program TestSiglus;
 
 uses
   System.SysUtils,
-  uSiglus in '..\SPTranslate\uSiglus.pas';
+  System.IOUtils,
+  uSiglus in '..\..\SPTranslate\uSiglus.pas',
+  uPaths in 'uPaths.pas';
 
 var
   Pack, Pack2: TScenePack;
@@ -14,8 +16,8 @@ var
 
 begin
   try
-    SrcFile := 'A:\Projects\Summer Pockets REFLECTION BLUE\Scene.pck';
-    OutFile := 'C:\Users\user\AppData\Local\Temp\opencode\Scene.rebuilt.pck';
+    SrcFile := ScenePck;
+    OutFile := TPath.Combine(TPath.GetTempPath, 'Scene.rebuilt.pck');
 
     Pack := TScenePack.Create;
     Pack2 := TScenePack.Create;

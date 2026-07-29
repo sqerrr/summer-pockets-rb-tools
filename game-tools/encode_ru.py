@@ -1,4 +1,8 @@
 """Cyrillic <-> carrier codepoints, mirrors EncodeRussian in uSiglus.pas."""
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import paths
 
 BASE, YO_U, LOW, YO_L = 0x100, 0x120, 0x121, 0x141
 
@@ -48,11 +52,11 @@ if __name__ == "__main__":
     print("carrier:", " ".join("%04X" % ord(c) for c in enc[:12]), "...")
     print("round trip ok")
 
-    fp = r"A:\Projects\Summer Pockets REFLECTION BLUE\dat\font01.ttf"
+    fp = str(paths.FONT01)
     fnt = ImageFont.truetype(fp, 44)
     im = Image.new("RGB", (1180, 150), (18, 60, 100))
     d = ImageDraw.Draw(im)
     d.text((14, 12), text, font=fnt, fill=(255, 255, 255))
     d.text((14, 78), enc, font=fnt, fill=(180, 255, 180))
-    im.save(r"A:\Projects\_tools\shots\carrier_check.png")
+    im.save(str(paths.SHOTS_DIR / "carrier_check.png"))
     print("rendered: top = real cyrillic, bottom = carriers")

@@ -1,6 +1,10 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import paths
 import pefile, struct, capstone, re
 
-EXE = r"A:\Projects\Summer Pockets REFLECTION BLUE\SiglusEngine.exe"
+EXE = str(paths.GAME_EXE)
 pe = pefile.PE(EXE, fast_load=True)
 base = pe.OPTIONAL_HEADER.ImageBase
 data = open(EXE, "rb").read()

@@ -24,9 +24,20 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$GameDir = 'A:\Projects\Summer Pockets REFLECTION BLUE'
+
+# Корень ищется по AGENTS.md вверх от скрипта, как в game-tools/paths.py,
+# чтобы репозиторий можно было держать где угодно.
+$Root = Split-Path -Parent $PSScriptRoot
+while (-not (Test-Path (Join-Path $Root 'AGENTS.md'))) {
+    $parent = Split-Path -Parent $Root
+    if ($parent -eq $Root -or -not $parent) { throw "Не найден корень репозитория (AGENTS.md) выше $PSScriptRoot" }
+    $Root = $parent
+}
+
+# Значение дублирует game.install_dir из config/project.yaml.
+$GameDir = Join-Path $Root 'Summer Pockets REFLECTION BLUE'
 $GameExe = Join-Path $GameDir 'SiglusEngine.exe'
-$ShotDir = 'A:\Projects\_tools\shots'
+$ShotDir = Join-Path $PSScriptRoot 'shots'
 
 # Опорные точки интерфейса в клиентских координатах (окно 1920x1080)
 $UI = @{

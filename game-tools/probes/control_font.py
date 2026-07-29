@@ -1,10 +1,15 @@
-"""Experiment: the engine lays out by codepoint, ignoring font metrics.
-So put Cyrillic outlines onto ASCII codepoints and see whether they get the
-half-width cell that ASCII enjoys.
+"""Control experiment: does the engine honour hmtx advance widths at all?
 
-q -> Ж    w -> Ш    e -> Щ   (outlines condensed to fit a half-width cell)
-Cyrillic codepoints are left in place, so one line can show both.
+Cyrillic keeps the half-width patch (advance 512). On top of that two Latin
+letters get deliberately wrong advances without touching their outlines:
+    W -> 1024  (should become widely spaced if the engine reads the font)
+    M ->  256  (should collide with its neighbour for the same reason)
+Everything else is left alone, so the rendered line answers the question.
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import paths
 import os, shutil
 from fontTools.ttLib import TTFont
 from fontTools.pens.ttGlyphPen import TTGlyphPen
@@ -12,9 +17,9 @@ from fontTools.pens.transformPen import TransformPen
 from fontTools.pens.boundsPen import BoundsPen
 from fontTools.misc.transform import Transform
 
-DAT = r"A:\Projects\Summer Pockets REFLECTION BLUE\dat"
+DAT = str(paths.DAT_DIR)
 HALF, BUDGET = 512, 480
-REMAP = {"q": "Ж", "w": "Ш", "e": "Щ"}
+PROBES = {"W": 1024, "M": 256}
 
 
 def patch(name):
@@ -27,7 +32,6 @@ def patch(name):
     glyf, hmtx, gs = f["glyf"], f["hmtx"], f.getGlyphSet()
     cmap = f.getBestCmap()
 
-    # condense cyrillic into the half-width box (same as before)
     built = {}
     for cp in sorted(c for c in cmap if 0x400 <= c <= 0x4FF):
         g = cmap[cp]
@@ -50,18 +54,16 @@ def patch(name):
             gl.recalcBounds(glyf)
         hmtx[g] = (adv, lsb)
 
-    # point selected ASCII codepoints at the cyrillic glyphs
-    report = []
-    for ascii_ch, cyr_ch in REMAP.items():
-        target = cmap[ord(cyr_ch)]
-        for t in f["cmap"].tables:
-            if t.isUnicode():
-                t.cmap[ord(ascii_ch)] = target
-        report.append(f"{ascii_ch} -> {cyr_ch} ({target})")
+    probe_report = []
+    for ch, adv in PROBES.items():
+        g = cmap.get(ord(ch))
+        old = hmtx[g][0]
+        hmtx[g] = (adv, hmtx[g][1])
+        probe_report.append(f"{ch}: {old} -> {adv}")
 
     f.save(src)
     f.close()
-    return report
+    return probe_report
 
 
 for fn in ("font01.ttf", "font02.ttf"):
@@ -70,6 +72,7 @@ for fn in ("font01.ttf", "font02.ttf"):
 print("\nverification:")
 for fn in ("font01.ttf", "font02.ttf"):
     f = TTFont(os.path.join(DAT, fn))
-    c = f.getBestCmap()
-    print(" ", fn, " ".join(f"{ch}={c[ord(ch)]}" for ch in "qweЖШЩA"))
+    cmap, hmtx = f.getBestCmap(), f["hmtx"]
+    print(" ", fn, " ".join(
+        f"{c}={hmtx[cmap[ord(c)]][0]}" for c in "WMQBXЖШПро"))
     f.close()

@@ -1,8 +1,11 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import paths
 import sys, struct
-sys.path.insert(0, r"A:\Projects\_tools")
 from siglus import ScenePack, Scene
 
-pck = ScenePack(r"A:\Projects\Summer Pockets REFLECTION BLUE\Scene.pck")
+pck = ScenePack(paths.SCENE_PCK)
 bad_tail = []
 bad_order = []
 bad_contig = []
