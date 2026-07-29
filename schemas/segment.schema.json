@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VN Translation Segment",
+  "type": "object",
+  "required": [
+    "id",
+    "file_id",
+    "scene_id",
+    "order",
+    "source",
+    "translation",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "file_id": {
+      "type": "string"
+    },
+    "scene_id": {
+      "type": "string"
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "speaker": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source": {
+      "type": "string"
+    },
+    "translation": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "todo",
+        "draft",
+        "reviewed",
+        "playable",
+        "approved",
+        "lqa"
+      ]
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "array"
+    },
+    "decision_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_hash": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

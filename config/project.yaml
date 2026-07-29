@@ -1,0 +1,61 @@
+project:
+  id: summer-pockets-rb-ru
+  title: Summer Pockets REFLECTION BLUE RU
+  # Установленная сборка — английская локализация, японского оригинала нет.
+  # Замер: ~11 400 строк латиницей против ~2 300 японских, см. FND-0001.
+  source_language: en
+  original_language_available: false
+  target_language: ru
+
+game:
+  engine: SiglusEngine
+  install_dir: "Summer Pockets REFLECTION BLUE"
+  scene_pack: "Summer Pockets REFLECTION BLUE/Scene.pck"
+  scene_pack_original: "Summer Pockets REFLECTION BLUE/Scene.pck.orig"
+  gameexe: "Summer Pockets REFLECTION BLUE/Gameexe.dat"
+  executable: "Summer Pockets REFLECTION BLUE/SiglusEngine.exe"
+  executable_original: "Summer Pockets REFLECTION BLUE/SiglusEngine.exe.org"
+
+paths:
+  segments: translation/segments
+  scenes: translation/scenes.jsonl
+  glossary: docs/glossary.yaml
+  decisions: docs/decisions.jsonl
+  findings: docs/project/findings.jsonl
+  summaries: docs/scene-summaries.jsonl
+  characters: docs/characters
+  private_constraints: private/constraints.jsonl
+  database: database/knowledge.db
+
+integration:
+  # Существующий инструментарий (GUI, CLI пока нет).
+  translator_gui: SPTranslate/SPTranslate.exe
+  siglus_lib: _tools/siglus.py
+  siglus_unit: SPTranslate/uSiglus.pas
+  font_builder: _tools/build_font.py
+  game_control: _tools/game.ps1
+  # Заполнить после создания CLI-обёрток (см. game-tools/ADAPTER_CONTRACT.md).
+  parse_command: ""
+  build_command: ""
+  smoke_test_command: ""
+
+engine:
+  # Подробности — .agents/skills/vn-engine-siglus/references/siglus-format.md
+  scene_key_source: "SiglusEngine.exe .rdata VA 0x00ADABB0, 256 байт"
+  string_obfuscation: "(индекс_строки * 0x7087) and 0xFFFF"
+  fonts:
+    - "Summer Pockets REFLECTION BLUE/dat/font01.ttf"
+    - "Summer Pockets REFLECTION BLUE/dat/font02.ttf"
+  cyrillic_carriers:
+    range: "U+0100..U+0141"
+    upper: "U+0100..U+011F = А..Я без Ё"
+    upper_yo: "U+0120 = Ё"
+    lower: "U+0121..U+0140 = а..я без ё"
+    lower_yo: "U+0141 = ё"
+
+workflow:
+  context_previous_segments: 20
+  context_next_segments: 10
+  similar_examples_limit: 20
+  max_scene_segments: 500
+  user_progress_scene: ""

@@ -1,0 +1,28 @@
+project:
+  id: summer-pockets-ru
+  title: Summer Pockets RU
+  source_language: ja
+  target_language: ru
+
+paths:
+  segments: translation/segments
+  scenes: translation/scenes.jsonl
+  glossary: docs/glossary.yaml
+  decisions: docs/decisions.jsonl
+  summaries: docs/scene-summaries.jsonl
+  characters: docs/characters
+  private_constraints: private/constraints.jsonl
+  database: database/knowledge.db
+
+integration:
+  # Заполнить после аудита существующего инструментария.
+  parse_command: ""
+  build_command: ""
+  smoke_test_command: ""
+
+workflow:
+  context_previous_segments: 20
+  context_next_segments: 10
+  similar_examples_limit: 20
+  max_scene_segments: 500
+  user_progress_scene: ""

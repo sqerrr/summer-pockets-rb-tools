@@ -1,0 +1,13 @@
+game: CLANNAD
+language: ru
+source_kind: locally-extracted-translation-patch
+ownership_note: "Use only with a legally obtained game and patch."
+path: references/local/clannad/extracted
+purpose:
+  - style-statistics
+  - punctuation-reference
+  - dialogue-register-reference
+prohibited:
+  - commit-full-corpus
+  - copy-long-passages
+  - use-as-summer-pockets-translation-memory

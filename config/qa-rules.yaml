@@ -1,0 +1,31 @@
+allowed_statuses:
+  - todo
+  - draft
+  - reviewed
+  - playable
+  - approved
+  - lqa
+
+allowed_flags:
+  - needs_context
+  - needs_source_check
+  - needs_humor_review
+  - needs_voice_review
+  - technical_risk
+  - spoiler_sensitive
+
+required_segment_fields:
+  - id
+  - file_id
+  - scene_id
+  - order
+  - source
+  - translation
+  - status
+
+protected_patterns:
+  # Общие примеры. После изучения движка заменить точными правилами.
+  - "\\{[^{}]+\\}"
+  - "%[A-Za-z0-9_]+%"
+  - "<[^<>]+>"
+  - "\\[[^\\[\\]]+\\]"

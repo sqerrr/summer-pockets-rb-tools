@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VN Scene",
+  "type": "object",
+  "required": [
+    "scene_id",
+    "file_id",
+    "order",
+    "segment_ids",
+    "status"
+  ],
+  "properties": {
+    "scene_id": {
+      "type": "string"
+    },
+    "file_id": {
+      "type": "string"
+    },
+    "order": {
+      "type": "integer"
+    },
+    "route": {
+      "type": "string"
+    },
+    "title_safe": {
+      "type": "string"
+    },
+    "segment_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "previous_scene": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "next_scene": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "todo",
+        "draft",
+        "reviewed",
+        "playable",
+        "approved",
+        "lqa"
+      ]
+    }
+  },
+  "additionalProperties": true
+}
