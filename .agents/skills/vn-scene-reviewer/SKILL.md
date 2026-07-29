@@ -8,6 +8,11 @@ metadata:
 
 # VN Scene Reviewer
 
+## Lifecycle prerequisite
+
+Invoke this skill only through `vn-project-orchestrator`, after the gatekeeper
+has allowed review in the current pilot, production, or final-LQA phase.
+
 ## Role
 
 Act as a critical reviewer, not a second free-form translator. Report concrete problems and minimally sufficient corrections.

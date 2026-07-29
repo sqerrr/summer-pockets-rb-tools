@@ -8,6 +8,12 @@ metadata:
 
 # VN Context Builder
 
+## Lifecycle prerequisite
+
+Invoke this skill only through `vn-project-orchestrator`, after
+`vn-project-gatekeeper` has allowed context preparation for the selected pilot
+or production scene.
+
 ## Goal
 
 Provide the translator with the smallest context that preserves meaning, voice, terminology, continuity, jokes, and deliberate ambiguity.

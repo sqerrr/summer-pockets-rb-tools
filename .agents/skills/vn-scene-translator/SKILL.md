@@ -8,6 +8,12 @@ metadata:
 
 # VN Scene Translator
 
+## Lifecycle prerequisite
+
+Invoke this skill only through `vn-project-orchestrator`. The gatekeeper must
+explicitly allow `translate-pilot` or `translate-production` for the selected
+scene. A direct request to translate does not override a blocked result.
+
 ## Read first
 
 - `../../../docs/translation-spec.md`

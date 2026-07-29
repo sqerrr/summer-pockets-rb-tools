@@ -1,0 +1,112 @@
+schema_version: 1
+phase: bootstrap
+overall_status: blocked
+criticality: critical
+bypass_allowed: false
+critical_gates:
+  repository_audited:
+    status: passed
+    evidence: docs/project/parser-audit.md
+    required_for:
+    - cataloguing
+    - reference_preparation
+    - pilot
+    - production
+  parser_extraction_verified:
+    status: passed
+    evidence: docs/project/findings.jsonl
+    required_for:
+    - cataloguing
+    - pilot
+    - production
+  parser_roundtrip_verified:
+    status: passed
+    evidence: docs/project/parser-audit.md
+    required_for:
+    - pilot
+    - production
+  cyrillic_verified:
+    status: passed
+    evidence: docs/project/evidence/russian-rendering.png
+    required_for:
+    - pilot
+    - production
+  technical_tags_verified:
+    status: pending
+    evidence: null
+    required_for:
+    - pilot
+    - production
+  choices_and_jumps_verified:
+    status: pending
+    evidence: null
+    required_for:
+    - pilot
+    - production
+  layout_limits_measured:
+    status: pending
+    evidence: null
+    required_for:
+    - production
+  scenario_catalogued:
+    status: pending
+    evidence: null
+    required_for:
+    - pilot
+    - production
+  stable_ids_created:
+    status: pending
+    evidence: null
+    required_for:
+    - pilot
+    - production
+  scenes_segmented:
+    status: pending
+    evidence: null
+    required_for:
+    - pilot
+    - production
+  reference_corpus_audited:
+    status: pending
+    evidence: null
+    required_for:
+    - production
+  knowledge_index_built:
+    status: pending
+    evidence: null
+    required_for:
+    - pilot
+    - production
+  spoiler_protection_verified:
+    status: passed
+    evidence: tools/tests/test_spoiler_safety.py
+    required_for:
+    - pilot
+    - production
+  pilot_completed:
+    status: pending
+    evidence: null
+    required_for:
+    - production
+  production_completed:
+    status: pending
+    evidence: null
+    required_for:
+    - final_lqa
+permissions:
+  inspect_repository: true
+  audit_parser: true
+  catalogue_sources: true
+  audit_reference_corpus: true
+  create_documentation: true
+  build_index: false
+  translate_test_lines: true
+  translate_pilot_scene: false
+  translate_production_scenes: false
+  mass_translate: false
+  mark_translation_approved: false
+current_task:
+  id: BOOTSTRAP-NEXT
+  description: verify_technical_tags
+  assigned_skill: vn-engine-siglus
+last_updated: '2026-07-29T23:29:47+03:00'

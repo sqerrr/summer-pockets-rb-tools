@@ -10,6 +10,12 @@ metadata:
 
 Use this skill before translating substantial text.
 
+## Lifecycle prerequisite
+
+Invoke this skill only after `vn-project-orchestrator` has read
+`translation/project-status.yaml` and `vn-project-gatekeeper` has allowed the
+requested bootstrap, parser-audit, or cataloguing operation.
+
 ## Read first
 
 - `../../../AGENTS.md`

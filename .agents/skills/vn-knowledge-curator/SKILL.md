@@ -8,6 +8,11 @@ metadata:
 
 # VN Knowledge Curator
 
+## Lifecycle prerequisite
+
+Invoke this skill only through `vn-project-orchestrator`, after the gatekeeper
+has allowed knowledge or glossary updates in the current phase.
+
 ## Principle
 
 Store only knowledge that will materially improve future translation. Do not turn documentation into a plot encyclopedia.

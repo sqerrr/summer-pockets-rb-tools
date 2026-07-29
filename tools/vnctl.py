@@ -11,6 +11,7 @@ import re
 import sqlite3
 import sys
 from collections import Counter, defaultdict
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -21,6 +22,185 @@ except ImportError:  # pragma: no cover
 
 ALLOWED_STATUSES = {"todo", "draft", "reviewed", "playable", "approved", "lqa"}
 DEFAULT_REQUIRED = {"id", "file_id", "scene_id", "order", "source", "translation", "status"}
+
+PROJECT_PHASES = (
+    "bootstrap",
+    "cataloguing",
+    "reference_preparation",
+    "pilot",
+    "production",
+    "final_lqa",
+)
+GATE_STATUSES = {"pending", "in_progress", "partial", "passed", "failed", "blocked"}
+PROJECT_STATUS_PATH = Path("translation/project-status.yaml")
+PROJECT_HISTORY_PATH = Path("translation/project-history.jsonl")
+
+OPERATION_ALIASES = {
+    "inspect_repository": "inspect-repository",
+    "audit_parser": "audit-parser",
+    "catalogue_sources": "catalogue-sources",
+    "audit_reference_corpus": "audit-reference-corpus",
+    "build_index": "build-index",
+    "translate_test_lines": "translate-test-lines",
+    "translate_pilot": "translate-pilot",
+    "pilot_translation": "translate-pilot",
+    "translate_production": "translate-production",
+    "production_translation": "translate-production",
+    "mass_translate": "mass-translate",
+    "approve_translation": "approve-translation",
+    "mark_translation_approved": "approve-translation",
+    "build_pilot_context": "build-pilot-context",
+    "build_production_context": "build-production-context",
+    "review_pilot": "review-pilot",
+    "review_production": "review-production",
+    "build_game_text": "build-game-text",
+    "modify_glossary": "modify-glossary",
+    "modify_specifications": "modify-specifications",
+    "curate_knowledge": "curate-knowledge",
+    "final_lqa": "final-lqa",
+    "create_documentation": "create-documentation",
+    "update_glossary": "modify-glossary",
+    "update_specifications": "modify-specifications",
+    "update_knowledge": "curate-knowledge",
+}
+
+MACHINE_OPERATION_NAMES = {
+    "translate-pilot": "pilot_translation",
+    "translate-production": "production_translation",
+}
+
+OPERATION_RULES: dict[str, dict[str, Any]] = {
+    "inspect-repository": {"label": "repository inspection", "phases": PROJECT_PHASES},
+    "audit-parser": {"label": "parser audit", "phases": PROJECT_PHASES},
+    "create-documentation": {"label": "documentation update", "phases": PROJECT_PHASES},
+    "catalogue-sources": {
+        "label": "source cataloguing",
+        "phases": ("bootstrap", "cataloguing"),
+        "gates": ("repository_audited", "parser_extraction_verified"),
+    },
+    "audit-reference-corpus": {
+        "label": "reference corpus audit",
+        "phases": ("bootstrap", "reference_preparation"),
+        "gates": ("repository_audited",),
+    },
+    "build-index": {
+        "label": "knowledge index build",
+        "phases": ("cataloguing", "reference_preparation", "pilot", "production", "final_lqa"),
+        "gates": ("scenario_catalogued", "stable_ids_created", "scenes_segmented"),
+    },
+    "translate-test-lines": {
+        "label": "test-line translation",
+        "phases": ("bootstrap",),
+        "gates": ("parser_extraction_verified", "parser_roundtrip_verified", "cyrillic_verified"),
+    },
+    "build-pilot-context": {"label": "pilot context build", "phases": ("pilot",), "required_for": "pilot"},
+    "translate-pilot": {"label": "pilot translation", "phases": ("pilot",), "required_for": "pilot"},
+    "review-pilot": {"label": "pilot review", "phases": ("pilot",), "required_for": "pilot"},
+    "build-production-context": {
+        "label": "production context build",
+        "phases": ("production",),
+        "required_for": "production",
+    },
+    "translate-production": {
+        "label": "production translation",
+        "phases": ("production",),
+        "required_for": "production",
+    },
+    "review-production": {
+        "label": "production review",
+        "phases": ("production", "final_lqa"),
+        "required_for": "production",
+    },
+    "build-game-text": {
+        "label": "game text build",
+        "phases": ("pilot", "production", "final_lqa"),
+        "gates": (
+            "parser_roundtrip_verified",
+            "cyrillic_verified",
+            "technical_tags_verified",
+            "choices_and_jumps_verified",
+        ),
+    },
+    "modify-glossary": {
+        "label": "glossary update",
+        "phases": ("pilot", "production", "final_lqa"),
+        "required_for": "pilot",
+    },
+    "modify-specifications": {"label": "specification update", "phases": PROJECT_PHASES},
+    "curate-knowledge": {
+        "label": "knowledge curation",
+        "phases": ("pilot", "production", "final_lqa"),
+        "required_for": "pilot",
+    },
+    "approve-translation": {
+        "label": "translation approval",
+        "phases": ("production", "final_lqa"),
+        "required_for": "production",
+    },
+    "mass-translate": {
+        "label": "mass translation",
+        "phases": (),
+        "policy_block": "Mass translation is forbidden; production scenes must be handled sequentially.",
+    },
+    "final-lqa": {"label": "final LQA", "phases": ("final_lqa",), "required_for": "production"},
+}
+
+OPERATION_PERMISSIONS = {
+    "inspect-repository": "inspect_repository",
+    "audit-parser": "audit_parser",
+    "catalogue-sources": "catalogue_sources",
+    "audit-reference-corpus": "audit_reference_corpus",
+    "create-documentation": "create_documentation",
+    "build-index": "build_index",
+    "translate-test-lines": "translate_test_lines",
+    "build-pilot-context": "translate_pilot_scene",
+    "translate-pilot": "translate_pilot_scene",
+    "review-pilot": "translate_pilot_scene",
+    "build-production-context": "translate_production_scenes",
+    "translate-production": "translate_production_scenes",
+    "review-production": "translate_production_scenes",
+    "mass-translate": "mass_translate",
+    "approve-translation": "mark_translation_approved",
+}
+
+PHASE_TRANSITION_GATES = {
+    "bootstrap": (
+        "repository_audited",
+        "parser_extraction_verified",
+        "parser_roundtrip_verified",
+        "cyrillic_verified",
+        "technical_tags_verified",
+        "choices_and_jumps_verified",
+    ),
+    "cataloguing": (
+        "scenario_catalogued",
+        "stable_ids_created",
+        "scenes_segmented",
+        "knowledge_index_built",
+        "spoiler_protection_verified",
+    ),
+    "reference_preparation": ("reference_corpus_audited",),
+    "pilot": (),  # Derived from all gates whose required_for contains production.
+    "production": ("production_completed",),
+}
+
+GATE_ACTIONS = {
+    "repository_audited": ("vn-bootstrap", "audit_repository", "docs/project/parser-audit.md"),
+    "parser_extraction_verified": ("vn-bootstrap", "verify_parser_extraction", "docs/project/parser-audit.md"),
+    "parser_roundtrip_verified": ("vn-engine-siglus", "run_extended_roundtrip", "docs/project/parser-audit.md"),
+    "cyrillic_verified": ("vn-engine-siglus", "verify_cyrillic_rendering", "docs/project/evidence/russian-rendering.png"),
+    "technical_tags_verified": ("vn-engine-siglus", "verify_technical_tags", "docs/project/parser-audit.md"),
+    "choices_and_jumps_verified": ("vn-bootstrap", "verify_choices_and_jumps", "docs/project/parser-audit.md"),
+    "layout_limits_measured": ("vn-engine-siglus", "measure_layout_limits", "docs/project/parser-audit.md"),
+    "scenario_catalogued": ("vn-bootstrap", "catalogue_scenario", "translation/scenes.jsonl"),
+    "stable_ids_created": ("vn-bootstrap", "create_stable_ids", "translation/segments/<scene>.jsonl"),
+    "scenes_segmented": ("vn-bootstrap", "segment_logical_scenes", "translation/scenes.jsonl"),
+    "reference_corpus_audited": ("vn-bootstrap", "audit_reference_corpus", "docs/reference-corpus-policy.md"),
+    "knowledge_index_built": ("vn-bootstrap", "build_knowledge_index", "database/knowledge.db"),
+    "spoiler_protection_verified": ("vn-context-builder", "verify_spoiler_protection", "tools/tests/test_spoiler_safety.py"),
+    "pilot_completed": ("vn-context-builder", "run_pilot_workflow", "build/pilot-verification.md"),
+    "production_completed": ("vn-scene-reviewer", "verify_production_completion", "docs/progress.yaml"),
+}
 
 
 def eprint(*args: Any) -> None:
@@ -35,6 +215,383 @@ def read_yaml(path: Path, default: Any = None) -> Any:
     with path.open("r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
     return default if data is None else data
+
+
+def now_iso() -> str:
+    return datetime.now().astimezone().isoformat(timespec="seconds")
+
+
+def normalize_operation(operation: str) -> str:
+    normalized = operation.strip().lower().replace("_", "-")
+    normalized = OPERATION_ALIASES.get(normalized.replace("-", "_"), normalized)
+    if normalized not in OPERATION_RULES:
+        raise ValueError(f"Unknown operation: {operation}")
+    return normalized
+
+
+def evidence_file(root: Path, evidence: Any) -> Path | None:
+    if not isinstance(evidence, str) or not evidence.strip():
+        return None
+    path = Path(evidence)
+    return path if path.is_absolute() else root / path
+
+
+def validate_project_status(root: Path, status: Any) -> dict[str, Any]:
+    if not isinstance(status, dict):
+        raise ValueError(f"{PROJECT_STATUS_PATH}: expected a YAML mapping")
+    if status.get("schema_version") != 1:
+        raise ValueError(f"{PROJECT_STATUS_PATH}: unsupported schema_version")
+    phase = status.get("phase")
+    if phase not in PROJECT_PHASES:
+        raise ValueError(f"{PROJECT_STATUS_PATH}: unknown phase {phase!r}")
+    gates = status.get("critical_gates")
+    if not isinstance(gates, dict) or not gates:
+        raise ValueError(f"{PROJECT_STATUS_PATH}: critical_gates must be a non-empty mapping")
+    for gate, item in gates.items():
+        if not isinstance(item, dict):
+            raise ValueError(f"{PROJECT_STATUS_PATH}: gate {gate!r} must be a mapping")
+        gate_status = item.get("status")
+        if gate_status not in GATE_STATUSES:
+            raise ValueError(f"{PROJECT_STATUS_PATH}: gate {gate!r} has unknown status {gate_status!r}")
+        required_for = item.get("required_for", [])
+        if not isinstance(required_for, list) or any(value not in PROJECT_PHASES for value in required_for):
+            raise ValueError(f"{PROJECT_STATUS_PATH}: gate {gate!r} has invalid required_for")
+        if gate_status == "passed":
+            path = evidence_file(root, item.get("evidence"))
+            if path is None or not path.is_file():
+                raise ValueError(f"{PROJECT_STATUS_PATH}: passed gate {gate!r} requires an existing evidence file")
+    if not isinstance(status.get("permissions", {}), dict):
+        raise ValueError(f"{PROJECT_STATUS_PATH}: permissions must be a mapping")
+    return status
+
+
+def load_project_status(root: Path) -> dict[str, Any]:
+    path = root / PROJECT_STATUS_PATH
+    if not path.exists():
+        raise FileNotFoundError(f"Missing {path}")
+    return validate_project_status(root, read_yaml(path, {}))
+
+
+def write_project_status(root: Path, status: dict[str, Any]) -> None:
+    if yaml is None:
+        raise RuntimeError("PyYAML is required. Run: python -m pip install -r requirements.txt")
+    validate_project_status(root, status)
+    path = root / PROJECT_STATUS_PATH
+    path.write_text(yaml.safe_dump(status, allow_unicode=True, sort_keys=False), encoding="utf-8")
+
+
+def append_project_history(root: Path, event: dict[str, Any]) -> None:
+    path = root / PROJECT_HISTORY_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"timestamp": now_iso(), **event}
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n")
+
+
+def gates_required_for(status: dict[str, Any], target: str) -> list[str]:
+    return [
+        name
+        for name, item in status["critical_gates"].items()
+        if target in item.get("required_for", [])
+    ]
+
+
+def missing_gates(status: dict[str, Any], gate_names: Iterable[str]) -> list[str]:
+    gates = status["critical_gates"]
+    missing: list[str] = []
+    for name in gate_names:
+        if name not in gates:
+            raise ValueError(f"Project status does not define required gate: {name}")
+        if gates[name].get("status") != "passed":
+            missing.append(name)
+    return missing
+
+
+def operation_gate_names(status: dict[str, Any], operation: str) -> list[str]:
+    rule = OPERATION_RULES[operation]
+    names = list(rule.get("gates", ()))
+    target = rule.get("required_for")
+    if target:
+        names.extend(gates_required_for(status, target))
+    return list(dict.fromkeys(names))
+
+
+def transition_gate_names(status: dict[str, Any]) -> list[str]:
+    phase = status["phase"]
+    if phase == "pilot":
+        return gates_required_for(status, "production")
+    return list(PHASE_TRANSITION_GATES.get(phase, ()))
+
+
+def next_phase(phase: str) -> str | None:
+    index = PROJECT_PHASES.index(phase)
+    return PROJECT_PHASES[index + 1] if index + 1 < len(PROJECT_PHASES) else None
+
+
+def action_for_gate(gate: str) -> dict[str, str]:
+    skill, task, expected_evidence = GATE_ACTIONS.get(
+        gate,
+        ("vn-project-orchestrator", f"complete_{gate}", f"build/evidence/{gate}.md"),
+    )
+    return {"skill": skill, "task": task, "expected_evidence": expected_evidence}
+
+
+def recommend_next_action(status: dict[str, Any]) -> dict[str, str]:
+    blockers = missing_gates(status, transition_gate_names(status))
+    if blockers:
+        return action_for_gate(blockers[0])
+    phase = status["phase"]
+    following = next_phase(phase)
+    if following:
+        return {
+            "skill": "vn-project-orchestrator",
+            "task": f"advance_to_{following}",
+            "expected_evidence": "translation/project-history.jsonl",
+        }
+    return {
+        "skill": "vn-scene-reviewer",
+        "task": "continue_final_lqa",
+        "expected_evidence": "build/final-lqa-report.md",
+    }
+
+
+def operation_permission(status: dict[str, Any], operation: str) -> str | None:
+    if operation == "build-game-text":
+        return "translate_pilot_scene" if status["phase"] == "pilot" else "translate_production_scenes"
+    if operation in {"modify-glossary", "modify-specifications", "curate-knowledge"}:
+        return "create_documentation"
+    return OPERATION_PERMISSIONS.get(operation)
+
+
+def evaluate_operation(
+    status: dict[str, Any],
+    operation: str,
+    check_permissions: bool = True,
+) -> dict[str, Any]:
+    operation = normalize_operation(operation)
+    rule = OPERATION_RULES[operation]
+    blockers = missing_gates(status, operation_gate_names(status, operation))
+    policy_block = rule.get("policy_block")
+    phase_allowed = status["phase"] in rule.get("phases", ())
+    permission = operation_permission(status, operation)
+    permission_allowed = (
+        not check_permissions
+        or permission is None
+        or status.get("permissions", {}).get(permission) is True
+    )
+    return {
+        "allowed": not blockers and phase_allowed and permission_allowed and not policy_block,
+        "requested_operation": MACHINE_OPERATION_NAMES.get(operation, operation.replace("-", "_")),
+        "current_phase": status["phase"],
+        "blocking_gates": blockers,
+        "blocking_permissions": [] if permission_allowed or permission is None else [permission],
+        "phase_allowed": phase_allowed,
+        "policy_block": policy_block,
+        "next_required_action": recommend_next_action(status),
+    }
+
+
+class OperationBlockedError(RuntimeError):
+    def __init__(self, result: dict[str, Any]):
+        self.result = result
+        super().__init__(f"{result['requested_operation'].replace('_', ' ')} is blocked")
+
+
+def require_operation_allowed(operation_name: str, root: Path | None = None) -> None:
+    """Guard for commands that can translate, approve, or otherwise advance content."""
+    project_root = (root or Path.cwd()).resolve()
+    result = evaluate_operation(load_project_status(project_root), operation_name)
+    if not result["allowed"]:
+        raise OperationBlockedError(result)
+
+
+def permission_snapshot(status: dict[str, Any]) -> dict[str, bool]:
+    def allowed(operation: str) -> bool:
+        return bool(evaluate_operation(status, operation, check_permissions=False)["allowed"])
+
+    return {
+        "inspect_repository": allowed("inspect-repository"),
+        "audit_parser": allowed("audit-parser"),
+        "catalogue_sources": allowed("catalogue-sources"),
+        "audit_reference_corpus": allowed("audit-reference-corpus"),
+        "create_documentation": allowed("modify-specifications"),
+        "build_index": allowed("build-index"),
+        "translate_test_lines": allowed("translate-test-lines"),
+        "translate_pilot_scene": allowed("translate-pilot"),
+        "translate_production_scenes": allowed("translate-production"),
+        "mass_translate": False,
+        "mark_translation_approved": allowed("approve-translation"),
+    }
+
+
+def sync_permissions(root: Path, status: dict[str, Any], reason: str) -> None:
+    old_permissions = status.get("permissions", {})
+    new_permissions = permission_snapshot(status)
+    status["permissions"] = new_permissions
+    for name, value in new_permissions.items():
+        old_value = old_permissions.get(name)
+        if old_value != value:
+            append_project_history(root, {
+                "event": "permission_changed",
+                "permission": name,
+                "old_value": old_value,
+                "new_value": value,
+                "commit": None,
+                "actor": "agent",
+                "reason": reason,
+            })
+
+
+def refresh_project_summary(status: dict[str, Any]) -> None:
+    blockers = missing_gates(status, transition_gate_names(status))
+    status["overall_status"] = "blocked" if blockers else "ready"
+    action = recommend_next_action(status)
+    status["current_task"] = {
+        "id": f"{status['phase'].upper()}-NEXT",
+        "description": action["task"],
+        "assigned_skill": action["skill"],
+    }
+    status["last_updated"] = now_iso()
+
+
+def set_gate(root: Path, gate: str, new_status: str, evidence: str | None = None) -> int:
+    status = load_project_status(root)
+    gates = status["critical_gates"]
+    if gate not in gates:
+        raise ValueError(f"Unknown gate: {gate}")
+    if new_status not in GATE_STATUSES:
+        raise ValueError(f"Unknown gate status: {new_status}")
+    stored_evidence: str | None = evidence
+    if new_status == "passed":
+        path = evidence_file(root, evidence)
+        if path is None or not path.is_file():
+            raise ValueError("Status 'passed' requires --evidence pointing to an existing file")
+        try:
+            stored_evidence = path.resolve().relative_to(root.resolve()).as_posix()
+        except ValueError:
+            stored_evidence = str(path.resolve())
+    elif evidence is None:
+        stored_evidence = None
+
+    item = gates[gate]
+    old_status = item.get("status")
+    old_evidence = item.get("evidence")
+    if old_status == new_status and old_evidence == stored_evidence:
+        print(f"Gate {gate} unchanged: {new_status}")
+        return 0
+
+    item["status"] = new_status
+    item["evidence"] = stored_evidence
+    append_project_history(root, {
+        "event": "gate_status_changed",
+        "gate": gate,
+        "old_status": old_status,
+        "new_status": new_status,
+        "evidence": stored_evidence,
+        "commit": None,
+        "actor": "agent",
+        "reason": f"Gate updated through vnctl set-gate; previous evidence: {old_evidence!r}",
+    })
+    sync_permissions(root, status, f"Gate {gate} changed from {old_status} to {new_status}")
+    refresh_project_summary(status)
+    write_project_status(root, status)
+    print(f"Gate {gate}: {old_status} -> {new_status}")
+    return 0
+
+
+def print_gate_result(result: dict[str, Any], output_format: str = "human") -> int:
+    if output_format == "yaml":
+        if yaml is None:
+            raise RuntimeError("PyYAML is required. Run: python -m pip install -r requirements.txt")
+        print(yaml.safe_dump(result, allow_unicode=True, sort_keys=False).rstrip())
+        return 0 if result["allowed"] else 1
+
+    label = result["requested_operation"].replace("_", " ")
+    if result["allowed"]:
+        print(f"OK: {label} is allowed.")
+        return 0
+    eprint(f"ERROR: {label} is blocked.")
+    if result["blocking_gates"]:
+        eprint("\nMissing critical gates:")
+        for gate in result["blocking_gates"]:
+            eprint(f"- {gate}")
+    if not result["phase_allowed"]:
+        eprint(f"\nCurrent phase does not allow this operation: {result['current_phase']}")
+    if result["blocking_permissions"]:
+        eprint("\nDisabled permissions:")
+        for permission in result["blocking_permissions"]:
+            eprint(f"- {permission}")
+    if result["policy_block"]:
+        eprint(f"\nPolicy: {result['policy_block']}")
+    return 1
+
+
+def project_status_report(root: Path) -> int:
+    status = load_project_status(root)
+    blockers = missing_gates(status, transition_gate_names(status))
+    allowed_operations = [
+        name for name in OPERATION_RULES
+        if evaluate_operation(status, name)["allowed"]
+    ]
+    action = recommend_next_action(status)
+    print(f"Phase: {status['phase']}")
+    print(f"Overall status: {status.get('overall_status', 'unknown')}")
+    print("Allowed operations:")
+    for operation in allowed_operations:
+        print(f"- {operation}")
+    print("Blocking gates:")
+    if blockers:
+        for gate in blockers:
+            print(f"- {gate}")
+    else:
+        print("- none")
+    print("Next required action:")
+    print(f"- skill: {action['skill']}")
+    print(f"- task: {action['task']}")
+    print(f"- expected evidence: {action['expected_evidence']}")
+    return 0
+
+
+def advance_project(root: Path) -> int:
+    status = load_project_status(root)
+    phase = status["phase"]
+    blockers = missing_gates(status, transition_gate_names(status))
+    if blockers:
+        action = action_for_gate(blockers[0])
+        print(f"Current phase: {phase}")
+        print(f"Recommended skill: {action['skill']}")
+        print(f"Task: {action['task']}")
+        print(f"Expected evidence: {action['expected_evidence']}")
+        return 0
+
+    following = next_phase(phase)
+    if following is None:
+        action = recommend_next_action(status)
+        print(f"Current phase: {phase}")
+        print(f"Recommended skill: {action['skill']}")
+        print(f"Task: {action['task']}")
+        print(f"Expected evidence: {action['expected_evidence']}")
+        return 0
+
+    status["phase"] = following
+    append_project_history(root, {
+        "event": "phase_changed",
+        "old_phase": phase,
+        "new_phase": following,
+        "evidence": [status["critical_gates"][name]["evidence"] for name in transition_gate_names({**status, "phase": phase})],
+        "commit": None,
+        "actor": "agent",
+        "reason": "All critical gates for the phase transition passed",
+    })
+    sync_permissions(root, status, f"Project advanced from {phase} to {following}")
+    refresh_project_summary(status)
+    write_project_status(root, status)
+    action = recommend_next_action(status)
+    print(f"Phase advanced: {phase} -> {following}")
+    print(f"Recommended skill: {action['skill']}")
+    print(f"Task: {action['task']}")
+    print(f"Expected evidence: {action['expected_evidence']}")
+    return 0
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -582,6 +1139,15 @@ def main() -> int:
     sub.add_parser("index")
     sub.add_parser("stats")
     sub.add_parser("findings")
+    sub.add_parser("status")
+    p_gate = sub.add_parser("gate")
+    p_gate.add_argument("operation")
+    p_gate.add_argument("--format", choices=("human", "yaml"), default="human")
+    sub.add_parser("advance")
+    p_set_gate = sub.add_parser("set-gate")
+    p_set_gate.add_argument("gate")
+    p_set_gate.add_argument("status")
+    p_set_gate.add_argument("--evidence")
     p_context = sub.add_parser("context")
     p_context.add_argument("scene_id")
     p_context.add_argument("-o", "--output", type=Path)
@@ -589,6 +1155,16 @@ def main() -> int:
     args = parser.parse_args()
     root = args.root.resolve()
     try:
+        if args.command == "status":
+            return project_status_report(root)
+        if args.command == "gate":
+            result = evaluate_operation(load_project_status(root), args.operation)
+            return print_gate_result(result, args.format)
+        if args.command == "advance":
+            return advance_project(root)
+        if args.command == "set-gate":
+            return set_gate(root, args.gate, args.status, args.evidence)
+
         config = load_config(root)
         if args.command == "validate":
             return validate(root, config)
