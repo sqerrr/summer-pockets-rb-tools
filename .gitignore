@@ -1,12 +1,26 @@
 # Игровая установка: ~8 ГБ ассетов + исполняемые файлы, в репозиторий не идёт
 /Summer Pockets REFLECTION BLUE/
 
+# Производные данные агента перевода
+/database/*.db
+/build/
+/reports/tmp/
+
+# Локальные сторонние корпуса — не коммитить
+/references/local/**
+!/references/local/.gitkeep
+
+# Секреты и ключи
+.env
+.env.*
+
 # Python
 __pycache__/
 *.py[cod]
 *.egg-info/
 .venv/
 venv/
+.pytest_cache/
 
 # Дампы и промежуточные артефакты анализа
 *.bin
@@ -14,6 +28,26 @@ venv/
 *.dec
 out/
 tmp/
+*.log
+*.tmp
+
+# Delphi: сборка воспроизводится из исходников, .res генерится из .rc через brcc32
+*.dcu
+*.exe
+*.identcache
+*.dproj.local
+__history/
+__recovery/
+/SPTranslate/dcu/
+/SPTranslate/bin/
+/game-tools/dcu/
+
+# Скриншоты отладки: регенерируются game.ps1, в репозиторий не идут.
+# Доказательные кадры кладутся осознанно в docs/project/evidence/.
+/game-tools/shots/
+/_tools/shots/
+/_tools/dcu/
+/_tools/marker.txt
 
 # ОС / редакторы
 Thumbs.db
