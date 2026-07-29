@@ -101,6 +101,7 @@ permissions:
   create_documentation: true
   build_index: false
   translate_test_lines: true
+  verify_engine: true
   translate_pilot_scene: false
   translate_production_scenes: false
   mass_translate: false

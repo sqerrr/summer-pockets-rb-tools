@@ -54,6 +54,9 @@ OPERATION_ALIASES = {
     "review_pilot": "review-pilot",
     "review_production": "review-production",
     "build_game_text": "build-game-text",
+    "verify_engine": "verify-engine",
+    "build_test_pack": "verify-engine",
+    "verify_engine_build": "verify-engine",
     "modify_glossary": "modify-glossary",
     "modify_specifications": "modify-specifications",
     "curate_knowledge": "curate-knowledge",
@@ -111,6 +114,16 @@ OPERATION_RULES: dict[str, dict[str, Any]] = {
         "phases": ("production", "final_lqa"),
         "required_for": "production",
     },
+    "verify-engine": {
+        # Verification builds are how evidence for the roundtrip, Cyrillic,
+        # tag and layout gates is produced, so they must stay possible in every
+        # phase. Only extraction has to be proven first: you cannot sensibly
+        # write a format you cannot read. Requiring the roundtrip gate here
+        # would be circular, because the roundtrip is itself this operation.
+        "label": "engine verification build",
+        "phases": PROJECT_PHASES,
+        "gates": ("parser_extraction_verified",),
+    },
     "build-game-text": {
         "label": "game text build",
         "phases": ("pilot", "production", "final_lqa"),
@@ -153,6 +166,7 @@ OPERATION_PERMISSIONS = {
     "create-documentation": "create_documentation",
     "build-index": "build_index",
     "translate-test-lines": "translate_test_lines",
+    "verify-engine": "verify_engine",
     "build-pilot-context": "translate_pilot_scene",
     "translate-pilot": "translate_pilot_scene",
     "review-pilot": "translate_pilot_scene",

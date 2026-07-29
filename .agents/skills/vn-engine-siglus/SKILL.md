@@ -14,8 +14,19 @@ skills; this one only moves text in and out of the game safely.
 ## Lifecycle prerequisite
 
 Invoke this skill only through `vn-project-orchestrator`, after
-`vn-project-gatekeeper` has allowed the requested parser, builder, encoding, or
-game-build operation.
+`vn-project-gatekeeper` has allowed the operation.
+
+Two operations map here, and they are not interchangeable:
+
+- `verify-engine` — building a test pack, rebuilding fonts, changing the carrier
+  table, taking in-game evidence. Allowed in every phase once
+  `parser_extraction_verified` is passed, because the roundtrip, Cyrillic, tag
+  and layout gates are closed with exactly this work.
+- `build-game-text` — building the pack that carries the actual translation.
+  Restricted to pilot, production and final LQA.
+
+Test lines and a screenshot fall under the first. A pack meant to be played
+through falls under the second.
 
 ## Read first
 

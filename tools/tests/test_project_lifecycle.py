@@ -81,6 +81,36 @@ def test_production_translation_blocked_in_bootstrap():
     assert "pilot_completed" in result["blocking_gates"]
 
 
+def test_verify_engine_available_in_bootstrap_after_extraction():
+    """Roundtrip, Cyrillic, tag and layout evidence can only come from a build,
+    so the verification build must not be locked behind the gates it feeds."""
+    vnctl = load_vnctl()
+    status = make_status(vnctl)
+
+    blocked = vnctl.evaluate_operation(status, "verify-engine")
+    assert blocked["allowed"] is False
+    assert "parser_extraction_verified" in blocked["blocking_gates"]
+
+    status["critical_gates"]["parser_extraction_verified"]["status"] = "passed"
+    status["permissions"] = vnctl.permission_snapshot(status)
+    allowed = vnctl.evaluate_operation(status, "verify-engine", check_permissions=False)
+    assert allowed["allowed"] is True
+    assert allowed["phase_allowed"] is True
+
+
+def test_verify_engine_does_not_unlock_release_build():
+    """Relaxing the verification path must leave translated output gated."""
+    vnctl = load_vnctl()
+    status = make_status(vnctl)
+    for gate in status["critical_gates"].values():
+        gate["status"] = "passed"
+        gate["evidence"] = "evidence.txt"
+    status["permissions"] = vnctl.permission_snapshot(status)
+    result = vnctl.evaluate_operation(status, "build-game-text")
+    assert result["allowed"] is False
+    assert result["phase_allowed"] is False
+
+
 def test_pilot_blocked_before_catalogue_and_index():
     vnctl = load_vnctl()
     status = make_status(vnctl, phase="pilot")

@@ -32,7 +32,8 @@ python tools/vnctl.py gate <operation> --format yaml
 | Work | Gate operation | Delegated skill |
 |---|---|---|
 | Repository/parser audit and cataloguing | `audit-parser`, `catalogue-sources` | `vn-bootstrap` |
-| Scene pack, fonts, encoding, game build | `build-game-text` | `vn-engine-siglus` |
+| Verification build: test pack, fonts, encoding, in-game evidence | `verify-engine` | `vn-engine-siglus` |
+| Release build of translated text | `build-game-text` | `vn-engine-siglus` |
 | Reference corpus audit | `audit-reference-corpus` | `vn-bootstrap` |
 | Index and knowledge preparation | `build-index`, `curate-knowledge` | `vn-bootstrap`, then `vn-knowledge-curator` |
 | Pilot context and translation | `build-pilot-context`, `translate-pilot` | `vn-context-builder`, then `vn-scene-translator` |
@@ -43,6 +44,13 @@ python tools/vnctl.py gate <operation> --format yaml
 
 `mass-translate` and premature `approve-translation` remain blocked even when
 requested directly.
+
+`verify-engine` covers builds made to produce evidence: a handful of test lines,
+a rebuilt font, a screenshot from the running game. It is available in every
+phase because the roundtrip, Cyrillic, tag and layout gates cannot be closed
+without it. It does not authorise shipping translated content; that stays behind
+`build-game-text` and the translation permissions. The CLI cannot tell the two
+apart by itself, so the distinction is a rule the orchestrator must hold.
 
 ## Evidence and completion
 
