@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Technical Finding",
+  "type": "object",
+  "required": [
+    "id",
+    "date",
+    "area",
+    "kind",
+    "title",
+    "statement",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^FND-[0-9]{4}$"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "area": {
+      "enum": [
+        "scene-pack",
+        "engine",
+        "font",
+        "encoding",
+        "tooling",
+        "content"
+      ]
+    },
+    "kind": {
+      "enum": [
+        "fact",
+        "decision",
+        "limitation"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "statement": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "string"
+    },
+    "method": {
+      "type": "string"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "enum": [
+        "verified",
+        "assumed",
+        "refuted"
+      ]
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}
