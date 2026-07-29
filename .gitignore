@@ -1,0 +1,23 @@
+# Игровая установка: ~8 ГБ ассетов + исполняемые файлы, в репозиторий не идёт
+/Summer Pockets REFLECTION BLUE/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Дампы и промежуточные артефакты анализа
+*.bin
+*.dump
+*.dec
+out/
+tmp/
+
+# ОС / редакторы
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
