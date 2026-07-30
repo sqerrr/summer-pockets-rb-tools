@@ -1,12 +1,16 @@
 project:
   id: summer-pockets-rb-ru
   title: Summer Pockets REFLECTION BLUE RU
-  # Установленная сборка — английская локализация, японского оригинала нет.
-  # Замер: ~11 400 строк латиницей против ~2 300 японских, см. FND-0001.
-  source_language: en
-  original_language_available: false
+  active_build: steam_luca
+  source_language: ja
+  source_languages: [ja, en, zh-Hans]
+  source_priority: [ja, en, zh-Hans]
+  working_source_language: en
+  original_language_available: true
   target_language: ru
 
+# Совместимость старых Siglus-утилит с game-tools/paths.py. Это не активный
+# профиль проекта; новые инструменты выбирают project.active_build.
 game:
   engine: SiglusEngine
   install_dir: "Summer Pockets REFLECTION BLUE"
@@ -16,28 +20,81 @@ game:
   executable: "Summer Pockets REFLECTION BLUE/SiglusEngine.exe"
   executable_original: "Summer Pockets REFLECTION BLUE/SiglusEngine.exe.org"
 
+builds:
+  steam_luca:
+    id: steam-luca
+    engine: LucaSystem
+    install_dir: "Summer Pockets REFLECTION BLUE_Steam"
+    script_pack: "Summer Pockets REFLECTION BLUE_Steam/files/SCRIPT.PAK"
+    script_pack_original: "Summer Pockets REFLECTION BLUE_Steam/files/SCRIPT.PAK.orig"
+    executable: "Summer Pockets REFLECTION BLUE_Steam/SummerPocketsRB.exe"
+    format_spec: docs/project/luca-format.md
+    game_control: game-tools/game_steam.ps1
+    text_encoding: direct-unicode
+    delivery:
+      preserve_existing_languages: true
+      russian_user_language: required
+      implementation_status: undecided
+      native_fourth_slot: requires_executable_patch
+      presentation_shim: proposed_not_verified
+  legacy_siglus:
+    id: legacy-siglus
+    engine: SiglusEngine
+    install_dir: "Summer Pockets REFLECTION BLUE"
+    scene_pack: "Summer Pockets REFLECTION BLUE/Scene.pck"
+    scene_pack_original: "Summer Pockets REFLECTION BLUE/Scene.pck.orig"
+    executable: "Summer Pockets REFLECTION BLUE/SiglusEngine.exe"
+    executable_original: "Summer Pockets REFLECTION BLUE/SiglusEngine.exe.org"
+    format_spec: .agents/skills/vn-engine-siglus/references/siglus-format.md
+    text_encoding: latin-extended-a-carriers
+
+source_sets:
+  steam_luca:
+    id: SPRB_STEAM_LUCA
+    build_id: steam-luca
+    format: luca-script-pak
+    archive: "Summer Pockets REFLECTION BLUE_Steam/files/SCRIPT.PAK.orig"
+    archive_sha256: "sha256:a3878b0bb7777b3abc7ded44a80614986385e5418eea24d024ac06f41074e99b"
+    catalog: source/parsed/steam-luca/source-records.jsonl
+    source_priority: [ja, en, zh-Hans]
+    working_source_language: en
+    build_slot: 1
+    slots:
+      - index: 0
+        language: ja
+        role: original
+      - index: 1
+        language: en
+        role: official_translation
+      - index: 2
+        language: zh-Hans
+        role: official_translation
+
 paths:
+  source_manifest: source/manifest.jsonl
   segments: translation/segments
   scenes: translation/scenes.jsonl
   glossary: docs/glossary.yaml
   decisions: docs/decisions.jsonl
   findings: docs/project/findings.jsonl
+  questions: translation/open-questions.jsonl
   summaries: docs/scene-summaries.jsonl
   characters: docs/characters
   private_constraints: private/constraints.jsonl
+  reference_corpora: references/local
   database: database/knowledge.db
 
 integration:
-  # Существующий инструментарий (GUI, CLI пока нет).
+  active_engine_skill: vn-engine-luca
+  parse_command: "python game-tools/export_luca_sources.py"
+  build_command: ""
+  smoke_test_command: "powershell -File game-tools/game_steam.ps1 -Action resume -Out build/steam/smoke.png"
+  # Legacy Siglus tooling remains available through builds.legacy_siglus.
   translator_gui: SPTranslate/SPTranslate.exe
   siglus_lib: game-tools/siglus.py
   siglus_unit: SPTranslate/uSiglus.pas
   font_builder: game-tools/build_font.py
   game_control: game-tools/game.ps1
-  # Заполнить после создания CLI-обёрток (см. game-tools/ADAPTER_CONTRACT.md).
-  parse_command: ""
-  build_command: ""
-  smoke_test_command: ""
 
 engine:
   # Подробности — .agents/skills/vn-engine-siglus/references/siglus-format.md
@@ -56,6 +113,7 @@ engine:
 workflow:
   context_previous_segments: 20
   context_next_segments: 10
-  similar_examples_limit: 20
+  internal_examples_limit: 20
+  external_reference_limit: 3
   max_scene_segments: 500
   user_progress_scene: ""
