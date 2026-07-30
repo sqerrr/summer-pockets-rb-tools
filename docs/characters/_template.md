@@ -2,6 +2,10 @@
 id: CHARACTER_ID
 name_ru: Имя
 name_ja: ""
+source_names:
+  ja: ""
+  en: ""
+  zh-Hans: ""
 status: proposed
 revealed_through: ""
 ---
@@ -12,7 +16,7 @@ revealed_through: ""
 
 Только сведения, уже доступные игроку.
 
-## Базовый русский голос
+## Базовая письменная речевая манера
 
 - Средняя длина реплик:
 - Формальность:

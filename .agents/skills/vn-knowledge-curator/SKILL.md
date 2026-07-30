@@ -10,8 +10,8 @@ metadata:
 
 ## Lifecycle prerequisite
 
-Invoke this skill only through `vn-project-orchestrator`, after the gatekeeper
-has allowed knowledge or glossary updates in the current phase.
+Invoke this skill inside an allowed work block or as an independent knowledge
+block. Proposed and temporary updates are allowed in every phase.
 
 ## Principle
 
@@ -19,7 +19,7 @@ Store only knowledge that will materially improve future translation. Do not tur
 
 ## Inputs
 
-- reviewed/approved scene;
+- reviewed, playable, or approved scene;
 - existing glossary;
 - current character cards;
 - existing decisions;

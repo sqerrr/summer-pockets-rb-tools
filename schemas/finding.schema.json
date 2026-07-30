@@ -20,6 +20,12 @@
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
     },
+    "build_id": {
+      "type": "string"
+    },
+    "engine_family": {
+      "type": "string"
+    },
     "area": {
       "enum": [
         "scene-pack",
@@ -59,7 +65,8 @@
       "enum": [
         "verified",
         "assumed",
-        "refuted"
+        "refuted",
+        "deprecated"
       ]
     },
     "supersedes": {

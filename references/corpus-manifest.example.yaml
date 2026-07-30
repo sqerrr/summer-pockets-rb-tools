@@ -1,12 +1,16 @@
+id: clannad-ru
 game: CLANNAD
-language: ru
+languages:
+  source: []
+  translation:
+    - ru
 source_kind: locally-extracted-translation-patch
 ownership_note: "Use only with a legally obtained game and patch."
 path: references/local/clannad/extracted
+fragments: references/local/clannad/fragments.jsonl
 purpose:
   - style-statistics
-  - punctuation-reference
-  - dialogue-register-reference
+  - russian-localisation-techniques
 prohibited:
   - commit-full-corpus
   - copy-long-passages

@@ -11,8 +11,14 @@ Required sections:
 7. Approved linked decisions
 8. Safe hidden constraints
 9. Previous-scene safe summary
-10. Immediate previous/next segments
-11. Full current scene
+10. Immediate previous/next segments with labeled aligned sources
+11. Full current scene with Japanese, English and Chinese where available
+
+Optional section, included only when retrieval was justified:
+
+12. External reference techniques — 1–3 fragment IDs, selection reason,
+    transferable principle and limitation. Do not add external references merely
+    because words overlap.
 
 The package must not contain keys or text labelled `private_reason`.
 

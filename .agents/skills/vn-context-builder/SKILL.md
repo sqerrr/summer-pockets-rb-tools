@@ -10,13 +10,15 @@ metadata:
 
 ## Lifecycle prerequisite
 
-Invoke this skill only through `vn-project-orchestrator`, after
-`vn-project-gatekeeper` has allowed context preparation for the selected pilot
-or production scene.
+Invoke this skill inside a logical block already allowed by
+`vn-project-orchestrator`. A scene queue does not need a new gate decision for
+each context package while project status and operation type remain unchanged.
 
 ## Goal
 
-Provide the translator with the smallest context that preserves meaning, voice, terminology, continuity, jokes, and deliberate ambiguity.
+Provide the translator with the smallest context that preserves meaning,
+written character manner, terminology, continuity, jokes, and deliberate
+ambiguity. Audio and actor delivery are outside project scope.
 
 ## Never expose
 
@@ -35,10 +37,17 @@ python tools/vnctl.py context <SCENE_ID> -o build/context-<SCENE_ID>.md
 ```
 
 3. Inspect the package against [the context contract](references/context-contract.md).
-4. Add only genuinely relevant local data that automated retrieval missed.
-5. Keep the scene text and immediate neighbors intact.
-6. Prefer approved examples over a large pile of weakly related excerpts.
+4. Add only genuinely relevant local project data that automated retrieval
+   missed.
+5. Keep the scene text and immediate neighbors intact, including every aligned
+   current-VN source language supplied by the catalogue.
+6. Prefer approved internal examples over a large pile of weakly related
+   excerpts.
 7. If the context is contradictory, record the conflict instead of silently choosing one rule.
+8. Do not attach external references automatically. After the core package is
+   built, analyse the scene's situation and difficult functions. Invoke
+   `vn-reference-retriever` only when internal context is insufficient; append
+   at most 1–3 selected fragments in a separate optional section.
 
 ## Context priority
 
@@ -49,7 +58,8 @@ python tools/vnctl.py context <SCENE_ID> -o build/context-<SCENE_ID>.md
 5. Current relationship state.
 6. Approved decisions linked to relevant segments.
 7. Safe rules from hidden constraints.
-8. A small number of approved similar examples.
+8. A small number of approved internal examples.
+9. Optional external reference techniques selected for this scene.
 
 ## Output
 

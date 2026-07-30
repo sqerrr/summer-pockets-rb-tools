@@ -8,6 +8,8 @@
 - [ ] Dependencies documented
 - [ ] Encoding identified
 - [ ] Text/command distinction identified
+- [ ] All internal language slots identified and aligned
+- [ ] Canonical data separated from engine-specific encoding
 
 ## Round-trip
 
@@ -17,6 +19,7 @@
 - [ ] Segment counts compared
 - [ ] Tags compared
 - [ ] Choices/jumps checked
+- [ ] Length-changing relocation and reference validation checked where needed
 - [ ] Game starts
 - [ ] Cyrillic smoke test completed
 
@@ -29,3 +32,4 @@
 - [ ] Narrative segments represented
 - [ ] Service strings separated
 - [ ] Source hashes recorded where practical
+- [ ] Source IDs do not depend on byte offsets or source text
