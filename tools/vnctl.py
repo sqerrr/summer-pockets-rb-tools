@@ -1393,11 +1393,13 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str) -> str:
     )
     con.close()
 
-    source_text = "\n".join(
-        "\n".join(json.loads(r["sources_json"]).values()) or str(r["source"])
-        for r in rows
-    )
     speakers = sorted({str(r["speaker"]) for r in rows if r["speaker"]})
+    # Имя говорящего лежит отдельным полем, но выводится на экран и переводится.
+    # Без него отбор глоссария пропускал ярлыки говорящих целиком (FND-0042).
+    source_text = "\n".join(
+        ["\n".join(json.loads(r["sources_json"]).values()) or str(r["source"])
+         for r in rows] + speakers
+    )
     seg_ids = {str(r["id"]) for r in rows}
     glossary = glossary_for_scene(root, config, source_text)
     constraints = safe_constraints(root, config, seg_ids)

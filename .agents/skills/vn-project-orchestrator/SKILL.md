@@ -123,6 +123,27 @@ New agent definitions are files and are picked up only when opencode restarts.
 An agent cannot create another agent mid-session; it can only invoke the ones
 already defined.
 
+## Verify by files, never by the agent's report
+
+A subagent can finish and return nothing at all: no result, no error, no partial
+work. This happened twice on the first pilot, and the empty answer looked exactly
+like a successful silent run. Had the orchestrator trusted it, the queue would
+have reported progress while nothing was written.
+
+So after every dispatch, read the artefacts before believing anything:
+
+```bash
+python tools/vnctl.py validate
+python tools/vnctl.py questions
+```
+
+plus the file the agent was supposed to change. A report is a claim; the file is
+the fact. This holds even when the report is detailed and convincing.
+
+Keep each dispatch small enough to finish. The pilot completed five segments and
+silently died on sixty, so the working batch is tens of segments, not hundreds.
+Split a large scene across several calls rather than hoping one call survives.
+
 ## How to run a scene queue
 
 1. Build the context package once and pass its path to both the translator and
