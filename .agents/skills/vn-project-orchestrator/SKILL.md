@@ -94,6 +94,49 @@ python tools/vnctl.py set-gate <gate> <status> --evidence <path>
 7. Confirm that `translation/project-history.jsonl` received an append-only
    entry. Never edit or delete old history records.
 
+## Subagents versus skills
+
+A skill is instructions loaded into the current context. It runs here, in
+sequence, and its reading stays in this context afterwards. A subagent is a
+separate process with a fresh context, invoked through `Task`, and several can
+run at once.
+
+That difference is not cosmetic. While translation and review were both skills,
+the reviewer read the translator's reasoning because they shared one context, so
+its independence was a claim rather than a fact. And a single context cannot
+carry hundreds of scenes.
+
+Defined subagents, in `.opencode/agent/`:
+
+| Agent | Why it must be isolated |
+|---|---|
+| `vn-translator` | fresh context per scene; several scenes in parallel |
+| `vn-reviewer` | must not receive the translator's reasoning |
+| `vn-knowledge` | reads far more source than it reports; spoiler risk concentrated |
+| `vn-auditor` | reads across scenes, which per-scene review cannot do |
+| `second-opinion` | different model; independent judgement on process |
+
+Skills stay: they hold the instructions an agent follows. This is not agents
+instead of skills.
+
+New agent definitions are files and are picked up only when opencode restarts.
+An agent cannot create another agent mid-session; it can only invoke the ones
+already defined.
+
+## How to run a scene queue
+
+1. Build the context package once and pass its path to both the translator and
+   the reviewer, so they judge the same material:
+   `python tools/vnctl.py context <SCENE_ID> -o build/context-<SCENE_ID>.md`
+2. Dispatch translators, one scene per call, several calls in one message.
+3. Dispatch reviewers on the finished scenes. Give them source, translation and
+   the package. Never forward the translator's notes.
+4. Apply confirmed `critical`, `major` and supported `minor` findings; arbitrate
+   disagreements yourself.
+5. Validate, set `reviewed`, checkpoint, and only then take the next batch.
+6. Run `vn-auditor` after a block, not after every scene: it needs accumulated
+   volume to find anything.
+
 ## Delegation rules
 
 - `vn-bootstrap` owns repository audit, parser verification, catalogue, stable
