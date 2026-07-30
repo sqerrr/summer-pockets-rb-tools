@@ -4,7 +4,7 @@ Tries the encodings a Siglus build can realistically use (UTF-16LE, Shift-JIS,
 GBK, Big5) and reports which writing systems each file actually contains.
 
 Usage:
-    python game-tools/probes/scan_binary_scripts.py [file ...]
+    python legacy-siglus/probes/scan_binary_scripts.py [file ...]
 """
 import re
 import sys

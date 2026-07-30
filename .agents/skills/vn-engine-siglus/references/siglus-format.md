@@ -1,8 +1,8 @@
 # SiglusEngine format reference
 
 Verified against Summer Pockets REFLECTION BLUE, SiglusEngine 1.1.134.
-All offsets are little-endian. Reference implementations: `game-tools/siglus.py`
-(Python) and `SPTranslate/uSiglus.pas` (Delphi, production).
+All offsets are little-endian. Reference implementations: `legacy-siglus/siglus.py`
+(Python) and `legacy-siglus/SPTranslate/uSiglus.pas` (Delphi, production).
 
 ## Scene.pck header
 
@@ -103,7 +103,7 @@ U+0141          ->  ё
 ```
 
 Implemented by `EncodeRussian` and `DecodeRussian` in `uSiglus.pas`, mirrored by
-`game-tools/encode_ru.py`. Any change to the table must be applied to the font
+`legacy-siglus/encode_ru.py`. Any change to the table must be applied to the font
 builder, both codecs and any already built `Scene.pck` at the same time.
 
 Punctuation notes:
@@ -123,7 +123,7 @@ half-width cell. Cap height already matches Latin (782 against 781), so only
 horizontal scaling is needed. No Cyrillic glyph is composite, so the transform
 is safe.
 
-Built by `game-tools/build_font.py`, always from `font01.ttf.orig` and
+Built by `legacy-siglus/build_font.py`, always from `font01.ttf.orig` and
 `font02.ttf.orig`, so the operation is idempotent.
 
 ## Not yet analysed

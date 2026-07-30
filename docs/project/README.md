@@ -31,7 +31,7 @@
   "statement": "Что именно установлено.",
   "evidence": "На чём основан вывод, с числами.",
   "method": "Как проверено, чтобы можно было воспроизвести.",
-  "artifacts": ["game-tools/siglus.py"],
+  "artifacts": ["legacy-siglus/siglus.py"],
   "status": "verified",
   "supersedes": null
 }

@@ -60,22 +60,22 @@ Breaking any of these produces a broken build, usually without an error:
 2. Build the fonts:
 
 ```bash
-python game-tools/build_font.py
+python legacy-siglus/build_font.py
 ```
 
 3. Build the pack from the pristine original, applying translations through the
    codec. Report the resulting size; growth to about 76 MB is expected until
    the compressor exists.
 4. Verify independently of the tool that produced the file, for example by
-   reading the strings back with `game-tools/siglus.py` and decoding them.
+   reading the strings back with `legacy-siglus/siglus.py` and decoding them.
 
 ### Verifying on the game
 
 ```bash
-powershell -File game-tools/game.ps1 -Action resume -Out shots/check.png
-powershell -File game-tools/game.ps1 -Action click -X 960 -Y 700
-powershell -File game-tools/game.ps1 -Action shot -Out shots/next.png
-powershell -File game-tools/game.ps1 -Action close
+powershell -File legacy-siglus/game.ps1 -Action resume -Out shots/check.png
+powershell -File legacy-siglus/game.ps1 -Action click -X 960 -Y 700
+powershell -File legacy-siglus/game.ps1 -Action shot -Out shots/next.png
+powershell -File legacy-siglus/game.ps1 -Action close
 ```
 
 `resume` starts the game, clicks through the attract screen, opens LOAD, takes
@@ -88,7 +88,7 @@ gaps this project is fighting.
 ### Checking a font without the game
 
 ```bash
-python game-tools/encode_ru.py
+python legacy-siglus/encode_ru.py
 ```
 
 Renders a sample line through Pillow with the built font. Use it for every font

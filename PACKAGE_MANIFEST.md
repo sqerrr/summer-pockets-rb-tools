@@ -40,7 +40,7 @@
 - `tools/validate_skills.py` — проверка структуры skills.
 - `game-tools/ADAPTER_CONTRACT.md` — требования к подключению существующего парсера и сборщика.
 - `game-tools/luca.py`, `export_luca_sources.py` — активный Steam/LUCA-адаптер и каталог источников.
-- `game-tools/siglus.py`, `SPTranslate/` — legacy Siglus-адаптер.
+- `legacy-siglus/siglus.py`, `legacy-siglus/SPTranslate/` — legacy Siglus-адаптер.
 - `schemas/` — JSON Schema для сегментов и сцен.
 - `tools/tests/` — smoke-тесты, включая защиту от утечки `private_reason`.
 

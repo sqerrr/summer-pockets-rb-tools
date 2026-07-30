@@ -1,11 +1,11 @@
-program TestSiglus;
+﻿program TestSiglus;
 
 {$APPTYPE CONSOLE}
 
 uses
   System.SysUtils,
   System.IOUtils,
-  uSiglus in '..\..\SPTranslate\uSiglus.pas',
+  uSiglus in '..\SPTranslate\uSiglus.pas',
   uPaths in 'uPaths.pas';
 
 var

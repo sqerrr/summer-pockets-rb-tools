@@ -4,7 +4,7 @@
 
 uses
   System.SysUtils,
-  uSiglus in '..\..\SPTranslate\uSiglus.pas',
+  uSiglus in '..\SPTranslate\uSiglus.pas',
   uPaths in 'uPaths.pas';
 
 type

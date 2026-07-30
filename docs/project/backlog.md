@@ -28,14 +28,14 @@
 
 Под удаление подпадает только legacy:
 
-- `game-tools/siglus.py`, `game-tools/verify_all.py`;
-- `game-tools/build_font.py`, `game-tools/encode_ru.py` — несущая кодировка и
+- `legacy-siglus/siglus.py`, `legacy-siglus/verify_all.py`;
+- `legacy-siglus/build_font.py`, `legacy-siglus/encode_ru.py` — несущая кодировка и
   сжатие кириллицы; в LucaSystem не нужны, там UTF-16 и штатный шрифт;
 - из `game-tools/probes/` — только зонды по Scene.pck, шрифтам и диапазонам
   Shift-JIS: `find_decomp.py`, `dump_decomp.py`, `check_layout.py`,
   `check_sjis.py`, `probe_ranges.py`, `control_font.py`, `fix_font.py`;
-- `game-tools/delphi/` и `SPTranslate/` — GUI и харнессы под Scene.pck;
-- `game-tools/game.ps1` — при наличии `game_steam.ps1`.
+- `legacy-siglus/delphi/` и `legacy-siglus/SPTranslate/` — GUI и харнессы под Scene.pck;
+- `legacy-siglus/game.ps1` — при наличии `game_steam.ps1`.
 
 **Остаются на месте** активные LUCA-зонды в том же каталоге:
 `scan_luca_scripts.py`, `scan_luca_fonts.py`, `validate_luca_relocation.py`,

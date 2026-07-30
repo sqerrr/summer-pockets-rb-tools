@@ -79,7 +79,7 @@ python tools/vnctl.py context <SCENE_ID> -o build/context.md
 
 Steam/LUCA-инструменты находятся в `game-tools/luca.py`,
 `game-tools/export_luca_sources.py` и skill `vn-engine-luca`. Legacy Siglus
-остаётся в `game-tools/siglus.py`, Delphi-утилитах и skill
+остаётся в `legacy-siglus/siglus.py`, Delphi-утилитах и skill
 `vn-engine-siglus`. Общий контракт описан в `game-tools/ADAPTER_CONTRACT.md`.
 
 ## Защита от спойлеров

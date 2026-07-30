@@ -5,8 +5,8 @@ pack, and where they live. Caches the decoded strings so the LZSS pass runs
 once.
 
 Usage:
-    python game-tools/probes/scan_scripts.py            # scan + report
-    python game-tools/probes/scan_scripts.py --samples  # add example lines
+    python legacy-siglus/probes/scan_scripts.py            # scan + report
+    python legacy-siglus/probes/scan_scripts.py --samples  # add example lines
 """
 import json
 import sys

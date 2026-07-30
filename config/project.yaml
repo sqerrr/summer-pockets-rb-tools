@@ -10,7 +10,7 @@ project:
   target_language: ru
 
 # ВНИМАНИЕ: это НЕ активный профиль. Секция описывает legacy-сборку Siglus и
-# существует только потому, что её читает game-tools/paths.py, обслуживающий
+# существует только потому, что её читает legacy-siglus/paths.py, обслуживающий
 # старый инструментарий. Активная сборка задаётся project.active_build и описана
 # в builds.steam_luca. Инструменты LUCA эту секцию использовать не должны: она
 # приведёт их к установке другой сборки игры.
@@ -94,11 +94,11 @@ integration:
   build_command: ""
   smoke_test_command: "powershell -File game-tools/game_steam.ps1 -Action resume -Out build/steam/smoke.png"
   # Legacy Siglus tooling remains available through builds.legacy_siglus.
-  translator_gui: SPTranslate/SPTranslate.exe
-  siglus_lib: game-tools/siglus.py
-  siglus_unit: SPTranslate/uSiglus.pas
-  font_builder: game-tools/build_font.py
-  game_control: game-tools/game.ps1
+  translator_gui: legacy-siglus/SPTranslate/SPTranslate.exe
+  siglus_lib: legacy-siglus/siglus.py
+  siglus_unit: legacy-siglus/SPTranslate/uSiglus.pas
+  font_builder: legacy-siglus/build_font.py
+  game_control: legacy-siglus/game.ps1
 
 engine:
   # Подробности — .agents/skills/vn-engine-siglus/references/siglus-format.md

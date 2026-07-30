@@ -64,12 +64,12 @@
 Не участвует в выпуске, `DEC-0015`. Сохранён как справочный образец полного
 цикла.
 
-- Путь: `game-tools/siglus.py` (Python, эталонная реализация), `SPTranslate/uSiglus.pas` (Delphi, рабочая).
-- Команда: CLI нет, используется GUI `SPTranslate/SPTranslate.exe`.
+- Путь: `legacy-siglus/siglus.py` (Python, эталонная реализация), `legacy-siglus/SPTranslate/uSiglus.pas` (Delphi, рабочая).
+- Команда: CLI нет, используется GUI `legacy-siglus/SPTranslate/SPTranslate.exe`.
 - Вход: `Summer Pockets REFLECTION BLUE/Scene.pck` (30 063 211 байт).
 - Выход: массив строк на сцену.
 - Кодировка: UTF-16LE.
-- Сборщик: `SPTranslate/uSiglus.pas`, метод `TScenePack.BuildToFile`;
+- Сборщик: `legacy-siglus/SPTranslate/uSiglus.pas`, метод `TScenePack.BuildToFile`;
   вход `Scene.pck.orig` плюс замены строк.
 
 ## Цепочка распаковки
@@ -83,7 +83,7 @@
 ## Round-trip
 
 - Дата: 2026-07-29.
-- Инструмент: `game-tools/delphi/TestSiglus.dpr` (консольный харнесс на рабочем коде `uSiglus.pas`).
+- Инструмент: `legacy-siglus/delphi/TestSiglus.dpr` (консольный харнесс на рабочем коде `uSiglus.pas`).
 - Количество файлов до/после: 1 / 1.
 - Количество сцен до/после: 517 / 517.
 - Количество текстовых записей до/после: 409 620 / 409 620.
@@ -125,7 +125,7 @@
 - `…` (U+2026) есть в Shift-JIS и остаётся полноширинным.
 - `Gameexe.dat` не расшифрован. Понадобится, если потребуется менять геометрию текстового окна.
 - Файлы `dat/*.dbs` зашифрованы или сжаты: заголовок `01 00 00 00`, дальше данные высокой энтропии. Открытого текста нет ни в UTF-16LE, ни в Shift-JIS, ни в GBK, ни в Big5; ключ `Scene.pck` не подходит. Прежняя оценка «около 15 000 японских символов» получена наивным чтением зашифрованных байт и опровергнута, см. `FND-0032`.
-- Скрипт `game-tools/game.ps1`, действие `close`, иногда рапортует об успешном выходе, хотя процесс жив.
+- Скрипт `legacy-siglus/game.ps1`, действие `close`, иногда рапортует об успешном выходе, хотя процесс жив.
 
 ## Вторая установка: Steam/LUCA
 

@@ -41,9 +41,9 @@ tmp/
 *.dproj.local
 __history/
 __recovery/
-/SPTranslate/dcu/
-/SPTranslate/bin/
-/game-tools/delphi/dcu/
+/legacy-siglus/SPTranslate/dcu/
+/legacy-siglus/SPTranslate/bin/
+/legacy-siglus/delphi/dcu/
 
 # Скриншоты отладки: регенерируются game.ps1, в репозиторий не идут.
 # Доказательные кадры кладутся осознанно в docs/project/evidence/.
