@@ -19,19 +19,19 @@ def load_vnctl():
 
 def make_status(vnctl, phase="bootstrap"):
     required_for = {
-        "repository_audited": ["cataloguing", "reference_preparation", "pilot", "production"],
-        "parser_extraction_verified": ["cataloguing", "pilot", "production"],
-        "parser_roundtrip_verified": ["pilot", "production"],
-        "cyrillic_verified": ["pilot", "production"],
-        "technical_tags_verified": ["pilot", "production"],
-        "choices_and_jumps_verified": ["pilot", "production"],
-        "layout_limits_measured": ["production"],
-        "scenario_catalogued": ["pilot", "production"],
-        "stable_ids_created": ["pilot", "production"],
-        "scenes_segmented": ["pilot", "production"],
-        "reference_corpus_audited": ["production"],
-        "knowledge_index_built": ["pilot", "production"],
-        "spoiler_protection_verified": ["pilot", "production"],
+        "repository_audited": ["cataloguing"],
+        "parser_extraction_verified": ["cataloguing"],
+        "parser_roundtrip_verified": ["cataloguing"],
+        "cyrillic_verified": ["cataloguing"],
+        "technical_tags_verified": ["final_lqa"],
+        "choices_and_jumps_verified": ["final_lqa"],
+        "layout_limits_measured": ["final_lqa"],
+        "scenario_catalogued": ["reference_preparation"],
+        "stable_ids_created": ["reference_preparation"],
+        "scenes_segmented": ["reference_preparation"],
+        "reference_corpus_audited": [],
+        "knowledge_index_built": ["reference_preparation"],
+        "spoiler_protection_verified": ["reference_preparation"],
         "pilot_completed": ["production"],
         "production_completed": ["final_lqa"],
     }
@@ -39,13 +39,10 @@ def make_status(vnctl, phase="bootstrap"):
         "schema_version": 1,
         "phase": phase,
         "overall_status": "blocked",
-        "criticality": "critical",
-        "bypass_allowed": False,
         "critical_gates": {
             name: {"status": "pending", "evidence": None, "required_for": targets}
             for name, targets in required_for.items()
         },
-        "permissions": {},
         "current_task": {
             "id": "TEST-001",
             "description": "test",
@@ -53,7 +50,6 @@ def make_status(vnctl, phase="bootstrap"):
         },
         "last_updated": None,
     }
-    status["permissions"] = vnctl.permission_snapshot(status)
     return status
 
 
@@ -72,12 +68,12 @@ def pass_gates(tmp_path, status, names):
         status["critical_gates"][name]["evidence"] = "evidence.txt"
 
 
-def test_production_translation_blocked_in_bootstrap():
+def test_production_translation_blocked_until_pilot():
     vnctl = load_vnctl()
     status = make_status(vnctl)
     result = vnctl.evaluate_operation(status, "translate-production")
     assert result["allowed"] is False
-    assert result["phase_allowed"] is False
+    assert result["phase_allowed"] is True
     assert "pilot_completed" in result["blocking_gates"]
 
 
@@ -92,8 +88,7 @@ def test_verify_engine_available_in_bootstrap_after_extraction():
     assert "parser_extraction_verified" in blocked["blocking_gates"]
 
     status["critical_gates"]["parser_extraction_verified"]["status"] = "passed"
-    status["permissions"] = vnctl.permission_snapshot(status)
-    allowed = vnctl.evaluate_operation(status, "verify-engine", check_permissions=False)
+    allowed = vnctl.evaluate_operation(status, "verify-engine")
     assert allowed["allowed"] is True
     assert allowed["phase_allowed"] is True
 
@@ -102,23 +97,40 @@ def test_verify_engine_does_not_unlock_release_build():
     """Relaxing the verification path must leave translated output gated."""
     vnctl = load_vnctl()
     status = make_status(vnctl)
-    for gate in status["critical_gates"].values():
-        gate["status"] = "passed"
-        gate["evidence"] = "evidence.txt"
-    status["permissions"] = vnctl.permission_snapshot(status)
+    status["critical_gates"]["parser_extraction_verified"]["status"] = "passed"
     result = vnctl.evaluate_operation(status, "build-game-text")
     assert result["allowed"] is False
-    assert result["phase_allowed"] is False
+    assert "technical_tags_verified" in result["blocking_gates"]
+    assert "choices_and_jumps_verified" in result["blocking_gates"]
 
 
 def test_pilot_blocked_before_catalogue_and_index():
     vnctl = load_vnctl()
-    status = make_status(vnctl, phase="pilot")
+    status = make_status(vnctl)
     result = vnctl.evaluate_operation(status, "translate-pilot")
     assert result["allowed"] is False
     assert "scenario_catalogued" in result["blocking_gates"]
     assert "stable_ids_created" in result["blocking_gates"]
     assert "knowledge_index_built" in result["blocking_gates"]
+
+
+def test_pilot_does_not_require_external_reference_corpus():
+    vnctl = load_vnctl()
+    status = make_status(vnctl)
+    for name in (
+        "parser_extraction_verified",
+        "scenario_catalogued",
+        "stable_ids_created",
+        "scenes_segmented",
+        "knowledge_index_built",
+        "spoiler_protection_verified",
+    ):
+        status["critical_gates"][name]["status"] = "passed"
+        status["critical_gates"][name]["evidence"] = "evidence.txt"
+
+    assert status["critical_gates"]["reference_corpus_audited"]["status"] == "pending"
+    result = vnctl.evaluate_operation(status, "translate-pilot")
+    assert result["allowed"] is True
 
 
 def test_passed_requires_existing_evidence(tmp_path):
@@ -160,12 +172,11 @@ def test_gate_change_appends_history(tmp_path):
     assert gate_events[-1]["evidence"] == "evidence.txt"
 
 
-def test_operation_allowed_after_required_gates_pass(tmp_path):
+def test_operation_allowed_after_its_gates_pass(tmp_path):
     vnctl = load_vnctl()
-    status = make_status(vnctl, phase="pilot")
-    required = vnctl.gates_required_for(status, "pilot")
+    status = make_status(vnctl)
+    required = vnctl.operation_gate_names(status, "translate-pilot")
     pass_gates(tmp_path, status, required)
-    status["permissions"] = vnctl.permission_snapshot(status)
     write_status(tmp_path, status)
 
     loaded = vnctl.load_project_status(tmp_path)
@@ -174,18 +185,68 @@ def test_operation_allowed_after_required_gates_pass(tmp_path):
     vnctl.require_operation_allowed("translate-pilot", tmp_path)
 
 
-def test_explicit_permission_blocks_operation(tmp_path):
+def test_safe_preparation_is_not_phase_blocked():
     vnctl = load_vnctl()
-    status = make_status(vnctl, phase="pilot")
-    required = vnctl.gates_required_for(status, "pilot")
-    pass_gates(tmp_path, status, required)
-    status["permissions"] = vnctl.permission_snapshot(status)
-    status["permissions"]["translate_pilot_scene"] = False
+    status = make_status(vnctl, phase="final_lqa")
+    assert vnctl.evaluate_operation(status, "build-index")["allowed"] is True
+    assert vnctl.evaluate_operation(status, "audit-reference-corpus")["allowed"] is True
+    assert vnctl.evaluate_operation(status, "modify-glossary")["allowed"] is True
 
-    result = vnctl.evaluate_operation(status, "translate-pilot")
 
-    assert result["allowed"] is False
-    assert result["blocking_permissions"] == ["translate_pilot_scene"]
+def test_checkpointed_batch_replaces_one_shot_mass_translation(tmp_path):
+    vnctl = load_vnctl()
+    status = make_status(vnctl)
+    pass_gates(tmp_path, status, vnctl.operation_gate_names(status, "batch-translate"))
+    assert vnctl.evaluate_operation(status, "batch-translate")["allowed"] is True
+    mass = vnctl.evaluate_operation(status, "mass-translate")
+    assert mass["allowed"] is False
+    assert mass["policy_block"]
+
+
+def test_advance_records_milestone_transition(tmp_path):
+    vnctl = load_vnctl()
+    status = make_status(vnctl)
+    pass_gates(tmp_path, status, vnctl.transition_gate_names(status))
+    write_status(tmp_path, status)
+
+    assert vnctl.advance_project(tmp_path) == 0
+    loaded = vnctl.load_project_status(tmp_path)
+    assert loaded["phase"] == "cataloguing"
+    history = tmp_path / "translation/project-history.jsonl"
+    rows = [json.loads(line) for line in history.read_text(encoding="utf-8").splitlines()]
+    assert rows[-1]["event"] == "phase_changed"
+    assert rows[-1]["new_phase"] == "cataloguing"
+
+
+def test_resume_reports_actual_empty_progress(tmp_path, capsys):
+    vnctl = load_vnctl()
+    write_status(tmp_path, make_status(vnctl, phase="cataloguing"))
+    (tmp_path / "config").mkdir()
+    (tmp_path / "config/project.yaml").write_text(
+        "paths:\n"
+        "  segments: translation/segments\n"
+        "  scenes: translation/scenes.jsonl\n"
+        "  glossary: docs/glossary.yaml\n"
+        "  decisions: docs/decisions.jsonl\n"
+        "  summaries: docs/scene-summaries.jsonl\n"
+        "  characters: docs/characters\n"
+        "  database: database/knowledge.db\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "translation/segments").mkdir(parents=True)
+    (tmp_path / "translation/scenes.jsonl").write_text("", encoding="utf-8")
+    (tmp_path / "source").mkdir()
+    (tmp_path / "source/manifest.jsonl").write_text("", encoding="utf-8")
+    (tmp_path / "docs/characters").mkdir(parents=True)
+    (tmp_path / "docs/glossary.yaml").write_text("[]\n", encoding="utf-8")
+    (tmp_path / "docs/decisions.jsonl").write_text("", encoding="utf-8")
+
+    assert vnctl.project_resume_report(tmp_path) == 0
+    output = capsys.readouterr().out
+    assert "Фаза: cataloguing" in output
+    assert "сцен в каталоге: 0" in output
+    assert "сегментов: 0" in output
+    assert "индекс: missing" in output
 
 
 def test_existing_cli_commands_still_work(tmp_path):
@@ -203,6 +264,9 @@ def test_existing_cli_commands_still_work(tmp_path):
     (root / "translation/segments/test.jsonl").write_text(
         json.dumps({
             "id": "S1",
+            "source_set_id": "TEST_SOURCE",
+            "source_id": "SRC_TEST_1",
+            "source_hash": "sha256:" + "0" * 64,
             "file_id": "F1",
             "scene_id": "SC1",
             "order": 1,
