@@ -1,6 +1,6 @@
 schema_version: 1
 phase: cataloguing
-overall_status: in_progress
+overall_status: ready_to_advance
 critical_gates:
   repository_audited:
     status: passed
@@ -38,18 +38,18 @@ critical_gates:
     required_for:
     - final_lqa
   scenario_catalogued:
-    status: pending
-    evidence: null
+    status: passed
+    evidence: translation/scenes.jsonl
     required_for:
     - reference_preparation
   stable_ids_created:
-    status: pending
-    evidence: null
+    status: passed
+    evidence: translation/script-registry.jsonl
     required_for:
     - reference_preparation
   scenes_segmented:
-    status: pending
-    evidence: null
+    status: passed
+    evidence: translation/scenes.jsonl
     required_for:
     - reference_preparation
   reference_corpus_audited:
@@ -57,8 +57,8 @@ critical_gates:
     evidence: docs/reference-audit.md
     required_for: []
   knowledge_index_built:
-    status: pending
-    evidence: null
+    status: passed
+    evidence: database/knowledge.db
     required_for:
     - reference_preparation
   spoiler_protection_verified:
@@ -78,6 +78,6 @@ critical_gates:
     - final_lqa
 current_task:
   id: CATALOGUING-NEXT
-  description: catalogue_scenario
-  assigned_skill: vn-bootstrap
-last_updated: '2026-07-30T22:55:43+03:00'
+  description: advance_to_reference_preparation
+  assigned_skill: vn-project-orchestrator
+last_updated: '2026-07-31T00:50:19+03:00'
