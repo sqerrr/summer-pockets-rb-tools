@@ -49,8 +49,8 @@
         "draft",
         "reviewed",
         "playable",
-        "approved",
-        "lqa"
+        "lqa",
+        "approved"
       ]
     }
   },

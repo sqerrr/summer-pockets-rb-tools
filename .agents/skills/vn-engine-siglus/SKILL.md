@@ -1,7 +1,7 @@
 ---
 name: vn-engine-siglus
 description: Handles the legacy SiglusEngine profile - unpacking and rebuilding Scene.pck, the Russian carrier encoding, font preparation, and in-game verification. Use only for the legacy Siglus build, Scene.pck, its TTF fonts, or its encoding table.
-compatibility: Requires Python 3.12+ with fontTools and Pillow, Delphi 37.0 (dcc32) for the Delphi tools, Windows with the game installed.
+compatibility: Requires Python 3.11+ with fontTools and Pillow, Delphi 37.0 (dcc32) for the Delphi tools, Windows with the game installed.
 metadata:
   version: "1.0"
 ---
@@ -15,7 +15,7 @@ out of the old game build safely. Never apply its carrier rules to Steam/LUCA.
 ## Lifecycle prerequisite
 
 Invoke this skill only through `vn-project-orchestrator`, after
-`vn-project-gatekeeper` has allowed the operation.
+`vnctl gate` has allowed the operation.
 
 Two operations map here, and they are not interchangeable:
 

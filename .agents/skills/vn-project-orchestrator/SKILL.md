@@ -17,7 +17,9 @@ but never translates text and never performs literary review itself.
 2. Read `../../../translation/project-status.yaml`.
 3. Run `python tools/vnctl.py resume`.
 4. Classify the requested logical work block using the CLI names below.
-5. Invoke `vn-project-gatekeeper` and run:
+5. Ask the gate directly. There is no separate gatekeeper skill: the rules live
+   in `tools/vnctl.py`, and a wrapper that only forwards output adds ceremony
+   without adding a check.
 
 ```bash
 python tools/vnctl.py gate <operation> --format yaml
@@ -25,6 +27,19 @@ python tools/vnctl.py gate <operation> --format yaml
 
 6. Stop when `allowed: false`. A normal request such as "continue" or
    "translate the scene" cannot override the result.
+
+### Record the state you decided on
+
+Before the first write of the block, capture what the decision was based on:
+
+```bash
+git rev-parse --short HEAD
+python -c "import hashlib,pathlib;[print(p,hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()[:12]) for p in ['translation/project-status.yaml','config/project.yaml']]"
+```
+
+Compare again before writing. If any of the three changed, someone edited the
+project underneath you: re-read the files and re-check the gate. The rule to
+recheck on changed state is useless without a way to notice the change.
 7. When allowed, complete all substeps of that block without repeated gate
    checks. Recheck only if project status, policy, or operation type changes.
 8. Run `python tools/vnctl.py advance` only when a milestone is complete.

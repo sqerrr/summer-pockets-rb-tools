@@ -5,8 +5,7 @@
 Каждый новый логический рабочий блок проходит через управляющий слой один раз:
 
 1. `vn-project-orchestrator`
-2. `vn-project-gatekeeper`
-3. Один или несколько специализированных skills, нужных для завершения блока:
+2. Один или несколько специализированных skills, нужных для завершения блока:
    `vn-bootstrap`, `vn-context-builder`, `vn-scene-translator`,
    `vn-scene-reviewer`, `vn-knowledge-curator`, `vn-engine-luca`,
    `vn-engine-siglus`,

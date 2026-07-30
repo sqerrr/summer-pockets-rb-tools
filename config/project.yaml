@@ -5,12 +5,15 @@ project:
   source_language: ja
   source_languages: [ja, en, zh-Hans]
   source_priority: [ja, en, zh-Hans]
-  working_source_language: en
+  working_source_language: ja   # источник смысла, см. translation-spec раздел 2
   original_language_available: true
   target_language: ru
 
-# Совместимость старых Siglus-утилит с game-tools/paths.py. Это не активный
-# профиль проекта; новые инструменты выбирают project.active_build.
+# ВНИМАНИЕ: это НЕ активный профиль. Секция описывает legacy-сборку Siglus и
+# существует только потому, что её читает game-tools/paths.py, обслуживающий
+# старый инструментарий. Активная сборка задаётся project.active_build и описана
+# в builds.steam_luca. Инструменты LUCA эту секцию использовать не должны: она
+# приведёт их к установке другой сборки игры.
 game:
   engine: SiglusEngine
   install_dir: "Summer Pockets REFLECTION BLUE"
@@ -57,8 +60,9 @@ source_sets:
     archive_sha256: "sha256:a3878b0bb7777b3abc7ded44a80614986385e5418eea24d024ac06f41074e99b"
     catalog: source/parsed/steam-luca/source-records.jsonl
     source_priority: [ja, en, zh-Hans]
-    working_source_language: en
-    build_slot: 1
+    working_source_language: ja   # источник смысла, см. translation-spec раздел 2
+    # Слот выбирается на сборке, не на переводе (DEC-0017). null = не выбран.
+    build_slot: null
     slots:
       - index: 0
         language: ja
@@ -115,5 +119,6 @@ workflow:
   context_next_segments: 10
   internal_examples_limit: 20
   external_reference_limit: 3
-  max_scene_segments: 500
+  # Ориентир рабочей сцены по AGENTS.md - 100-400 реплик; 400 - верхняя граница.
+  max_scene_segments: 400
   user_progress_scene: ""

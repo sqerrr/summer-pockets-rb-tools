@@ -53,10 +53,16 @@ python game-tools/export_luca_sources.py
 python tools/validate_skills.py
 python tools/vnctl.py resume
 python tools/vnctl.py validate
+python tools/vnctl.py findings
+python tools/vnctl.py questions
 python tools/vnctl.py index
 python tools/vnctl.py stats
-python tools/vnctl.py context COMMON_001_SC01
 ```
+
+`resume` покажет фактический следующий шаг. Сборка контекста сцены
+(`python tools/vnctl.py context <SCENE_ID>`) станет доступна после того, как
+появятся каталог сцен и сегменты: пока `translation/scenes.jsonl` пуст, вызывать
+её не с чем.
 
 ## Главные команды
 

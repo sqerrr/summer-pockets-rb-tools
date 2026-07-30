@@ -3,8 +3,9 @@
 ## Управление агентом
 
 - `AGENTS.md` — постоянные правила репозитория.
-- `START_AGENT_TASK.md` — готовая первая задача для агента.
-- `.agents/skills/` — репозиторные Agent Skills, включая управляющий оркестратор и gatekeeper.
+- `START_AGENT_TASK.md` — исторический шаблон первой задачи; текущим заданием не
+  является, актуальный следующий шаг показывает `python tools/vnctl.py resume`.
+- `.agents/skills/` — репозиторные Agent Skills, включая управляющий оркестратор.
 
 ## Спецификации и документация
 
@@ -13,8 +14,11 @@
 - `docs/spoiler-policy.md` — разделение безопасных и закрытых знаний.
 - `docs/data-model.md` — JSONL-контракты.
 - `docs/example-policy.md` — работа с few-shot примерами.
-- `docs/reference-corpus-policy.md` — CLANNAD/Rewrite как локальный стилевой корпус.
-- `docs/style-profile.yaml` — будущая калибровка общего русского стиля.
+- `docs/reference-corpus-policy.md` — внешние русские локализации как
+  необязательный референс стиля; смысл они не определяют, потолок статуса
+  фрагмента без парного исходника — `usable`.
+- `docs/style-profile.yaml` — ориентир русского стиля: ручка, словесное описание
+  регистра и ссылка на локальные калибровочные отрывки. Статус `proposed`.
 - `docs/characters/_template.md` — карточка персонажа.
 
 ## Данные
@@ -30,7 +34,9 @@
 
 ## Инструменты
 
-- `tools/vnctl.py` — validate/index/stats/context.
+- `tools/vnctl.py` — единая точка управления. Данные и знания:
+  `validate`, `index`, `stats`, `context`, `findings`, `questions`.
+  Жизненный цикл проекта: `resume`, `status`, `gate`, `advance`, `set-gate`.
 - `tools/validate_skills.py` — проверка структуры skills.
 - `game-tools/ADAPTER_CONTRACT.md` — требования к подключению существующего парсера и сборщика.
 - `game-tools/luca.py`, `export_luca_sources.py` — активный Steam/LUCA-адаптер и каталог источников.

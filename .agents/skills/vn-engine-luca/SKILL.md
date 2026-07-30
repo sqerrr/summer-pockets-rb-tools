@@ -14,7 +14,7 @@ and out of the game without changing its meaning.
 
 ## Lifecycle prerequisite
 
-Invoke only through `vn-project-orchestrator` after the gatekeeper has allowed
+Invoke only through `vn-project-orchestrator` after `vnctl gate` has allowed
 the operation.
 
 - `catalogue-sources` may export and validate original multilingual records.

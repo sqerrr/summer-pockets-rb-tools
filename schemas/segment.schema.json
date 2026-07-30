@@ -63,8 +63,8 @@
         "draft",
         "reviewed",
         "playable",
-        "approved",
-        "lqa"
+        "lqa",
+        "approved"
       ]
     },
     "flags": {
@@ -75,6 +75,18 @@
     },
     "notes": {
       "type": "array"
+    },
+    "translator_note_safe": {
+      "description": "Короткое неспойлерное замечание переводчика. Требуется контрактом вывода vn-scene-translator.",
+      "type": "string"
+    },
+    "confidence": {
+      "description": "Уверенность переводчика. Значение low обязано сопровождаться флагом.",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
     },
     "decision_ids": {
       "type": "array",
