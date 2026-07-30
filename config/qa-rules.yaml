@@ -12,6 +12,9 @@ allowed_flags:
   # Флаги агента: ставятся при переводе и ревью.
   - needs_context
   - needs_source_check
+  # Термина ещё нет в глоссарии, перевод взят рабочей гипотезой. Не путать с
+  # needs_source_check: там источники расходятся, здесь решения просто нет.
+  - needs_term_decision
   - needs_humor_review
   # Voice = written character manner; audio is outside project scope.
   - needs_voice_review

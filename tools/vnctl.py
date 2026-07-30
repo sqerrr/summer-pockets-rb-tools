@@ -1534,6 +1534,94 @@ def questions(root: Path, config: dict[str, Any]) -> int:
     return 1 if errors else 0
 
 
+APPLY_ALLOWED_FIELDS = {"translation", "status", "flags", "translator_note_safe", "confidence"}
+APPLY_CONFIDENCE = {"high", "medium", "low"}
+
+
+def apply_translation(root: Path, config: dict[str, Any], scene_id: str, patch_path: Path) -> int:
+    """Apply a translation patch to one scene's segments.
+
+    Worker agents must not rewrite canonical segment files directly: the
+    invariant that the record count never changes has to be enforced by code,
+    not by asking an agent to be careful. The agent writes a small patch of
+    id plus changed fields; this command validates it and does the write.
+    """
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    seg_file = seg_dir / f"{scene_id}.jsonl"
+    if not seg_file.exists():
+        eprint(f"ERROR: unknown scene: {seg_file}")
+        return 1
+
+    patch_file = patch_path if patch_path.is_absolute() else root / patch_path
+    if not patch_file.exists():
+        eprint(f"ERROR: patch not found: {patch_file}")
+        return 1
+
+    segments = read_jsonl(seg_file)
+    patch = read_jsonl(patch_file)
+    by_id = {str(row["id"]): row for row in segments}
+
+    qa = read_yaml(root / "config/qa-rules.yaml", {}) or {}
+    allowed_statuses = set(qa.get("allowed_statuses", sorted(ALLOWED_STATUSES)))
+    allowed_flags = set(qa.get("allowed_flags", []))
+
+    errors: list[str] = []
+    touched = 0
+    for index, raw in enumerate(patch, start=1):
+        # read_jsonl добавляет служебные ключи для сообщений об ошибках.
+        entry = {k: v for k, v in raw.items() if not k.startswith("__")}
+        sid = str(entry.get("id", ""))
+        if sid not in by_id:
+            errors.append(f"patch line {index}: id {sid!r} is not in {scene_id}")
+            continue
+        unknown = set(entry) - APPLY_ALLOWED_FIELDS - {"id"}
+        if unknown:
+            errors.append(f"patch line {index}: fields not allowed here: {sorted(unknown)}")
+            continue
+        if "status" in entry and entry["status"] not in allowed_statuses:
+            errors.append(f"patch line {index}: invalid status {entry['status']!r}")
+            continue
+        if "confidence" in entry and entry["confidence"] not in APPLY_CONFIDENCE:
+            errors.append(f"patch line {index}: invalid confidence {entry['confidence']!r}")
+            continue
+        bad_flags = [f for f in entry.get("flags", []) if f not in allowed_flags]
+        if bad_flags:
+            errors.append(f"patch line {index}: unknown flags {bad_flags}")
+            continue
+        target = by_id[sid]
+        for field in APPLY_ALLOWED_FIELDS:
+            if field in entry:
+                target[field] = entry[field]
+        touched += 1
+
+    if errors:
+        for message in errors[:20]:
+            eprint(f"ERROR: {message}")
+        eprint(f"ERROR: patch rejected, {len(errors)} problems; file not written")
+        return 1
+
+    before = len(segments)
+    write_jsonl_atomic(seg_file, segments)
+    after = read_jsonl(seg_file)
+    if len(after) != before:
+        eprint(f"ERROR: record count changed {before} -> {len(after)}")
+        return 1
+
+    filled = sum(1 for row in after if str(row.get("translation", "")).strip())
+    print(f"Scene {scene_id}: {touched} segments updated, {before} records preserved")
+    print(f"Translated now: {filled}/{before}")
+    return 0
+
+
+def write_jsonl_atomic(path: Path, rows: list[dict[str, Any]]) -> None:
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    with tmp.open("w", encoding="utf-8", newline="\n") as fh:
+        for row in rows:
+            clean = {k: v for k, v in row.items() if not k.startswith("__")}
+            fh.write(json.dumps(clean, ensure_ascii=False) + "\n")
+    tmp.replace(path)
+
+
 FINDING_AREAS = {"scene-pack", "engine", "font", "encoding", "tooling", "content"}
 FINDING_KINDS = {"fact", "decision", "limitation"}
 FINDING_STATUSES = {"verified", "assumed", "refuted", "deprecated"}
@@ -1608,6 +1696,9 @@ def main() -> int:
     p_context = sub.add_parser("context")
     p_context.add_argument("scene_id")
     p_context.add_argument("-o", "--output", type=Path)
+    p_apply = sub.add_parser("apply-translation")
+    p_apply.add_argument("scene_id")
+    p_apply.add_argument("patch", type=Path)
 
     args = parser.parse_args()
     root = args.root.resolve()
@@ -1635,6 +1726,8 @@ def main() -> int:
             return findings(root, config)
         if args.command == "questions":
             return questions(root, config)
+        if args.command == "apply-translation":
+            return apply_translation(root, config, args.scene_id, args.patch)
         if args.command == "context":
             content = build_context(root, config, args.scene_id)
             if args.output:
