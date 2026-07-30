@@ -1,6 +1,6 @@
 ---
 name: vn-project-gatekeeper
-description: Checks translation project phases, critical gates, permissions, and evidence and returns a machine-readable allow or block decision. Use only when invoked by vn-project-orchestrator before project work.
+description: Checks critical gates for one logical project work block and returns a machine-readable allow or block decision.
 compatibility: Requires Python 3.11+, PyYAML, translation/project-status.yaml, and tools/vnctl.py.
 metadata:
   version: "1.0"
@@ -9,7 +9,7 @@ metadata:
 # VN Project Gatekeeper
 
 The gatekeeper is read-only. It checks facts and reports a decision; it never
-changes gate status, phase, permissions, evidence, or history.
+changes gate status, phase, evidence, or history.
 
 ## Procedure
 
@@ -29,27 +29,30 @@ python tools/vnctl.py gate <operation> --format yaml
 ```yaml
 allowed: false
 requested_operation: production_translation
-current_phase: bootstrap
+current_phase: cataloguing
 blocking_gates:
-  - parser_roundtrip_verified
   - stable_ids_created
   - scenes_segmented
+  - knowledge_index_built
   - pilot_completed
 blocking_permissions: []
-phase_allowed: false
+phase_allowed: true
 policy_block: null
 next_required_action:
-  skill: vn-engine-siglus
-  task: run_extended_roundtrip
-  expected_evidence: docs/project/parser-audit.md
+  skill: vn-bootstrap
+  task: create_stable_ids
+  expected_evidence: translation/segments/<scene>.jsonl
 ```
 
 `blocking_gates` contains every required gate whose status is not `passed`.
-`blocking_permissions` lists explicit permission switches that independently
-deny the operation.
-`phase_allowed: false` independently blocks an operation even if all listed
-gates have evidence. `policy_block` is used for operations such as mass
-translation that are forbidden by policy.
+`blocking_permissions` is retained as an empty compatibility field. There is no
+second permissions layer: gates and the small number of terminal phase limits
+are the source of truth. `policy_block` is used for an opaque whole-route
+translation; checkpointed `batch-translate` is a separate allowed operation.
+
+One gate decision covers the complete declared block. Do not require a fresh
+decision for indexing, searches, validation, context generation, review, or
+knowledge updates that are substeps of the same block.
 
 ## Evidence rules
 

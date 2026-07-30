@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VN Multilingual Source Record",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source_set_id",
+    "source_id",
+    "classification",
+    "script_entry",
+    "record",
+    "layout",
+    "slots"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_set_id": {"type": "string", "pattern": "^[A-Za-z0-9_-]+$"},
+    "source_id": {
+      "type": "string",
+      "pattern": "^SRC_LUCA_E[0-9]{6}_R[0-9]{6}_G[0-9]{2}$"
+    },
+    "classification": {"enum": ["translatable", "service_nontext"]},
+    "script_entry": {
+      "type": "object",
+      "required": ["index", "id", "name_sha256"],
+      "properties": {
+        "index": {"type": "integer", "minimum": 0},
+        "id": {"type": "integer", "minimum": 0},
+        "name_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "record": {
+      "type": "object",
+      "required": [
+        "ordinal",
+        "original_offset",
+        "opcode",
+        "flag",
+        "length",
+        "aligned_size",
+        "fixed_params_u16",
+        "params_sha256"
+      ],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0},
+        "original_offset": {"type": "integer", "minimum": 0},
+        "opcode": {"type": "integer", "minimum": 0, "maximum": 255},
+        "flag": {"type": "integer", "minimum": 0, "maximum": 255},
+        "length": {"type": "integer", "minimum": 4, "maximum": 65535},
+        "aligned_size": {"type": "integer", "minimum": 4, "maximum": 65536},
+        "fixed_params_u16": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 0, "maximum": 65535}
+        },
+        "params_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "layout": {"type": "object"},
+    "slots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "index",
+          "language",
+          "encoding",
+          "payload_size",
+          "payload_sha256",
+          "text_sha256",
+          "text",
+          "speaker",
+          "body_text_sha256",
+          "body_text"
+        ],
+        "properties": {
+          "index": {"type": "integer", "minimum": 0, "maximum": 2},
+          "language": {"enum": ["ja", "en", "zh-Hans"]},
+          "encoding": {"enum": ["utf-8", "utf-16le"]},
+          "payload_size": {"type": "integer", "minimum": 0},
+          "payload_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+          "text_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+          "text": {"type": "string", "minLength": 1},
+          "speaker": {"type": ["string", "null"]},
+          "body_text_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+          "body_text": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"classification": {"const": "translatable"}}},
+      "then": {"properties": {"slots": {"minItems": 3, "maxItems": 3}}}
+    },
+    {
+      "if": {"properties": {"classification": {"const": "service_nontext"}}},
+      "then": {"properties": {"slots": {"maxItems": 0}}}
+    }
+  ],
+  "additionalProperties": false
+}

@@ -1,6 +1,6 @@
 ---
 name: vn-engine-siglus
-description: Handles the SiglusEngine side of the project - unpacking and rebuilding Scene.pck, the Russian carrier encoding, font preparation, and in-game verification. Use when touching Scene.pck, the fonts, the encoding table, or when a build must be checked on the running game.
+description: Handles the legacy SiglusEngine profile - unpacking and rebuilding Scene.pck, the Russian carrier encoding, font preparation, and in-game verification. Use only for the legacy Siglus build, Scene.pck, its TTF fonts, or its encoding table.
 compatibility: Requires Python 3.12+ with fontTools and Pillow, Delphi 37.0 (dcc32) for the Delphi tools, Windows with the game installed.
 metadata:
   version: "1.0"
@@ -8,8 +8,9 @@ metadata:
 
 # VN Engine Siglus
 
-Engine-specific layer. Translation content decisions belong to the other
-skills; this one only moves text in and out of the game safely.
+Engine-specific layer for the inactive `legacy_siglus` profile. Translation
+content decisions belong to the other skills; this one only moves text in and
+out of the old game build safely. Never apply its carrier rules to Steam/LUCA.
 
 ## Lifecycle prerequisite
 

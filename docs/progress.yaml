@@ -2,3 +2,5 @@ current_scene: ""
 played_scenes: []
 approved_scenes: []
 last_build: ""
+last_build_profile: ""
+last_build_sha256: ""

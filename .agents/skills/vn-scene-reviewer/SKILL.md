@@ -1,6 +1,6 @@
 ---
 name: vn-scene-reviewer
-description: Independently reviews a drafted visual-novel scene against Japanese source, Russian quality, glossary, character voice, continuity, spoiler constraints, and technical integrity. Use after every AI draft and before a scene is marked playable.
+description: Independently reviews a drafted visual-novel scene against the aligned source texts of the active build, Russian quality, glossary, character voice, continuity, spoiler constraints, and technical integrity.
 compatibility: Requires original and translated segments plus the same safe context package used for translation.
 metadata:
   version: "1.0"
@@ -10,8 +10,9 @@ metadata:
 
 ## Lifecycle prerequisite
 
-Invoke this skill only through `vn-project-orchestrator`, after the gatekeeper
-has allowed review in the current pilot, production, or final-LQA phase.
+Invoke this skill inside an already allowed pilot, production, batch, or LQA
+block. Review does not require a separate gate check after translation of the
+same declared block.
 
 ## Role
 
@@ -29,6 +30,9 @@ Act as a critical reviewer, not a second free-form translator. Report concrete p
 
 ### 2. Accuracy
 
+Perform this pass from the current VN's source texts and scene context only.
+External Russian localisations are not evidence of meaning.
+
 - omissions;
 - additions;
 - wrong subject or object;
@@ -39,6 +43,9 @@ Act as a critical reviewer, not a second free-form translator. Report concrete p
 - mistranslated cultural or idiomatic expression.
 
 ### 3. Russian language
+
+Selected external references may inform naturalness or rhythm in this pass, but
+cannot justify a semantic change.
 
 - calques;
 - unnatural word order;
@@ -61,6 +68,9 @@ Act as a critical reviewer, not a second free-form translator. Report concrete p
 - explanation instead of punchline;
 - excessive drama;
 - flattened emotional transition.
+
+Judge the written sequence and visual context. Audio, actor intonation and voice
+files are outside project scope.
 
 ### 6. Spoiler safety
 

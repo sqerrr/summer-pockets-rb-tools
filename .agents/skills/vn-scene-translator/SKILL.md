@@ -10,9 +10,9 @@ metadata:
 
 ## Lifecycle prerequisite
 
-Invoke this skill only through `vn-project-orchestrator`. The gatekeeper must
-explicitly allow `translate-pilot` or `translate-production` for the selected
-scene. A direct request to translate does not override a blocked result.
+Invoke this skill inside an allowed `translate-pilot`, `translate-production`,
+or `batch-translate` block. A batch uses one gate decision and checkpoints every
+scene separately.
 
 ## Read first
 
@@ -24,24 +24,31 @@ scene. A direct request to translate does not override a blocked result.
 
 1. Read the entire scene before translating the first line.
 2. Identify speakers, addressees, emotional changes, jokes, and ambiguous references.
-3. Translate the scene as one conversation, not independent sentences.
-4. Preserve every segment ID and every protected technical element.
-5. Produce one main translation per segment.
-6. Add alternatives only where a real semantic or stylistic decision remains unresolved.
-7. Mark uncertain lines with allowed flags.
-8. Do not approve new terminology. Suggest it as `proposed` or `temporary`.
-9. Do not output spoiler explanations.
-10. Set translated segments to `draft`.
+3. Identify the function of difficult passages before considering an external
+   reference. Use a retriever report only if the context builder included one.
+4. Translate the scene as one conversation, not independent sentences.
+5. Preserve every segment ID and every protected technical element.
+6. Produce one main translation per segment.
+7. Add alternatives only where a real semantic or stylistic decision remains unresolved.
+8. Mark uncertain lines with allowed flags.
+9. Do not approve new terminology. Suggest it as `proposed` or `temporary`.
+10. Do not output spoiler explanations.
+11. Set translated segments to `draft`.
 
 ## Translation rules
 
-- Japanese is authoritative.
+- Use the aligned current-VN sources. Japanese is the original-language
+  authority; English and Simplified Chinese are independent supporting evidence.
 - Natural Russian is required, but no added information.
 - Preserve deliberate repetition.
 - Do not over-explain emotions.
 - Keep character voice subtle and varied.
 - Adapt humour by function when literal wording fails.
 - Preserve uncertainty when the original is uncertain.
+- External Russian references may suggest rhythm or technique, but never meaning
+  or ready-made wording.
+- Analyse text only. Actor delivery and audio synchronisation are outside scope;
+  character voice means written manner.
 
 ## Self-check before writing
 

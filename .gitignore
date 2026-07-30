@@ -1,10 +1,13 @@
 # Игровая установка: ~8 ГБ ассетов + исполняемые файлы, в репозиторий не идёт
 /Summer Pockets REFLECTION BLUE/
+/Summer Pockets REFLECTION BLUE_Steam/
 
 # Производные данные агента перевода
 /database/*.db
 /build/
 /reports/tmp/
+/source/parsed/**
+!/source/parsed/.gitkeep
 
 # Локальные сторонние корпуса — не коммитить
 /references/local/**
@@ -45,6 +48,7 @@ __recovery/
 # Скриншоты отладки: регенерируются game.ps1, в репозиторий не идут.
 # Доказательные кадры кладутся осознанно в docs/project/evidence/.
 /game-tools/shots/
+/game-tools/shots-steam/
 /game-tools/marker.txt
 
 # ОС / редакторы

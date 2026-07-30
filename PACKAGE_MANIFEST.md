@@ -4,7 +4,7 @@
 
 - `AGENTS.md` — постоянные правила репозитория.
 - `START_AGENT_TASK.md` — готовая первая задача для агента.
-- `.agents/skills/` — пять репозиторных Agent Skills.
+- `.agents/skills/` — репозиторные Agent Skills, включая управляющий оркестратор и gatekeeper.
 
 ## Спецификации и документация
 
@@ -20,6 +20,8 @@
 ## Данные
 
 - `translation/segments/` — переводимые сегменты.
+- `source/manifest.jsonl` — spoiler-safe манифест внутренних источников.
+- `source/parsed/` — локальный игнорируемый полный каталог источников.
 - `translation/scenes.jsonl` — каталог сцен.
 - `docs/glossary.yaml` — терминология.
 - `docs/decisions.jsonl` — журнал решений.
@@ -31,6 +33,8 @@
 - `tools/vnctl.py` — validate/index/stats/context.
 - `tools/validate_skills.py` — проверка структуры skills.
 - `game-tools/ADAPTER_CONTRACT.md` — требования к подключению существующего парсера и сборщика.
+- `game-tools/luca.py`, `export_luca_sources.py` — активный Steam/LUCA-адаптер и каталог источников.
+- `game-tools/siglus.py`, `SPTranslate/` — legacy Siglus-адаптер.
 - `schemas/` — JSON Schema для сегментов и сцен.
 - `tools/tests/` — smoke-тесты, включая защиту от утечки `private_reason`.
 
@@ -38,6 +42,8 @@
 
 - `references/README.md` — локальное подключение CLANNAD/Rewrite.
 - `references/local/` — игнорируемый Git каталог для пользовательских корпусов.
+- `schemas/reference-fragment.schema.json` — формат короткого сценового
+  фрагмента со статусами `raw`/`usable`/`gold`/`rejected`.
 
 ## Что намеренно не включено
 
@@ -45,4 +51,4 @@
 - Weblate/CAT/TMS;
 - векторная база;
 - полный текст сторонних переводов;
-- игровой парсер/сборщик, поскольку они уже существуют в пользовательском репозитории и требуют адаптера к фактическому формату.
+- игровые архивы, исполняемые файлы и полный извлечённый текст текущей ВН.

@@ -130,8 +130,9 @@ Built by `game-tools/build_font.py`, always from `font01.ttf.orig` and
 
 - `Gameexe.dat` uses a different encryption; needed only to change text window
   geometry.
-- `dat/*.dbs` hold CG gallery, music and minigame text, roughly 15 000 Japanese
-  characters.
+- `dat/*.dbs` format remains unknown. Naive decoding as text was refuted by
+  `FND-0032`; the earlier estimate of roughly 15 000 Japanese characters was
+  random encrypted/compressed bytes interpreted as Unicode.
 - `sub_69D402` classifies kana and Japanese punctuation, apparently for line
   breaking rules. Russian wraps correctly as it is, so this was left alone;
   the address is noted in case wrapping misbehaves later.

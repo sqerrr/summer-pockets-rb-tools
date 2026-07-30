@@ -2,9 +2,25 @@
 
 Всё, что работает с файлами игры. Управление проектом перевода живёт отдельно, в `tools/` (`vnctl.py`, `validate_skills.py`).
 
-Контракт слоя описан в [ADAPTER_CONTRACT.md](ADAPTER_CONTRACT.md), формат движка — в [siglus-format.md](../.agents/skills/vn-engine-siglus/references/siglus-format.md), порядок работы — в skill `vn-engine-siglus`.
+Контракт слоя описан в [ADAPTER_CONTRACT.md](ADAPTER_CONTRACT.md). Активный
+Steam/LUCA-профиль документирован в [luca-format.md](../docs/project/luca-format.md)
+и skill `vn-engine-luca`; старый профиль отдельно описан в
+[siglus-format.md](../.agents/skills/vn-engine-siglus/references/siglus-format.md).
 
-## Рабочий слой
+## Active Steam/LUCA
+
+| Файл | Назначение |
+|------|------------|
+| `luca.py` | PAK, байткод, строки, LZW, глобальная релокация и валидация ссылок |
+| `export_luca_sources.py` | Детерминированный локальный каталог `ja`/`en`/`zh-Hans` и безопасный манифест |
+| `build_luca_test.py` | Диагностическая сборка русских строк; не release builder |
+| `game_steam.ps1` | Запуск, загрузка тестового сейва, скриншот и штатный UI-выход |
+
+Полный исходный текст создаётся только в игнорируемом `source/parsed/`.
+Канонический русский хранится прямым Unicode и передаётся в PAK только через
+relocation-safe сборку.
+
+## Legacy Siglus
 
 | Файл | Назначение |
 |------|------------|
@@ -49,7 +65,18 @@ dcc32 -B -U<delphi>\lib\win32\release -E. -Ndcu TestSiglus.dpr
 
 `control_font.py` и `fix_font.py` намеренно портят шрифты — это их работа. После них собирать шрифты заново через `build_font.py`.
 
-## Порядок при правке формата
+## Порядок при правке Steam/LUCA
+
+1. Экспортировать и проверить источники: `python game-tools/export_luca_sources.py`.
+2. После изменения формата прогнать `validate_luca_relocation.py`.
+3. Проверить PAK независимым `Pak` и `validate_script_references()`.
+4. Для визуального свойства использовать `game_steam.ps1` и сохранить evidence.
+5. Записать новую находку в `docs/project/findings.jsonl`.
+
+Исходник: `Summer Pockets REFLECTION BLUE_Steam/files/SCRIPT.PAK.orig` с хэшем
+из `source/manifest.jsonl`.
+
+## Порядок при правке legacy Siglus
 
 1. Закрыть игру: она держит `Scene.pck` и шрифты открытыми, и запись падает с ошибкой доступа.
 2. Менять `uSiglus.pas`, при необходимости зеркалить в `siglus.py`.

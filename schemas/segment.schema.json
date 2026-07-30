@@ -4,15 +4,25 @@
   "type": "object",
   "required": [
     "id",
+    "source_set_id",
+    "source_id",
+    "source_hash",
     "file_id",
     "scene_id",
     "order",
-    "source",
     "translation",
     "status"
   ],
   "properties": {
     "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "source_set_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "source_id": {
       "type": "string",
       "pattern": "^[A-Za-z0-9_-]+$"
     },
@@ -33,10 +43,19 @@
       ]
     },
     "source": {
-      "type": "string"
+      "type": "string",
+      "description": "Optional hydrated working-language source. Prefer source_id in persisted project data."
+    },
+    "sources": {
+      "type": "object",
+      "description": "Optional hydrated aligned sources generated from the local source catalogue.",
+      "additionalProperties": {
+        "type": "string"
+      }
     },
     "translation": {
-      "type": "string"
+      "type": "string",
+      "description": "Canonical direct-Unicode Russian. Engine encoding is applied only during build."
     },
     "status": {
       "enum": [
@@ -64,7 +83,8 @@
       }
     },
     "source_hash": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
     },
     "metadata": {
       "type": "object"
