@@ -1336,10 +1336,20 @@ def character_doc(root: Path, config: dict[str, Any], speaker: str) -> str | Non
     for path in candidates:
         if path.exists():
             return path.read_text(encoding="utf-8-sig")
-    # Conservative frontmatter scan.
+    # Ярлык говорящего в сегменте - японская строка (羽依里, しろは), а карточки
+    # названы латиницей. Поэтому совпадение по имени файла и по id не срабатывает
+    # никогда, и карточки не доходили до переводчика вовсе (FND-0048).
+    # Ищем по японскому имени, объявленному в самой карточке.
+    escaped = re.escape(speaker)
+    patterns = [
+        rf"(?mi)^id:\s*{escaped}\s*$",
+        rf"(?mi)^name_ja:\s*\"?{escaped}\"?\s*$",
+        rf"(?mi)^\s+ja:\s*\"?{escaped}\"?\s*$",
+    ]
     for path in base.glob("*.md"):
         text = path.read_text(encoding="utf-8-sig")
-        if re.search(rf"(?mi)^id:\s*{re.escape(speaker)}\s*$", text):
+        head = text.split("---", 2)[1] if text.startswith("---") else text[:800]
+        if any(re.search(p, head) for p in patterns):
             return text
     return None
 
@@ -1489,6 +1499,15 @@ def work_next(root: Path, config: dict[str, Any], scene_id: str,
             parts.append(f"- {g.get('source')} -> {g.get('preferred_ru')} "
                          f"[{g.get('status')}]{note}")
 
+    for name in speakers:
+        doc = character_doc(root, config, name)
+        if doc:
+            # Заголовок и служебный блок карточки в пакете не нужны: переводчику
+            # важна манера, а не идентификатор файла.
+            body = doc.split("---", 2)[-1].strip()
+            parts.append(f"\n## Манера речи: {name}\n")
+            parts.append(body)
+
     if constraints:
         parts.append("\n## Ограничения\n")
         parts.extend("- " + str(c) for c in constraints)
@@ -1525,6 +1544,67 @@ def work_next(root: Path, config: dict[str, Any], scene_id: str,
         "3. Применяй: `python tools/vnctl.py apply-translation " + scene_id
         + " build/patch-" + scene_id + ".jsonl`\n")
     return "\n".join(parts)
+
+
+def lines_query(root: Path, config: dict[str, Any], speaker: str | None,
+                contains: str | None, limit: int, stats: bool) -> int:
+    """Выборка реплик из индекса.
+
+    Нужна затем, чтобы агент знаний и аудитор не обходили 96 806 сегментов
+    файлами. Без неё единственный доступный путь - регулярное выражение по
+    пакетам контекста, где хвост предыдущей сцены повторяется в следующей,
+    поэтому счётчики выходят завышенными.
+    """
+    db = db_path(root, config)
+    if not db.exists():
+        eprint(f"ERROR: index not found: {db}. Run: python tools/vnctl.py index")
+        return 1
+    con = sqlite3.connect(db)
+    con.row_factory = sqlite3.Row
+
+    where: list[str] = []
+    params: list[Any] = []
+    if speaker:
+        where.append("speaker = ?")
+        params.append(speaker)
+    if contains:
+        where.append("(sources_json LIKE ? OR translation LIKE ?)")
+        params.extend([f"%{contains}%"] * 2)
+    clause = (" WHERE " + " AND ".join(where)) if where else ""
+
+    total = con.execute(f"SELECT COUNT(*) FROM segments{clause}", params).fetchone()[0]
+    scenes = con.execute(
+        f"SELECT COUNT(DISTINCT scene_id) FROM segments{clause}", params).fetchone()[0]
+    print(f"Найдено: {total} записей в {scenes} сценах")
+
+    if stats:
+        done = con.execute(
+            f"SELECT COUNT(*) FROM segments{clause}"
+            + (" AND " if clause else " WHERE ") + "TRIM(translation) <> ''",
+            params).fetchone()[0]
+        print(f"Переведено: {done}")
+        rows = con.execute(
+            f"SELECT scene_id, COUNT(*) n FROM segments{clause} "
+            "GROUP BY scene_id ORDER BY n DESC LIMIT 10", params).fetchall()
+        print("Больше всего в сценах:")
+        for row in rows:
+            print(f"  {row['scene_id']}: {row['n']}")
+        con.close()
+        return 0
+
+    rows = con.execute(
+        f"SELECT id, scene_id, ord, speaker, sources_json, translation "
+        f"FROM segments{clause} ORDER BY scene_id, ord LIMIT ?",
+        params + [limit]).fetchall()
+    for row in rows:
+        sources = json.loads(row["sources_json"])
+        print(json.dumps({
+            "id": row["id"], "scene": row["scene_id"], "ord": row["ord"],
+            "speaker": row["speaker"], "ja": sources.get("ja", ""),
+            "en": sources.get("en", ""), "ru": row["translation"] or "",
+        }, ensure_ascii=False))
+    con.close()
+    return 0
 
 
 def work_check(root: Path, config: dict[str, Any], patch_path: Path) -> int:
@@ -1943,6 +2023,11 @@ def main() -> int:
     p_context = sub.add_parser("context")
     p_context.add_argument("scene_id")
     p_context.add_argument("-o", "--output", type=Path)
+    p_lines = sub.add_parser("lines")
+    p_lines.add_argument("--speaker")
+    p_lines.add_argument("--contains")
+    p_lines.add_argument("--limit", type=int, default=50)
+    p_lines.add_argument("--stats", action="store_true")
     p_work = sub.add_parser("work")
     work_sub = p_work.add_subparsers(dest="work_command", required=True)
     p_wnext = work_sub.add_parser("next")
@@ -1982,6 +2067,9 @@ def main() -> int:
             return findings(root, config)
         if args.command == "questions":
             return questions(root, config)
+        if args.command == "lines":
+            return lines_query(root, config, args.speaker, args.contains,
+                               args.limit, args.stats)
         if args.command == "work":
             if args.work_command == "next":
                 content = work_next(root, config, args.scene_id, args.size, args.start)

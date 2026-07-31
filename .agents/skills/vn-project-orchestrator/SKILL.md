@@ -126,9 +126,14 @@ already defined.
 ## Verify by files, never by the agent's report
 
 A subagent can finish and return nothing at all: no result, no error, no partial
-work. This happened twice on the first pilot, and the empty answer looked exactly
-like a successful silent run. Had the orchestrator trusted it, the queue would
-have reported progress while nothing was written.
+work. The cause is now known and is not what it looked like: the API rejects an
+assistant-message prefill and the reply is lost, while the work itself completes
+(FND-0049). In every observed case the files were correct and only the report
+vanished. An earlier explanation through step limits was wrong and is withdrawn.
+
+So an empty answer means the report was lost, not that nothing happened — and
+the two are indistinguishable without looking. Agents now write their report to
+`build/report-*.md` as well, so read that before assuming failure.
 
 So after every dispatch, read the artefacts before believing anything:
 
