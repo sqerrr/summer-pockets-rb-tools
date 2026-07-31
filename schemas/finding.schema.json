@@ -74,6 +74,14 @@
         "string",
         "null"
       ]
+    },
+    "relevance": {
+      "type": "string",
+      "enum": [
+        "current",
+        "archive"
+      ],
+      "description": "Выводится из status и applies_to_build; не задаётся вручную."
     }
   },
   "additionalProperties": true

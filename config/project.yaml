@@ -3,34 +3,33 @@ project:
   title: Summer Pockets REFLECTION BLUE RU
   active_build: steam_luca
   source_language: ja
-  source_languages: [ja, en, zh-Hans]
-  source_priority: [ja, en, zh-Hans]
-  working_source_language: ja   # источник смысла, см. translation-spec раздел 2
+  source_languages:
+  - ja
+  - en
+  - zh-Hans
+  source_priority:
+  - ja
+  - en
+  - zh-Hans
+  working_source_language: ja
   original_language_available: true
   target_language: ru
-
-# ВНИМАНИЕ: это НЕ активный профиль. Секция описывает legacy-сборку Siglus и
-# существует только потому, что её читает legacy-siglus/paths.py, обслуживающий
-# старый инструментарий. Активная сборка задаётся project.active_build и описана
-# в builds.steam_luca. Инструменты LUCA эту секцию использовать не должны: она
-# приведёт их к установке другой сборки игры.
 game:
   engine: SiglusEngine
-  install_dir: "Summer Pockets REFLECTION BLUE"
-  scene_pack: "Summer Pockets REFLECTION BLUE/Scene.pck"
-  scene_pack_original: "Summer Pockets REFLECTION BLUE/Scene.pck.orig"
-  gameexe: "Summer Pockets REFLECTION BLUE/Gameexe.dat"
-  executable: "Summer Pockets REFLECTION BLUE/SiglusEngine.exe"
-  executable_original: "Summer Pockets REFLECTION BLUE/SiglusEngine.exe.org"
-
+  install_dir: Summer Pockets REFLECTION BLUE
+  scene_pack: Summer Pockets REFLECTION BLUE/Scene.pck
+  scene_pack_original: Summer Pockets REFLECTION BLUE/Scene.pck.orig
+  gameexe: Summer Pockets REFLECTION BLUE/Gameexe.dat
+  executable: Summer Pockets REFLECTION BLUE/SiglusEngine.exe
+  executable_original: Summer Pockets REFLECTION BLUE/SiglusEngine.exe.org
 builds:
   steam_luca:
     id: steam-luca
     engine: LucaSystem
-    install_dir: "Summer Pockets REFLECTION BLUE_Steam"
-    script_pack: "Summer Pockets REFLECTION BLUE_Steam/files/SCRIPT.PAK"
-    script_pack_original: "Summer Pockets REFLECTION BLUE_Steam/files/SCRIPT.PAK.orig"
-    executable: "Summer Pockets REFLECTION BLUE_Steam/SummerPocketsRB.exe"
+    install_dir: Summer Pockets REFLECTION BLUE_Steam
+    script_pack: Summer Pockets REFLECTION BLUE_Steam/files/SCRIPT.PAK
+    script_pack_original: Summer Pockets REFLECTION BLUE_Steam/files/SCRIPT.PAK.orig
+    executable: Summer Pockets REFLECTION BLUE_Steam/SummerPocketsRB.exe
     format_spec: docs/project/luca-format.md
     game_control: game-tools/game_steam.ps1
     text_encoding: direct-unicode
@@ -43,37 +42,37 @@ builds:
   legacy_siglus:
     id: legacy-siglus
     engine: SiglusEngine
-    install_dir: "Summer Pockets REFLECTION BLUE"
-    scene_pack: "Summer Pockets REFLECTION BLUE/Scene.pck"
-    scene_pack_original: "Summer Pockets REFLECTION BLUE/Scene.pck.orig"
-    executable: "Summer Pockets REFLECTION BLUE/SiglusEngine.exe"
-    executable_original: "Summer Pockets REFLECTION BLUE/SiglusEngine.exe.org"
+    install_dir: Summer Pockets REFLECTION BLUE
+    scene_pack: Summer Pockets REFLECTION BLUE/Scene.pck
+    scene_pack_original: Summer Pockets REFLECTION BLUE/Scene.pck.orig
+    executable: Summer Pockets REFLECTION BLUE/SiglusEngine.exe
+    executable_original: Summer Pockets REFLECTION BLUE/SiglusEngine.exe.org
     format_spec: .agents/skills/vn-engine-siglus/references/siglus-format.md
     text_encoding: latin-extended-a-carriers
-
 source_sets:
   steam_luca:
     id: SPRB_STEAM_LUCA
     build_id: steam-luca
     format: luca-script-pak
-    archive: "Summer Pockets REFLECTION BLUE_Steam/files/SCRIPT.PAK.orig"
-    archive_sha256: "sha256:a3878b0bb7777b3abc7ded44a80614986385e5418eea24d024ac06f41074e99b"
+    archive: Summer Pockets REFLECTION BLUE_Steam/files/SCRIPT.PAK.orig
+    archive_sha256: sha256:a3878b0bb7777b3abc7ded44a80614986385e5418eea24d024ac06f41074e99b
     catalog: source/parsed/steam-luca/source-records.jsonl
-    source_priority: [ja, en, zh-Hans]
-    working_source_language: ja   # источник смысла, см. translation-spec раздел 2
-    # Слот выбирается на сборке, не на переводе (DEC-0017). null = не выбран.
-    build_slot: null
+    source_priority:
+    - ja
+    - en
+    - zh-Hans
+    working_source_language: ja
+    build_slot: 1
     slots:
-      - index: 0
-        language: ja
-        role: original
-      - index: 1
-        language: en
-        role: official_translation
-      - index: 2
-        language: zh-Hans
-        role: official_translation
-
+    - index: 0
+      language: ja
+      role: original
+    - index: 1
+      language: en
+      role: official_translation
+    - index: 2
+      language: zh-Hans
+      role: official_translation
 paths:
   source_manifest: source/manifest.jsonl
   segments: translation/segments
@@ -87,38 +86,32 @@ paths:
   private_constraints: private/constraints.jsonl
   reference_corpora: references/local
   database: database/knowledge.db
-
 integration:
   active_engine_skill: vn-engine-luca
-  parse_command: "python game-tools/export_luca_sources.py"
-  build_command: ""
-  smoke_test_command: "powershell -File game-tools/game_steam.ps1 -Action resume -Out build/steam/smoke.png"
-  # Legacy Siglus tooling remains available through builds.legacy_siglus.
+  parse_command: python game-tools/export_luca_sources.py
+  build_command: ''
+  smoke_test_command: powershell -File game-tools/game_steam.ps1 -Action resume -Out build/steam/smoke.png
   translator_gui: legacy-siglus/SPTranslate/SPTranslate.exe
   siglus_lib: legacy-siglus/siglus.py
   siglus_unit: legacy-siglus/SPTranslate/uSiglus.pas
   font_builder: legacy-siglus/build_font.py
   game_control: legacy-siglus/game.ps1
-
 engine:
-  # Подробности — .agents/skills/vn-engine-siglus/references/siglus-format.md
-  scene_key_source: "SiglusEngine.exe .rdata VA 0x00ADABB0, 256 байт"
-  string_obfuscation: "(индекс_строки * 0x7087) and 0xFFFF"
+  scene_key_source: SiglusEngine.exe .rdata VA 0x00ADABB0, 256 байт
+  string_obfuscation: (индекс_строки * 0x7087) and 0xFFFF
   fonts:
-    - "Summer Pockets REFLECTION BLUE/dat/font01.ttf"
-    - "Summer Pockets REFLECTION BLUE/dat/font02.ttf"
+  - Summer Pockets REFLECTION BLUE/dat/font01.ttf
+  - Summer Pockets REFLECTION BLUE/dat/font02.ttf
   cyrillic_carriers:
-    range: "U+0100..U+0141"
-    upper: "U+0100..U+011F = А..Я без Ё"
-    upper_yo: "U+0120 = Ё"
-    lower: "U+0121..U+0140 = а..я без ё"
-    lower_yo: "U+0141 = ё"
-
+    range: U+0100..U+0141
+    upper: U+0100..U+011F = А..Я без Ё
+    upper_yo: U+0120 = Ё
+    lower: U+0121..U+0140 = а..я без ё
+    lower_yo: U+0141 = ё
 workflow:
   context_previous_segments: 20
   context_next_segments: 10
   internal_examples_limit: 20
   external_reference_limit: 3
-  # Ориентир рабочей сцены по AGENTS.md - 100-400 реплик; 400 - верхняя граница.
   max_scene_segments: 400
-  user_progress_scene: ""
+  user_progress_scene: ''
