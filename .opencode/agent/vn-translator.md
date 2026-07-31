@@ -1,12 +1,14 @@
 ---
-description: Переводит одну сцену визуальной новеллы на русский по подготовленному пакету контекста. Запускать по одной сцене на вызов; несколько вызовов можно вести параллельно. Не выполняет ревью собственного перевода.
+description: Основной переводчик на модели fasday/gpt5_6_sol. Запускать по одной сцене на вызов; несколько
+  вызовов можно вести параллельно. Не выполняет ревью собственного перевода.
+model: fasday/gpt5_6_sol
 mode: subagent
 steps: 120
 temperature: 0.4
 permission:
   bash:
-    "*": deny
-    "python tools/vnctl.py *": allow
+    '*': deny
+    python tools/vnctl.py *: allow
   webfetch: deny
   websearch: deny
 ---

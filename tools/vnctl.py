@@ -1966,7 +1966,14 @@ def findings(root: Path, config: dict[str, Any]) -> int:
         eprint(f"ERROR: {rel} not found")
         return 2
 
-    rows = read_jsonl(path)
+    # Архив проверяется наравне с действующим журналом: он не мусор, а материал,
+    # на который ссылаются supersedes. Разведены они ради чтения, а не ради того,
+    # чтобы про архив забыть.
+    archive = path.with_name(path.stem + "-archive" + path.suffix)
+    active = read_jsonl(path)
+    archived = read_jsonl(archive) if archive.exists() else []
+    rows = active + archived
+
     errors: list[str] = []
     warnings: list[str] = []
     seen: set[str] = set()
@@ -2000,10 +2007,11 @@ def findings(root: Path, config: dict[str, Any]) -> int:
         eprint(f"WARN: {message}")
     for message in errors:
         eprint(f"ERROR: {message}")
-    current = [r for r in rows if findings_relevance(r) == "current"]
     print(f"Validated {len(rows)} findings: {len(errors)} errors, {len(warnings)} warnings")
-    print(f"Current: {len(current)} | archived: {len(rows) - len(current)} "
-          f"(refuted, deprecated or legacy build)")
+    print(f"Active journal: {len(active)} | archive: {len(archived)}")
+    misplaced = [r["id"] for r in active if findings_relevance(r) == "archive"]
+    if misplaced:
+        print(f"Should move to archive: {', '.join(misplaced)}")
     return 1 if errors else 0
 
 

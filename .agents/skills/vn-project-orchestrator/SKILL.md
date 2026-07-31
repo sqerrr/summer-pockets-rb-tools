@@ -108,13 +108,34 @@ carry hundreds of scenes.
 
 Defined subagents, in `.opencode/agent/`:
 
-| Agent | Why it must be isolated |
-|---|---|
-| `vn-translator` | fresh context per scene; several scenes in parallel |
-| `vn-reviewer` | must not receive the translator's reasoning |
-| `vn-knowledge` | reads far more source than it reports; spoiler risk concentrated |
-| `vn-auditor` | reads across scenes, which per-scene review cannot do |
-| `second-opinion` | different model; independent judgement on process |
+| Agent | Model | Why it must be isolated |
+|---|---|---|
+| `vn-translator` | GPT | fresh context per scene; several scenes in parallel |
+| `vn-reviewer` | Opus | must not receive the translator's reasoning |
+| `vn-knowledge` | Opus | reads far more source than it reports; spoiler risk concentrated |
+| `vn-auditor` | Opus | reads across scenes, which per-scene review cannot do |
+| `second-opinion` | GPT | independent judgement on process |
+
+## Which model does which job, and what to do when one is gone
+
+The arrangement was measured on one batch of thirty lines rather than assumed.
+GPT won twenty of twenty-eight lines in a blind preference test and works four
+times faster. Opus produced eight confirmed review findings out of eight against
+three of five, and was the only one to catch a broken verbatim repeat — in both
+translations. So GPT translates and Opus reviews.
+
+A mixed pair is also better by construction: a reviewer on the same model as the
+translator shares its blind spots, and what a model fails to notice while
+translating it will fail to notice while checking.
+
+Every definition names its model explicitly. Left to the default, an agent takes
+the session's model, and the arrangement changes silently when the chat model
+changes — which makes it not a decision but an accident.
+
+Each role has a spare on the other model: `vn-translator-alt` runs on Opus,
+`vn-reviewer-alt` on GPT. If a model is unavailable or rate-limited, switch the
+role to its spare and record which batches ran on which — quality of those
+batches is then not comparable with the rest without saying so.
 
 Skills stay: they hold the instructions an agent follows. This is not agents
 instead of skills.
