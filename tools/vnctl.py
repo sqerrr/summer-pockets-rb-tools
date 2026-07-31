@@ -1064,6 +1064,7 @@ def validate(root: Path, config: dict[str, Any]) -> int:
             sources = row.get("sources") or {}
             checks += check_names(str(sources.get("ja", "")), row.get("speaker"),
                                   translation, name_map)
+            checks += check_markup(str(sources.get("ja", "")), translation)
             for finding in checks:
                 message = f"{loc}: {finding.decision} {finding.message}"
                 (errors if finding.severity == "error" else warnings).append(message)
@@ -1633,15 +1634,20 @@ def work_check(root: Path, config: dict[str, Any], patch_path: Path) -> int:
             continue
         checked += 1
         speaker = None
-        english = ""
+        english = japanese = ""
         if con:
             row = con.execute(
                 "SELECT speaker, sources_json FROM segments WHERE id=?", (sid,)).fetchone()
             if row:
                 speaker = row["speaker"]
-                english = json.loads(row["sources_json"]).get("en", "")
+                sources = json.loads(row["sources_json"])
+                english = sources.get("en", "")
+                japanese = sources.get("ja", "")
         findings = check_line(text, is_dialogue=bool(speaker))
         findings += check_length(text, english)
+        # Без этого самопроверка молчит о сломанной разметке, и агент сдаёт
+        # патч, не узнав о ней. Пропуск найден независимо двумя рецензентами.
+        findings += check_markup(japanese, text)
         for f in findings:
             problems += 1
             print(f"{sid}  {f.severity:8} {f.decision}  {f.message}")
@@ -1943,7 +1949,7 @@ def write_jsonl_atomic(path: Path, rows: list[dict[str, Any]]) -> None:
     tmp.replace(path)
 
 
-from textrules import check_length, check_line, check_names  # noqa: E402
+from textrules import check_length, check_line, check_markup, check_names  # noqa: E402
 
 
 FINDING_AREAS = {"scene-pack", "engine", "font", "encoding", "tooling", "content"}

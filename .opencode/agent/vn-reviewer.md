@@ -1,14 +1,16 @@
 ---
-description: Независимо проверяет уже готовый перевод одной сцены по исходнику и правилам проекта. Не переводит и не правит файлы, а возвращает список проблем. Не должен получать рассуждения переводчика.
+description: Независимо проверяет уже готовый перевод одной сцены по исходнику и правилам проекта. Не
+  переводит и не правит файлы, а возвращает список проблем. Не должен получать рассуждения переводчика.
 mode: subagent
 steps: 60
 temperature: 0.2
 permission:
-  edit: deny
-  write: deny
+  edit:
+    '*': deny
+    build/**: allow
   bash:
-    "*": deny
-    "python tools/vnctl.py *": allow
+    '*': deny
+    python tools/vnctl.py *: allow
   webfetch: deny
   websearch: deny
 ---

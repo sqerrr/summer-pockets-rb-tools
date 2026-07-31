@@ -1,70 +1,46 @@
-# Порядок соответствует жизненному циклу: approved - терминальный статус,
-# присваивается после LQA или явного решения пользователя.
 allowed_statuses:
-  - todo
-  - draft
-  - reviewed
-  - playable
-  - lqa
-  - approved
-
+- todo
+- draft
+- reviewed
+- playable
+- lqa
+- approved
 allowed_flags:
-  # Флаги агента: ставятся при переводе и ревью.
-  - needs_context
-  - needs_source_check
-  # Термина ещё нет в глоссарии, перевод взят рабочей гипотезой. Не путать с
-  # needs_source_check: там источники расходятся, здесь решения просто нет.
-  - needs_term_decision
-  - needs_humor_review
-  # Voice = written character manner; audio is outside project scope.
-  - needs_voice_review
-  - technical_risk
-  - spoiler_sensitive
-
-  # Пользовательские метки прохождения (docs/workflow.md, раздел LQA).
-  # Ставит человек, играя в собранный билд; агент их только читает и разбирает.
-  - lqa_lang       # неестественный русский
-  - lqa_meaning    # непонятный или неверный смысл
-  - lqa_voice      # не та письменная манера персонажа
-  - lqa_joke       # шутка не работает
-  - lqa_ui         # проблема отображения
-  - lqa_tech       # техническая ошибка
-
+- needs_context
+- needs_source_check
+- needs_term_decision
+- needs_humor_review
+- needs_voice_review
+- technical_risk
+- spoiler_sensitive
+- lqa_lang
+- lqa_meaning
+- lqa_voice
+- lqa_joke
+- lqa_ui
+- lqa_tech
 required_segment_fields:
-  - id
-  - source_set_id
-  - source_id
-  - source_hash
-  - file_id
-  - scene_id
-  - order
-  - translation
-  - status
-
+- id
+- source_set_id
+- source_id
+- source_hash
+- file_id
+- scene_id
+- order
+- translation
+- status
 required_source_languages:
-  - ja
-  - en
-  - zh-Hans
-
+- ja
+- en
+- zh-Hans
 allowed_source_classifications:
-  - translatable
-  - service_nontext
-
+- translatable
+- service_nontext
 protected_patterns:
-  # Защитная сетка канонического текста. Бинарные поля и команды проверяет
-  # активный движковый адаптер, а не эти регулярные выражения.
-
-  # Подтверждённый структурный маркер: обрамляет имя говорящего, встречается в
-  # 69 383 группах каталога (FND-0041). Переводу и правке не подлежит:
-  # разрушение маркера ломает вывод имени в игре.
-  - "@[^@]+@"
-
-  # Ниже - гипотезы из общего шаблона пакета. По полному каталогу LUCA они дают
-  # 6 совпадений вида {...} и 182 вида [...], и ни одно пока не признано тегом
-  # (luca-format.md, gate technical_tags_verified ещё pending). Оставлены в
-  # защите как более безопасный вариант, но считать по ним строку технической
-  # нельзя, пока природа совпадений не установлена.
-  - "\\{[^{}]+\\}"
-  - "%[A-Za-z0-9_]+%"
-  - "<[^<>]+>"
-  - "\\[[^\\[\\]]+\\]"
+- '@[^@]+@'
+- \{[^{}]+\}
+- '%[A-Za-z0-9_]+%'
+- <[^<>]+>
+- \[[^\[\]]+\]
+- \$\([0-9]+\)
+- \$C\[[0-9a-fA-F]*\]
