@@ -1054,6 +1054,14 @@ def validate(root: Path, config: dict[str, Any]) -> int:
         catalog_hash = row.get("__catalog_source_hash")
         if catalog_hash and row.get("source_hash") != catalog_hash:
             errors.append(f"{loc}: source_hash does not match the source catalogue")
+
+        # Правила русского текста. Проверяются только заполненные переводы:
+        # пустой сегмент ещё не является нарушением чего-либо.
+        translation = str(row.get("translation", ""))
+        if translation.strip():
+            for finding in check_line(translation, is_dialogue=bool(row.get("speaker"))):
+                message = f"{loc}: {finding.decision} {finding.message}"
+                (errors if finding.severity == "error" else warnings).append(message)
         flags = row.get("flags", []) or []
         if not isinstance(flags, list):
             errors.append(f"{loc}: flags must be a list")
@@ -1356,6 +1364,184 @@ def safe_constraints(root: Path, config: dict[str, Any], segment_ids: set[str]) 
     return out
 
 
+def findings_relevance(row: dict[str, Any]) -> str:
+    """Актуальна ли находка для текущей работы.
+
+    Опровергнутое и отозванное не удаляется - ложный след экономит время
+    следующему, - но и не должно занимать контекст наравне с действующим.
+    Правило выводится из уже записанных полей, а не назначается вручную.
+    """
+    if row.get("status") in ("refuted", "deprecated"):
+        return "archive"
+    if row.get("applies_to_build") == "siglus":
+        return "archive"
+    return "current"
+
+
+def rules_checklist(root: Path, config: dict[str, Any]) -> list[str]:
+    """Короткий чек-лист из утверждённых решений.
+
+    Он порождается из `decisions.jsonl`, а не пишется отдельно: иначе список
+    правил и список решений разъезжаются, и агент получает вчерашнюю политику.
+    """
+    path = root / config.get("paths", {}).get("decisions", "docs/decisions.jsonl")
+    rows = read_jsonl(path)
+    # Отменённое решение не должно доходить до переводчика: оно противоречит
+    # тому, которое его отменило, и агент не обязан догадываться, какое новее.
+    superseded = {str(r.get("supersedes")) for r in rows if r.get("supersedes")}
+    # Решения о сборке и организации проекта переводчику не нужны.
+    relevant = {"style", "punctuation", "naming", "voice", "terminology", "humour"}
+    out: list[str] = []
+    for row in rows:
+        if row.get("status") != "approved" or row.get("scope") != "global":
+            continue
+        if str(row.get("id")) in superseded or row.get("type") not in relevant:
+            continue
+        text = " ".join(str(row.get("decision", "")).split())
+        out.append(f"[{row['id']}] {text}")
+    return out
+
+
+def work_next(root: Path, config: dict[str, Any], scene_id: str,
+              size: int, start: int | None) -> str:
+    """Компактный рабочий пакет на одну порцию строк.
+
+    Полная спецификация сюда не входит намеренно: агент обязан прочитать её из
+    своего определения, а повторять её в каждом вызове дорого и не помогает -
+    модель хуже соблюдает инструкции именно на длинной дистанции.
+    """
+    db = db_path(root, config)
+    if not db.exists():
+        raise FileNotFoundError(f"Index not found: {db}. Run: python tools/vnctl.py index")
+    con = sqlite3.connect(db)
+    con.row_factory = sqlite3.Row
+    rows = con.execute(
+        "SELECT * FROM segments WHERE scene_id=? ORDER BY ord", (scene_id,)).fetchall()
+    if not rows:
+        con.close()
+        raise ValueError(f"Unknown or empty scene: {scene_id}")
+
+    if start is None:
+        pending = [i for i, r in enumerate(rows) if not str(r["translation"] or "").strip()]
+        if not pending:
+            con.close()
+            return f"# {scene_id}\n\nВся сцена переведена: {len(rows)} сегментов.\n"
+        first = pending[0]
+    else:
+        first = max(0, start - 1)
+    batch = rows[first:first + size]
+    lead = rows[max(0, first - 5):first]
+
+    speakers = sorted({str(r["speaker"]) for r in batch if r["speaker"]})
+    source_text = "\n".join(
+        ["\n".join(json.loads(r["sources_json"]).values()) for r in batch] + speakers)
+    glossary = glossary_for_scene(root, config, source_text)
+    seg_ids = {str(r["id"]) for r in batch}
+    constraints = safe_constraints(root, config, seg_ids)
+    decisions = linked_decisions(db, seg_ids)
+    con.close()
+
+    parts: list[str] = []
+    parts.append(f"# Порция: {scene_id}, строки {first + 1}-{first + len(batch)} "
+                 f"из {len(rows)}")
+    parts.append("\nСпецификация здесь не повторяется: читай её из своего определения.\n"
+                 "Ниже только то, что меняется от порции к порции.")
+
+    checklist = rules_checklist(root, config)
+    if checklist:
+        parts.append("\n## Действующие решения\n")
+        parts.extend("- " + line for line in checklist)
+
+    if glossary:
+        parts.append("\n## Термины в этой порции\n")
+        for g in glossary:
+            note = f"  ({g['notes']})" if g.get("notes") else ""
+            parts.append(f"- {g.get('source')} -> {g.get('preferred_ru')} "
+                         f"[{g.get('status')}]{note}")
+
+    if constraints:
+        parts.append("\n## Ограничения\n")
+        parts.extend("- " + str(c) for c in constraints)
+
+    if decisions:
+        parts.append("\n## Решения по этим строкам\n")
+        parts.extend(f"- [{d.get('id')}] {d.get('decision')}" for d in decisions)
+
+    if lead:
+        parts.append("\n## Предыдущие строки, для связности\n```jsonl")
+        for r in lead:
+            parts.append(json.dumps({
+                "speaker": r["speaker"],
+                "ja": json.loads(r["sources_json"]).get("ja", ""),
+                "ru": r["translation"] or "",
+            }, ensure_ascii=False))
+        parts.append("```")
+
+    parts.append("\n## Переводить\n```jsonl")
+    for r in batch:
+        parts.append(json.dumps({
+            "id": r["id"],
+            "speaker": r["speaker"],
+            "sources": json.loads(r["sources_json"]),
+        }, ensure_ascii=False))
+    parts.append("```")
+
+    parts.append(
+        "\n## Как сдать\n\n"
+        "1. Напиши патч `build/patch-" + scene_id + ".jsonl`, по строке на сегмент:\n"
+        '   `{"id": "...", "translation": "...", "status": "draft", "flags": []}`\n'
+        "2. Проверь себя: `python tools/vnctl.py work check build/patch-"
+        + scene_id + ".jsonl`\n"
+        "3. Применяй: `python tools/vnctl.py apply-translation " + scene_id
+        + " build/patch-" + scene_id + ".jsonl`\n")
+    return "\n".join(parts)
+
+
+def work_check(root: Path, config: dict[str, Any], patch_path: Path) -> int:
+    """Прогнать правила по патчу, ничего не записывая.
+
+    Существует затем, чтобы агент узнавал о нарушении от инструмента до сдачи,
+    а не от оркестратора после.
+    """
+    patch_file = patch_path if patch_path.is_absolute() else root / patch_path
+    if not patch_file.exists():
+        eprint(f"ERROR: patch not found: {patch_file}")
+        return 1
+
+    db = db_path(root, config)
+    con = sqlite3.connect(db) if db.exists() else None
+    if con:
+        con.row_factory = sqlite3.Row
+
+    problems = 0
+    checked = 0
+    for raw in read_jsonl(patch_file):
+        entry = {k: v for k, v in raw.items() if not k.startswith("__")}
+        sid = str(entry.get("id", ""))
+        text = str(entry.get("translation", ""))
+        if not text.strip():
+            continue
+        checked += 1
+        speaker = None
+        english = ""
+        if con:
+            row = con.execute(
+                "SELECT speaker, sources_json FROM segments WHERE id=?", (sid,)).fetchone()
+            if row:
+                speaker = row["speaker"]
+                english = json.loads(row["sources_json"]).get("en", "")
+        findings = check_line(text, is_dialogue=bool(speaker))
+        findings += check_length(text, english)
+        for f in findings:
+            problems += 1
+            print(f"{sid}  {f.severity:8} {f.decision}  {f.message}")
+    if con:
+        con.close()
+
+    print(f"\nПроверено строк: {checked}, замечаний: {problems}")
+    return 0 if problems == 0 else 1
+
+
 def build_context(root: Path, config: dict[str, Any], scene_id: str) -> str:
     db = db_path(root, config)
     if not db.exists():
@@ -1501,6 +1687,15 @@ def questions(root: Path, config: dict[str, Any]) -> int:
     warnings: list[str] = []
     seen: set[str] = set()
 
+    # Тексты переводов нужны, чтобы проверять не наличие поля provisional, а то,
+    # что предложенный вариант действительно стоит в сегменте.
+    segment_translations: dict[str, str] = {}
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    if seg_dir.exists():
+        for seg_file in sorted(seg_dir.glob("*.jsonl")):
+            for seg in read_jsonl(seg_file):
+                segment_translations[str(seg.get("id"))] = str(seg.get("translation", ""))
+
     for line_no, row in enumerate(rows, start=1):
         tag = row.get("id") or f"line {line_no}"
         for field in QUESTION_REQUIRED:
@@ -1516,6 +1711,20 @@ def questions(root: Path, config: dict[str, Any]) -> int:
         # The whole point of the queue: an open question still has a working answer.
         if row.get("status") == "open" and not row.get("provisional"):
             errors.append(f"{tag}: open question without a provisional answer")
+        # ...and the answer has to actually stand in the text. Checking only that
+        # the field exists lets a question promise a solution that was never
+        # written, which is exactly what the queue was meant to prevent.
+        if row.get("status") == "open" and row.get("segment_ids"):
+            empty = [sid for sid in row["segment_ids"]
+                     if not str(segment_translations.get(sid, "")).strip()]
+            if len(empty) == len(row["segment_ids"]):
+                errors.append(
+                    f"{tag}: provisional answer is not in the text - "
+                    f"all {len(empty)} referenced segments are untranslated")
+            elif empty:
+                warnings.append(
+                    f"{tag}: {len(empty)} of {len(row['segment_ids'])} "
+                    f"referenced segments are untranslated")
         if row.get("status") == "resolved" and not row.get("resolution"):
             errors.append(f"{tag}: resolved question without a resolution")
 
@@ -1624,6 +1833,9 @@ def write_jsonl_atomic(path: Path, rows: list[dict[str, Any]]) -> None:
     tmp.replace(path)
 
 
+from textrules import check_length, check_line  # noqa: E402
+
+
 FINDING_AREAS = {"scene-pack", "engine", "font", "encoding", "tooling", "content"}
 FINDING_KINDS = {"fact", "decision", "limitation"}
 FINDING_STATUSES = {"verified", "assumed", "refuted", "deprecated"}
@@ -1672,7 +1884,10 @@ def findings(root: Path, config: dict[str, Any]) -> int:
         eprint(f"WARN: {message}")
     for message in errors:
         eprint(f"ERROR: {message}")
+    current = [r for r in rows if findings_relevance(r) == "current"]
     print(f"Validated {len(rows)} findings: {len(errors)} errors, {len(warnings)} warnings")
+    print(f"Current: {len(current)} | archived: {len(rows) - len(current)} "
+          f"(refuted, deprecated or legacy build)")
     return 1 if errors else 0
 
 
@@ -1698,6 +1913,15 @@ def main() -> int:
     p_context = sub.add_parser("context")
     p_context.add_argument("scene_id")
     p_context.add_argument("-o", "--output", type=Path)
+    p_work = sub.add_parser("work")
+    work_sub = p_work.add_subparsers(dest="work_command", required=True)
+    p_wnext = work_sub.add_parser("next")
+    p_wnext.add_argument("scene_id")
+    p_wnext.add_argument("--size", type=int, default=40)
+    p_wnext.add_argument("--start", type=int, default=None)
+    p_wnext.add_argument("-o", "--output", type=Path)
+    p_wcheck = work_sub.add_parser("check")
+    p_wcheck.add_argument("patch", type=Path)
     p_apply = sub.add_parser("apply-translation")
     p_apply.add_argument("scene_id")
     p_apply.add_argument("patch", type=Path)
@@ -1728,6 +1952,18 @@ def main() -> int:
             return findings(root, config)
         if args.command == "questions":
             return questions(root, config)
+        if args.command == "work":
+            if args.work_command == "next":
+                content = work_next(root, config, args.scene_id, args.size, args.start)
+                if args.output:
+                    out = args.output if args.output.is_absolute() else root / args.output
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_text(content, encoding="utf-8")
+                    print(out)
+                else:
+                    print(content)
+                return 0
+            return work_check(root, config, args.patch)
         if args.command == "apply-translation":
             return apply_translation(root, config, args.scene_id, args.patch)
         if args.command == "context":
