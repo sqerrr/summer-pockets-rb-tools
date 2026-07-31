@@ -1,194 +1,194 @@
-{"id": "SPK-0001", "source": "羽依里", "kind": "person", "lines": 26703, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0002", "source": "うみ", "kind": "person", "lines": 5239, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0003", "source": "しろは", "kind": "person", "lines": 4159, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0004", "source": "蒼", "kind": "person", "lines": 3921, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0005", "source": "静久", "kind": "person", "lines": 3509, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0006", "source": "紬", "kind": "person", "lines": 3395, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0007", "source": "美希", "kind": "person", "lines": 3032, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0008", "source": "識", "kind": "person", "lines": 2503, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0009", "source": "良一", "kind": "person", "lines": 2427, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0010", "source": "天善", "kind": "person", "lines": 2381, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0011", "source": "鴎", "kind": "person", "lines": 2292, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0012", "source": "鏡子", "kind": "person", "lines": 1693, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0013", "source": "小鳩", "kind": "person", "lines": 601, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0014", "source": "七海", "kind": "person", "lines": 576, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0001", "source": "羽依里", "kind": "person", "lines": 26703, "preferred_ru": "Хаири", "status": "provisional", "romaji": "Hairi"}
+{"id": "SPK-0002", "source": "うみ", "kind": "person", "lines": 5239, "preferred_ru": "Уми", "status": "provisional", "romaji": "Umi"}
+{"id": "SPK-0003", "source": "しろは", "kind": "person", "lines": 4159, "preferred_ru": "Широха", "status": "provisional", "romaji": "Shiroha"}
+{"id": "SPK-0004", "source": "蒼", "kind": "person", "lines": 3921, "preferred_ru": "Ао", "status": "provisional", "romaji": "Ao"}
+{"id": "SPK-0005", "source": "静久", "kind": "person", "lines": 3509, "preferred_ru": "Шизуку", "status": "provisional", "romaji": "Shizuku"}
+{"id": "SPK-0006", "source": "紬", "kind": "person", "lines": 3395, "preferred_ru": "Цумуги", "status": "provisional", "romaji": "Tsumugi"}
+{"id": "SPK-0007", "source": "美希", "kind": "person", "lines": 3032, "preferred_ru": "Мики", "status": "provisional", "romaji": "Miki"}
+{"id": "SPK-0008", "source": "識", "kind": "person", "lines": 2503, "preferred_ru": "Шики", "status": "provisional", "romaji": "Shiki"}
+{"id": "SPK-0009", "source": "良一", "kind": "person", "lines": 2427, "preferred_ru": "Рёичи", "status": "provisional", "romaji": "Ryoichi"}
+{"id": "SPK-0010", "source": "天善", "kind": "person", "lines": 2381, "preferred_ru": "Тензен", "status": "provisional", "romaji": "Tenzen"}
+{"id": "SPK-0011", "source": "鴎", "kind": "person", "lines": 2292, "preferred_ru": "Камоме", "status": "provisional", "romaji": "Kamome"}
+{"id": "SPK-0012", "source": "鏡子", "kind": "person", "lines": 1693, "preferred_ru": "Кёко", "status": "provisional", "romaji": "Kyoko"}
+{"id": "SPK-0013", "source": "小鳩", "kind": "person", "lines": 601, "preferred_ru": "Кобато", "status": "provisional", "romaji": "Kobato"}
+{"id": "SPK-0014", "source": "七海", "kind": "person", "lines": 576, "preferred_ru": "Нанами", "status": "provisional", "romaji": "Nanami"}
 {"id": "SPK-0015", "source": "女の子", "kind": "role", "lines": 315, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0016", "source": "駄菓子屋のおばーちゃん", "kind": "role", "lines": 264, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0017", "source": "島の少女A", "kind": "role", "lines": 251, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0018", "source": "鷺", "kind": "person", "lines": 247, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0019", "source": "藍", "kind": "person", "lines": 240, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0018", "source": "鷺", "kind": "person", "lines": 247, "preferred_ru": "Саги", "status": "provisional", "romaji": "Sagi"}
+{"id": "SPK-0019", "source": "藍", "kind": "person", "lines": 240, "preferred_ru": "Аи", "status": "provisional", "romaji": "Ai"}
 {"id": "SPK-0020", "source": "島の子供A", "kind": "role", "lines": 236, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0021", "source": "島の少女B", "kind": "role", "lines": 224, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0022", "source": "イナリ", "kind": "person", "lines": 207, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0022", "source": "イナリ", "kind": "person", "lines": 207, "preferred_ru": "Инари", "status": "provisional", "romaji": "Inari"}
 {"id": "SPK-0023", "source": "？？？", "kind": "unknown", "lines": 207, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0024", "source": "食堂のおっさん", "kind": "role", "lines": 204, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0025", "source": "島の子供B", "kind": "role", "lines": 190, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0026", "source": "島の少女C", "kind": "role", "lines": 180, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0027", "source": "カモメ", "kind": "person", "lines": 171, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0027", "source": "カモメ", "kind": "person", "lines": 171, "preferred_ru": "Камоме", "status": "provisional", "romaji": "Kamome"}
 {"id": "SPK-0028", "source": "漁師A", "kind": "role", "lines": 170, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0029", "source": "島の子供C", "kind": "role", "lines": 167, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0030", "source": "徳田", "kind": "person", "lines": 167, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0031", "source": "玄武", "kind": "person", "lines": 154, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0032", "source": "タカ", "kind": "person", "lines": 154, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0033", "source": "ツムギ", "kind": "person", "lines": 149, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0030", "source": "徳田", "kind": "person", "lines": 167, "preferred_ru": "Токуда", "status": "provisional", "romaji": "Tokuda"}
+{"id": "SPK-0031", "source": "玄武", "kind": "person", "lines": 154, "preferred_ru": "Генбу", "status": "provisional", "romaji": "Genbu"}
+{"id": "SPK-0032", "source": "タカ", "kind": "person", "lines": 154, "preferred_ru": "Така", "status": "provisional", "romaji": "Taka"}
+{"id": "SPK-0033", "source": "ツムギ", "kind": "person", "lines": 149, "preferred_ru": "Цумуги", "status": "provisional", "romaji": "Tsumugi"}
 {"id": "SPK-0034", "source": "満月を喰らいし乳房", "kind": "person", "lines": 140, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0035", "source": "静久の母", "kind": "role", "lines": 133, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0036", "source": "羽未", "kind": "person", "lines": 122, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0036", "source": "羽未", "kind": "person", "lines": 122, "preferred_ru": "Уми", "status": "provisional", "romaji": "Umi"}
 {"id": "SPK-0037", "source": "着物の少女", "kind": "role", "lines": 106, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0038", "source": "――", "kind": "person", "lines": 102, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0039", "source": "男性記者", "kind": "role", "lines": 85, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0040", "source": "おばーちゃん", "kind": "role", "lines": 80, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0041", "source": "女性記者", "kind": "role", "lines": 67, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0042", "source": "堀田", "kind": "person", "lines": 66, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0042", "source": "堀田", "kind": "role", "lines": 66, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0043", "source": "$(110)", "kind": "person", "lines": 65, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0044", "source": "スズメ", "kind": "person", "lines": 60, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0045", "source": "声", "kind": "person", "lines": 58, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0044", "source": "スズメ", "kind": "person", "lines": 60, "preferred_ru": "Сузуме", "status": "provisional", "romaji": "Suzume"}
+{"id": "SPK-0045", "source": "声", "kind": "role", "lines": 58, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0046", "source": "半裸男", "kind": "role", "lines": 58, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0047", "source": "小学校女教師", "kind": "role", "lines": 58, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0048", "source": "ラジオ体操大好きさん", "kind": "person", "lines": 56, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0049", "source": "主婦B", "kind": "person", "lines": 55, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0050", "source": "ハヤト", "kind": "person", "lines": 52, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0051", "source": "主婦A", "kind": "person", "lines": 48, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0048", "source": "ラジオ体操大好きさん", "kind": "role", "lines": 56, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0049", "source": "主婦B", "kind": "role", "lines": 55, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0050", "source": "ハヤト", "kind": "person", "lines": 52, "preferred_ru": "Хаято", "status": "provisional", "romaji": "Hayato"}
+{"id": "SPK-0051", "source": "主婦A", "kind": "role", "lines": 48, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0052", "source": "眼鏡の少年", "kind": "role", "lines": 48, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0053", "source": "年上っぽい女の子", "kind": "role", "lines": 48, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0054", "source": "ハイドロ", "kind": "person", "lines": 43, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0055", "source": "恵", "kind": "person", "lines": 42, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0056", "source": "青年団団長", "kind": "person", "lines": 42, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0054", "source": "ハイドロ", "kind": "role", "lines": 43, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0055", "source": "恵", "kind": "person", "lines": 42, "preferred_ru": "Мегуми", "status": "provisional", "romaji": "Megumi"}
+{"id": "SPK-0056", "source": "青年団団長", "kind": "role", "lines": 42, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0057", "source": "ちんまい少女", "kind": "role", "lines": 41, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0058", "source": "島の大人A", "kind": "role", "lines": 40, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0059", "source": "栗毛の女の子", "kind": "role", "lines": 37, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0060", "source": "しろはのおじーさん", "kind": "role", "lines": 36, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0061", "source": "ミケネコ", "kind": "person", "lines": 34, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0062", "source": "ツバメ", "kind": "person", "lines": 33, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0061", "source": "ミケネコ", "kind": "role", "lines": 34, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0062", "source": "ツバメ", "kind": "person", "lines": 33, "preferred_ru": "Цубаме", "status": "provisional", "romaji": "Tsubame"}
 {"id": "SPK-0063", "source": "女性", "kind": "role", "lines": 32, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0064", "source": "頑強なおじーちゃん", "kind": "person", "lines": 30, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0064", "source": "頑強なおじーちゃん", "kind": "role", "lines": 30, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0065", "source": "ひとりぼっちの漁師", "kind": "role", "lines": 28, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0066", "source": "屋台のおっさん", "kind": "role", "lines": 28, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0067", "source": "漁師B", "kind": "role", "lines": 27, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0068", "source": "強面の老人", "kind": "role", "lines": 27, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0069", "source": "島の大人B", "kind": "role", "lines": 26, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0070", "source": "主婦C", "kind": "person", "lines": 25, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0071", "source": "青年団副長", "kind": "person", "lines": 25, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0070", "source": "主婦C", "kind": "role", "lines": 25, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0071", "source": "青年団副長", "kind": "role", "lines": 25, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0072", "source": "髭のおじーちゃん", "kind": "role", "lines": 24, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0073", "source": "青龍", "kind": "person", "lines": 24, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0074", "source": "やさしげなおじーさん", "kind": "person", "lines": 24, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0073", "source": "青龍", "kind": "person", "lines": 24, "preferred_ru": "Сеирю", "status": "provisional", "romaji": "Seiryu"}
+{"id": "SPK-0074", "source": "やさしげなおじーさん", "kind": "role", "lines": 24, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0075", "source": "背の低い少女", "kind": "role", "lines": 24, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0076", "source": "島の大人C", "kind": "role", "lines": 24, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0077", "source": "子供達", "kind": "role", "lines": 22, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0078", "source": "一同", "kind": "person", "lines": 22, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0079", "source": "老犬", "kind": "person", "lines": 22, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0080", "source": "偽玄武", "kind": "person", "lines": 21, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0078", "source": "一同", "kind": "role", "lines": 22, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0079", "source": "老犬", "kind": "role", "lines": 22, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0080", "source": "偽玄武", "kind": "role", "lines": 21, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0081", "source": "役場の職員", "kind": "role", "lines": 21, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0082", "source": "猫", "kind": "person", "lines": 19, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0082", "source": "猫", "kind": "role", "lines": 19, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0083", "source": "少女A", "kind": "role", "lines": 19, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0084", "source": "おっさん", "kind": "role", "lines": 18, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0085", "source": "蒼の母", "kind": "role", "lines": 17, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0086", "source": "？？", "kind": "unknown", "lines": 17, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0087", "source": "おっぱいさん", "kind": "person", "lines": 16, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0088", "source": "ジャージ男", "kind": "role", "lines": 15, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0089", "source": "羽依里・うみ", "kind": "person", "lines": 15, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0089", "source": "羽依里・うみ", "kind": "person", "lines": 15, "preferred_ru": "Хаири & уми", "status": "provisional", "romaji": "Hairi & Umi"}
 {"id": "SPK-0090", "source": "少女B", "kind": "role", "lines": 15, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0091", "source": "島の女性", "kind": "role", "lines": 15, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0092", "source": "大男", "kind": "role", "lines": 15, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0093", "source": "堀田のじーちゃん", "kind": "role", "lines": 15, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0094", "source": "しろはの親戚", "kind": "role", "lines": 15, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0095", "source": "おじーちゃん", "kind": "person", "lines": 15, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0095", "source": "おじーちゃん", "kind": "role", "lines": 15, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0096", "source": "中学時代の友人A", "kind": "role", "lines": 14, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0097", "source": "ハイドロなんとか", "kind": "person", "lines": 13, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0097", "source": "ハイドロなんとか", "kind": "role", "lines": 13, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0098", "source": "野生の猪", "kind": "role", "lines": 13, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0099", "source": "朱雀", "kind": "person", "lines": 13, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0099", "source": "朱雀", "kind": "person", "lines": 13, "preferred_ru": "Сузаку", "status": "provisional", "romaji": "Suzaku"}
 {"id": "SPK-0100", "source": "漁師C", "kind": "role", "lines": 12, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0101", "source": "男", "kind": "role", "lines": 11, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0102", "source": "女の子A", "kind": "role", "lines": 11, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0103", "source": "良一妹", "kind": "person", "lines": 10, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0103", "source": "良一妹", "kind": "role", "lines": 10, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0104", "source": "中学時代の友人B", "kind": "role", "lines": 10, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0105", "source": "良一・天善", "kind": "person", "lines": 9, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0105", "source": "良一・天善", "kind": "person", "lines": 9, "preferred_ru": "Рёичи & тензен", "status": "provisional", "romaji": "Ryoichi & Tenzen"}
 {"id": "SPK-0106", "source": "船内アナウンス", "kind": "role", "lines": 9, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0107", "source": "白虎", "kind": "person", "lines": 9, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0108", "source": "医者", "kind": "person", "lines": 9, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0107", "source": "白虎", "kind": "role", "lines": 9, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0108", "source": "医者", "kind": "role", "lines": 9, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0109", "source": "少女", "kind": "role", "lines": 9, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0110", "source": "俳優", "kind": "person", "lines": 8, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0111", "source": "猪", "kind": "person", "lines": 8, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0112", "source": "羽依里・鴎", "kind": "person", "lines": 7, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0113", "source": "鶏", "kind": "person", "lines": 7, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0110", "source": "俳優", "kind": "role", "lines": 8, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0111", "source": "猪", "kind": "role", "lines": 8, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0112", "source": "羽依里・鴎", "kind": "person", "lines": 7, "preferred_ru": "Хаири & камоме", "status": "provisional", "romaji": "Hairi & Kamome"}
+{"id": "SPK-0113", "source": "鶏", "kind": "role", "lines": 7, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0114", "source": "女優", "kind": "role", "lines": 7, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0115", "source": "羽依里・良一", "kind": "person", "lines": 7, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0115", "source": "羽依里・良一", "kind": "person", "lines": 7, "preferred_ru": "Хаири & рёичи", "status": "provisional", "romaji": "Hairi & Ryoichi"}
 {"id": "SPK-0116", "source": "堀田父", "kind": "role", "lines": 7, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0117", "source": "手紙", "kind": "person", "lines": 7, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0117", "source": "手紙", "kind": "role", "lines": 7, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0118", "source": "水織先輩", "kind": "person", "lines": 7, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0119", "source": "先生", "kind": "role", "lines": 7, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0120", "source": "猟師", "kind": "person", "lines": 7, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0120", "source": "猟師", "kind": "role", "lines": 7, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0121", "source": "$(108)", "kind": "person", "lines": 6, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0122", "source": "羽依里・しろは", "kind": "person", "lines": 6, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0122", "source": "羽依里・しろは", "kind": "person", "lines": 6, "preferred_ru": "Хаири & широха", "status": "provisional", "romaji": "Hairi & Shiroha"}
 {"id": "SPK-0123", "source": "蒼の父", "kind": "role", "lines": 6, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0124", "source": "毎度ありー", "kind": "person", "lines": 6, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0124", "source": "毎度ありー", "kind": "role", "lines": 6, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0125", "source": "女の子B", "kind": "role", "lines": 6, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0126", "source": "半裸の男", "kind": "role", "lines": 6, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0127", "source": "観光客の女性", "kind": "role", "lines": 5, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0128", "source": "男性", "kind": "role", "lines": 5, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0129", "source": "紬・静久", "kind": "person", "lines": 5, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0130", "source": "カエル", "kind": "person", "lines": 5, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0131", "source": "しろは・七海", "kind": "person", "lines": 5, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0132", "source": "瞳", "kind": "person", "lines": 5, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0133", "source": "亀", "kind": "person", "lines": 5, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0134", "source": "水泳部主将", "kind": "person", "lines": 5, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0135", "source": "野良猫", "kind": "person", "lines": 4, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0136", "source": "アナウンサー", "kind": "person", "lines": 4, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0137", "source": "玄武？", "kind": "person", "lines": 4, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0138", "source": "鳥", "kind": "person", "lines": 4, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0139", "source": "羽依里手紙", "kind": "person", "lines": 4, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0140", "source": "テレビ", "kind": "person", "lines": 4, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0129", "source": "紬・静久", "kind": "person", "lines": 5, "preferred_ru": "Цумуги & шизуку", "status": "provisional", "romaji": "Tsumugi & Shizuku"}
+{"id": "SPK-0130", "source": "カエル", "kind": "role", "lines": 5, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0131", "source": "しろは・七海", "kind": "person", "lines": 5, "preferred_ru": "Широха & нанами", "status": "provisional", "romaji": "Shiroha & Nanami"}
+{"id": "SPK-0132", "source": "瞳", "kind": "person", "lines": 5, "preferred_ru": "Хитоми", "status": "provisional", "romaji": "Hitomi"}
+{"id": "SPK-0133", "source": "亀", "kind": "role", "lines": 5, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0134", "source": "水泳部主将", "kind": "role", "lines": 5, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0135", "source": "野良猫", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0136", "source": "アナウンサー", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0137", "source": "玄武？", "kind": "person", "lines": 4, "preferred_ru": "Генбу?", "status": "provisional", "romaji": "Genbu?"}
+{"id": "SPK-0138", "source": "鳥", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0139", "source": "羽依里手紙", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0140", "source": "テレビ", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0141", "source": "小学生女子A", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0142", "source": "船員", "kind": "person", "lines": 4, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0143", "source": "羽依里・蒼", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0142", "source": "船員", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0143", "source": "羽依里・蒼", "kind": "person", "lines": 3, "preferred_ru": "Хаири & ао", "status": "provisional", "romaji": "Hairi & Ao"}
 {"id": "SPK-0144", "source": "女性？", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0145", "source": "三谷", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0146", "source": "蒼・羽依里", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0147", "source": "謎声", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0148", "source": "おっぱい", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0149", "source": "タカマガハラ", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0150", "source": "タカシャルハラスメント", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0151", "source": "キャサリン", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0145", "source": "三谷", "kind": "person", "lines": 3, "preferred_ru": "Митани", "status": "provisional", "romaji": "Mitani"}
+{"id": "SPK-0146", "source": "蒼・羽依里", "kind": "person", "lines": 3, "preferred_ru": "Ао & хаири", "status": "provisional", "romaji": "Ao & Hairi"}
+{"id": "SPK-0147", "source": "謎声", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0148", "source": "おっぱい", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0149", "source": "タカマガハラ", "kind": "person", "lines": 3, "preferred_ru": "Такамагахара", "status": "provisional", "romaji": "Takamagahara"}
+{"id": "SPK-0150", "source": "タカシャルハラスメント", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0151", "source": "キャサリン", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0152", "source": "女の人", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0153", "source": "過去の島民", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0154", "source": "水泳部部員A", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0155", "source": "水泳部部員B", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0156", "source": "青年団団員A", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0157", "source": "青年団団員B", "kind": "person", "lines": 3, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0154", "source": "水泳部部員A", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0155", "source": "水泳部部員B", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0156", "source": "青年団団員A", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0157", "source": "青年団団員B", "kind": "role", "lines": 3, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0158", "source": "女の子達", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0159", "source": "羽依里・女の子", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0160", "source": "美希・蒼", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0161", "source": "美希・良一", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0162", "source": "蒼・美希", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0160", "source": "美希・蒼", "kind": "person", "lines": 2, "preferred_ru": "Мики & ао", "status": "provisional", "romaji": "Miki & Ao"}
+{"id": "SPK-0161", "source": "美希・良一", "kind": "person", "lines": 2, "preferred_ru": "Мики & рёичи", "status": "provisional", "romaji": "Miki & Ryoichi"}
+{"id": "SPK-0162", "source": "蒼・美希", "kind": "person", "lines": 2, "preferred_ru": "Ао & мики", "status": "provisional", "romaji": "Ao & Miki"}
 {"id": "SPK-0163", "source": "美希・少女達", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0164", "source": "ギャラリー", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0165", "source": "羽依里・天善", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0166", "source": "チームメイト", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0167", "source": "警官", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0168", "source": "配達員", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0169", "source": "パイリ", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0170", "source": "鷹原・パイリ・おっぱい", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0171", "source": "羽依里・静久", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0172", "source": "ロリコンライダーA", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0173", "source": "ロリコンライダーB", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0174", "source": "ロリコンライダーC", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0175", "source": "良一・羽依里", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0176", "source": "羽依里（小学生）", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0164", "source": "ギャラリー", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0165", "source": "羽依里・天善", "kind": "person", "lines": 2, "preferred_ru": "Хаири & тензен", "status": "provisional", "romaji": "Hairi & Tenzen"}
+{"id": "SPK-0166", "source": "チームメイト", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0167", "source": "警官", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0168", "source": "配達員", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0169", "source": "パイリ", "kind": "person", "lines": 2, "preferred_ru": "Паири", "status": "provisional", "romaji": "Pairi"}
+{"id": "SPK-0170", "source": "鷹原・パイリ・おっぱい", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0171", "source": "羽依里・静久", "kind": "person", "lines": 2, "preferred_ru": "Хаири & шизуку", "status": "provisional", "romaji": "Hairi & Shizuku"}
+{"id": "SPK-0172", "source": "ロリコンライダーA", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0173", "source": "ロリコンライダーB", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0174", "source": "ロリコンライダーC", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0175", "source": "良一・羽依里", "kind": "person", "lines": 2, "preferred_ru": "Рёичи & хаири", "status": "provisional", "romaji": "Ryoichi & Hairi"}
+{"id": "SPK-0176", "source": "羽依里（小学生）", "kind": "person", "lines": 2, "preferred_ru": "Хаири", "status": "provisional", "romaji": "Hairi"}
 {"id": "SPK-0177", "source": "小学生女子B", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0178", "source": "小学生女子C", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0179", "source": "島民", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0179", "source": "島民", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0180", "source": "小鳩・――", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0181", "source": "七海・小鳩", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0181", "source": "七海・小鳩", "kind": "person", "lines": 2, "preferred_ru": "Нанами & кобато", "status": "provisional", "romaji": "Nanami & Kobato"}
 {"id": "SPK-0182", "source": "半裸の男・ジャージ男", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0183", "source": "ハチ駆除業者A", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0184", "source": "ハチ駆除業者B", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0183", "source": "ハチ駆除業者A", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0184", "source": "ハチ駆除業者B", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0185", "source": "羽依里・駄菓子屋のおばーちゃん", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0186", "source": "観光客A", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0187", "source": "観光客B", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0188", "source": "観光客C", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0186", "source": "観光客A", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0187", "source": "観光客B", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0188", "source": "観光客C", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0189", "source": "鳴瀬の巫女", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0190", "source": "空門の巫女", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0191", "source": "漁師", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0192", "source": "水泳部部員C", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0193", "source": "ナレーション", "kind": "person", "lines": 2, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0192", "source": "水泳部部員C", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0193", "source": "ナレーション", "kind": "role", "lines": 2, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0194", "source": "うみ・羽依里", "kind": "person", "lines": 1, "preferred_ru": null, "status": "provisional"}

@@ -1029,6 +1029,7 @@ def validate(root: Path, config: dict[str, Any]) -> int:
     source_errors, source_warnings, source_totals = validate_source_catalogs(root, config)
     errors.extend(source_errors)
     warnings.extend(source_warnings)
+    name_map = approved_names(root, config)
     segments = load_segments(root, config)
     seen: dict[str, tuple[str, int]] = {}
     by_scene: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -1059,7 +1060,11 @@ def validate(root: Path, config: dict[str, Any]) -> int:
         # пустой сегмент ещё не является нарушением чего-либо.
         translation = str(row.get("translation", ""))
         if translation.strip():
-            for finding in check_line(translation, is_dialogue=bool(row.get("speaker"))):
+            checks = check_line(translation, is_dialogue=bool(row.get("speaker")))
+            sources = row.get("sources") or {}
+            checks += check_names(str(sources.get("ja", "")), row.get("speaker"),
+                                  translation, name_map)
+            for finding in checks:
                 message = f"{loc}: {finding.decision} {finding.message}"
                 (errors if finding.severity == "error" else warnings).append(message)
         flags = row.get("flags", []) or []
@@ -1362,6 +1367,31 @@ def safe_constraints(root: Path, config: dict[str, Any], segment_ids: set[str]) 
                 "safe_rules": row.get("safe_rules", []),
             })
     return out
+
+
+def approved_names(root: Path, config: dict[str, Any]) -> dict[str, str]:
+    """Утверждённые русские формы имён: справочник говорящих плюс глоссарий."""
+    names: dict[str, str] = {}
+    roles: set[str] = set()
+    speakers = root / "translation/speakers.jsonl"
+    if speakers.exists():
+        for row in read_jsonl(speakers):
+            if row.get("kind") == "person" and row.get("preferred_ru"):
+                names[str(row["source"])] = str(row["preferred_ru"])
+            elif row.get("kind") in ("role", "unknown"):
+                roles.add(str(row["source"]))
+    glossary = read_yaml(root / config.get("paths", {}).get(
+        "glossary", "docs/glossary.yaml"), []) or []
+    # Ярлык говорящего выводится движком отдельным полем, внутри строки его быть
+    # не должно: проверять его там - гарантированное ложное срабатывание.
+    skip = {"speaker_label", "role", "address"}
+    for row in glossary:
+        source = str(row.get("source", ""))
+        if row.get("kind") in skip or source in roles:
+            continue
+        if source and row.get("preferred_ru"):
+            names.setdefault(source, str(row["preferred_ru"]))
+    return names
 
 
 def findings_relevance(row: dict[str, Any]) -> str:
@@ -1833,7 +1863,7 @@ def write_jsonl_atomic(path: Path, rows: list[dict[str, Any]]) -> None:
     tmp.replace(path)
 
 
-from textrules import check_length, check_line  # noqa: E402
+from textrules import check_length, check_line, check_names  # noqa: E402
 
 
 FINDING_AREAS = {"scene-pack", "engine", "font", "encoding", "tooling", "content"}

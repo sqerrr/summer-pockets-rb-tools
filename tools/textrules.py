@@ -127,6 +127,38 @@ def check_line(text: str, *, is_dialogue: bool) -> list[Finding]:
     return out
 
 
+def check_names(source_ja: str, speaker: str | None, ru: str,
+                names: dict[str, str]) -> list[Finding]:
+    """Имя из справочника должно писаться утверждённой формой.
+
+    Русские падежи не позволяют сравнивать целиком, поэтому сверяется основа:
+    отбрасываются два последних знака, что покрывает обычное склонение и не
+    даёт ложных срабатываний на «Широхе» или «Шизуку».
+
+    Проверка мягкая: имя может быть заменено местоимением или опущено вовсе,
+    и это нормальный перевод. Ошибкой считается только другое написание.
+    """
+    if not ru.strip() or not names:
+        return []
+    haystack = f"{source_ja} {speaker or ''}"
+    out: list[Finding] = []
+    for source, russian in names.items():
+        if source not in haystack:
+            continue
+        # У составной записи проверяется последнее слово: родовая часть по
+        # DEC-0021 называется один раз, дальше в тексте стоит только имя.
+        head = russian.split()[-1] if russian.split() else russian
+        stem = head[:-2] if len(head) > 4 else head
+        if stem.lower() in ru.lower():
+            continue
+        # Имя упомянуто в исходнике, но его формы в переводе нет. Это законно,
+        # если оно заменено местоимением; сообщаем, но не блокируем.
+        out.append(Finding("names", "DEC-0020",
+                           f"имя {source} -> ожидалась форма {russian}",
+                           severity="warning"))
+    return out
+
+
 def check_length(ru: str, en: str, *, margin: float = 1.35) -> list[Finding]:
     """Длина русской строки против английской.
 
