@@ -1062,8 +1062,10 @@ def validate(root: Path, config: dict[str, Any]) -> int:
         if translation.strip():
             checks = check_line(translation, is_dialogue=bool(row.get("speaker")))
             sources = row.get("sources") or {}
-            checks += check_names(str(sources.get("ja", "")), row.get("speaker"),
-                                  translation, name_map)
+            # Построчная проверка имён снята: она срабатывала на отсутствие
+            # имени в переводе, а замена имени местоимением - обычный перевод,
+            # не ошибка. Точность оказалась низкой, а единообразие написания
+            # ловится аудитором поперёк сцен, где оно и имеет смысл.
             checks += check_markup(str(sources.get("ja", "")), translation)
             for finding in checks:
                 message = f"{loc}: {finding.decision} {finding.message}"
@@ -1087,9 +1089,13 @@ def validate(root: Path, config: dict[str, Any]) -> int:
         if str(row.get("translation", "")).strip():
             src = str(row.get("source", ""))
             dst = str(row.get("translation", ""))
+            # Ruby is source-only reading metadata. Its removal is validated by
+            # check_markup(), so generic token comparison must not demand it.
+            generic_src = strip_ruby(src)
+            generic_dst = strip_ruby(dst)
             for pattern in patterns:
-                src_tokens = pattern.findall(src)
-                dst_tokens = pattern.findall(dst)
+                src_tokens = pattern.findall(generic_src)
+                dst_tokens = pattern.findall(generic_dst)
                 if src_tokens != dst_tokens:
                     warnings.append(
                         f"{loc}: protected-token mismatch for {pattern.pattern}: "
@@ -1294,10 +1300,14 @@ def linked_decisions(db: Path, segment_ids: set[str]) -> list[dict[str, Any]]:
     con.row_factory = sqlite3.Row
     out: list[dict[str, Any]] = []
     try:
-        for row in con.execute("SELECT payload_json FROM decisions"):
-            item = json.loads(row["payload_json"])
+        items = [json.loads(row["payload_json"])
+                 for row in con.execute("SELECT payload_json FROM decisions")]
+        superseded = {str(item.get("supersedes")) for item in items
+                      if item.get("supersedes")}
+        for item in items:
             linked = set(map(str, item.get("segment_ids", item.get("segments", []))))
-            if linked & segment_ids:
+            if (linked & segment_ids and item.get("status") == "approved"
+                    and str(item.get("id")) not in superseded):
                 safe = {k: v for k, v in item.items() if k not in {"private_reason", "reason_private"}}
                 out.append(safe)
     finally:
@@ -1443,6 +1453,114 @@ def rules_checklist(root: Path, config: dict[str, Any]) -> list[str]:
     return out
 
 
+def brief(root: Path, config: dict[str, Any]) -> int:
+    """Сводка для входа в проект: что решено, что открыто, что установлено.
+
+    Существует потому, что записать знание есть куда, а прочитать его никто не
+    обязан. Правило «прочитай docs/project/» не работает: свежий агент читает
+    то, что успеет, и предлагает как новинку решение, принятое неделю назад.
+    Здесь действует тот же принцип, что в work next - знание вкладывают, а не
+    сообщают, где оно лежит.
+    """
+    print("=" * 70)
+    print("СОСТОЯНИЕ ПРОЕКТА")
+    print("=" * 70)
+
+    scenes = load_scenes(root, config)
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    total = done = 0
+    for path in sorted(seg_dir.glob("*.jsonl")):
+        for row in read_jsonl(path):
+            total += 1
+            if str(row.get("translation", "")).strip():
+                done += 1
+    print(f"Сцен: {len(scenes)} | сегментов: {total} | переведено: {done} "
+          f"({done / total * 100:.3f}%)" if total else "Сегментов нет")
+
+    integration = config.get("integration", {})
+    slot = config.get("source_sets", {}).get("steam_luca", {}).get("build_slot")
+    print(f"Языковой слот сборки: {slot} | build_command: "
+          f"{integration.get('build_command') or 'НЕ ЗАДАН'}")
+
+    print("\n" + "=" * 70)
+    print("УТВЕРЖДЁННЫЕ РЕШЕНИЯ")
+    print("=" * 70)
+    rows = read_jsonl(root / config.get("paths", {}).get(
+        "decisions", "docs/decisions.jsonl"))
+    superseded = {str(r.get("supersedes")) for r in rows if r.get("supersedes")}
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        if row.get("status") != "approved" or str(row.get("id")) in superseded:
+            continue
+        groups.setdefault(str(row.get("type", "прочее")), []).append(row)
+    for kind in sorted(groups):
+        print(f"\n[{kind}]")
+        for row in groups[kind]:
+            text = " ".join(str(row.get("decision", "")).split())
+            print(f"  {row['id']}: {text}")
+
+    print("\n" + "=" * 70)
+    print("УСТАНОВЛЕНО О ДВИЖКЕ И ТЕКСТЕ")
+    print("=" * 70)
+    fpath = root / config.get("paths", {}).get("findings", "docs/project/findings.jsonl")
+    for row in read_jsonl(fpath):
+        if findings_relevance(row) == "current":
+            print(f"  {row['id']} [{row['kind']}] {row['title']}")
+
+    print("\n" + "=" * 70)
+    print("ОТКРЫТЫЕ ВОПРОСЫ")
+    print("=" * 70)
+    qpath = root / config.get("paths", {}).get(
+        "questions", "translation/open-questions.jsonl")
+    if qpath.exists():
+        open_rows = [r for r in read_jsonl(qpath) if r.get("status") == "open"]
+        for row in open_rows:
+            print(f"  {row['id']} [{row.get('kind')}] "
+                  f"{' '.join(str(row.get('question','')).split())[:90]}")
+            print(f"      рабочий вариант: "
+                  f"{' '.join(str(row.get('provisional','')).split())[:80]}")
+        if not open_rows:
+            print("  нет")
+
+    print("\nПодробности: docs/project/luca-format.md — как устроен формат;")
+    print("docs/translation-spec.md — переводческая политика;")
+    print("docs/project/findings-archive.jsonl — опровергнутое и legacy.")
+    return 0
+
+
+def next_unfinished_scene(root: Path, config: dict[str, Any]) -> str | None:
+    """Следующая сцена для перевода.
+
+    Без этого сцену выбирает человек, и нигде не записано, где остановились.
+    Порядок берём из каталога сцен, а не из имён файлов: он отражает ход игры.
+
+    Два правила поверх порядка, оба выведены из наблюдённой ошибки:
+
+    - начатая сцена важнее новой. Иначе очередь уводит с недоделанной сцены на
+      более раннюю по номеру, и брошенный хвост не находит никто;
+    - сцены из ``workflow.deferred_scenes`` уходят в конец. Первый номер файла
+      занимает отладочный скрипт с именами звуков и служебными сообщениями:
+      без этого правила перевод начинается именно с него.
+    """
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    deferred = set(config.get("workflow", {}).get("deferred_scenes") or [])
+    buckets: dict[tuple[bool, bool], list[str]] = {}
+    for scene in load_scenes(root, config):
+        scene_id = str(scene["scene_id"])
+        path = seg_dir / f"{scene_id}.jsonl"
+        if not path.exists():
+            continue
+        rows = read_jsonl(path)
+        translated = [bool(str(r.get("translation", "")).strip()) for r in rows]
+        if all(translated):
+            continue
+        buckets.setdefault((scene_id in deferred, not any(translated)), []).append(scene_id)
+    for key in ((False, False), (False, True), (True, False), (True, True)):
+        if buckets.get(key):
+            return buckets[key][0]
+    return None
+
+
 def work_next(root: Path, config: dict[str, Any], scene_id: str,
               size: int, start: int | None) -> str:
     """Компактный рабочий пакет на одну порцию строк.
@@ -1470,7 +1588,9 @@ def work_next(root: Path, config: dict[str, Any], scene_id: str,
         first = pending[0]
     else:
         first = max(0, start - 1)
-    batch = rows[first:first + size]
+    # size = 0 означает сцену целиком: процесс требует прочитать её
+    # до перевода первой строки, а порция это правило нарушает.
+    batch = rows[first:] if size <= 0 else rows[first:first + size]
     lead = rows[max(0, first - 5):first]
 
     speakers = sorted({str(r["speaker"]) for r in batch if r["speaker"]})
@@ -1706,6 +1826,7 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str) -> str:
     glossary = glossary_for_scene(root, config, source_text)
     constraints = safe_constraints(root, config, seg_ids)
     decisions = linked_decisions(db, seg_ids)
+    global_rules = rules_checklist(root, config)
     workflow = config.get("workflow", {})
     example_limit = int(workflow.get(
         "internal_examples_limit",
@@ -1721,6 +1842,12 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str) -> str:
     parts.append("## Задача\nПеревести или проверить текущую сцену по правилам проекта. Не выводить будущие сюжетные сведения.\n")
     parts.append("## Текущий прогресс\n```yaml\n" + (yaml.safe_dump(progress, allow_unicode=True, sort_keys=False) if yaml else json.dumps(progress, ensure_ascii=False, indent=2)) + "```\n")
     parts.append("## Глобальная спецификация\n" + spec + "\n")
+    parts.append("## Действующие утверждённые решения\n")
+    if global_rules:
+        parts.extend("- " + rule for rule in global_rules)
+        parts.append("")
+    else:
+        parts.append("Нет.\n")
     parts.append("## Участники\n" + (", ".join(speakers) if speakers else "Повествование / неизвестно") + "\n")
 
     for speaker in speakers:
@@ -1742,7 +1869,7 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str) -> str:
     else:
         parts.append("Нет.\n")
 
-    parts.append("## Связанные утверждённые решения\n")
+    parts.append("## Связанные с сегментами утверждённые решения\n")
     if decisions:
         parts.append("```json\n" + json.dumps(decisions, ensure_ascii=False, indent=2) + "\n```\n")
     else:
@@ -1757,8 +1884,11 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str) -> str:
     else:
         parts.append("Пока нет.\n")
 
+    parts.append("## Безопасное резюме предыдущей сцены\n")
     if previous_summary and previous_summary["safe_summary"]:
-        parts.append("## Безопасное резюме предыдущей сцены\n" + str(previous_summary["safe_summary"]) + "\n")
+        parts.append(str(previous_summary["safe_summary"]) + "\n")
+    else:
+        parts.append("Нет утверждённого безопасного резюме; используйте только непосредственные соседние сегменты.\n")
 
     def render_segments(title: str, segment_rows: Iterable[sqlite3.Row]) -> None:
         parts.append(f"## {title}\n```jsonl")
@@ -1949,7 +2079,7 @@ def write_jsonl_atomic(path: Path, rows: list[dict[str, Any]]) -> None:
     tmp.replace(path)
 
 
-from textrules import check_length, check_line, check_markup, check_names  # noqa: E402
+from textrules import check_length, check_line, check_markup, check_names, strip_ruby  # noqa: E402
 
 
 FINDING_AREAS = {"scene-pack", "engine", "font", "encoding", "tooling", "content"}
@@ -2037,6 +2167,7 @@ def main() -> int:
     p_context = sub.add_parser("context")
     p_context.add_argument("scene_id")
     p_context.add_argument("-o", "--output", type=Path)
+    sub.add_parser("brief")
     p_lines = sub.add_parser("lines")
     p_lines.add_argument("--speaker")
     p_lines.add_argument("--contains")
@@ -2045,8 +2176,8 @@ def main() -> int:
     p_work = sub.add_parser("work")
     work_sub = p_work.add_subparsers(dest="work_command", required=True)
     p_wnext = work_sub.add_parser("next")
-    p_wnext.add_argument("scene_id")
-    p_wnext.add_argument("--size", type=int, default=40)
+    p_wnext.add_argument("scene_id", nargs="?")
+    p_wnext.add_argument("--size", type=int, default=0)
     p_wnext.add_argument("--start", type=int, default=None)
     p_wnext.add_argument("-o", "--output", type=Path)
     p_wcheck = work_sub.add_parser("check")
@@ -2081,12 +2212,18 @@ def main() -> int:
             return findings(root, config)
         if args.command == "questions":
             return questions(root, config)
+        if args.command == "brief":
+            return brief(root, config)
         if args.command == "lines":
             return lines_query(root, config, args.speaker, args.contains,
                                args.limit, args.stats)
         if args.command == "work":
             if args.work_command == "next":
-                content = work_next(root, config, args.scene_id, args.size, args.start)
+                scene_id = args.scene_id or next_unfinished_scene(root, config)
+                if not scene_id:
+                    print("Непереведённых сцен не осталось.")
+                    return 0
+                content = work_next(root, config, scene_id, args.size, args.start)
                 if args.output:
                     out = args.output if args.output.is_absolute() else root / args.output
                     out.parent.mkdir(parents=True, exist_ok=True)

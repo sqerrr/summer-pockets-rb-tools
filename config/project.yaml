@@ -34,11 +34,17 @@ builds:
     game_control: game-tools/game_steam.ps1
     text_encoding: direct-unicode
     delivery:
-      preserve_existing_languages: true
-      russian_user_language: required
-      implementation_status: undecided
-      native_fourth_slot: requires_executable_patch
-      presentation_shim: proposed_not_verified
+      preserve_existing_languages: false
+      preserved_languages:
+      - ja
+      - zh-Hans
+      replaced_language: en
+      russian_script_slot: 1
+      russian_user_language: english_slot
+      implementation_status: approved
+      native_fourth_slot: out_of_scope
+      presentation_shim: out_of_scope
+      decision: DEC-0024
   legacy_siglus:
     id: legacy-siglus
     engine: SiglusEngine
@@ -89,7 +95,7 @@ paths:
 integration:
   active_engine_skill: vn-engine-luca
   parse_command: python game-tools/export_luca_sources.py
-  build_command: ''
+  build_command: python game-tools/build_luca_release.py
   smoke_test_command: powershell -File game-tools/game_steam.ps1 -Action resume -Out build/steam/smoke.png
   translator_gui: legacy-siglus/SPTranslate/SPTranslate.exe
   siglus_lib: legacy-siglus/siglus.py
@@ -115,3 +121,7 @@ workflow:
   external_reference_limit: 3
   max_scene_segments: 400
   user_progress_scene: ''
+  deferred_scenes:
+  - SCN0001
+  - SCN0002
+  - SCN0003

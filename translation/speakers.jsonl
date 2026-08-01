@@ -12,7 +12,7 @@
 {"id": "SPK-0012", "source": "鏡子", "kind": "person", "lines": 1693, "preferred_ru": "Кёко", "status": "provisional", "romaji": "Kyoko"}
 {"id": "SPK-0013", "source": "小鳩", "kind": "person", "lines": 601, "preferred_ru": "Кобато", "status": "provisional", "romaji": "Kobato"}
 {"id": "SPK-0014", "source": "七海", "kind": "person", "lines": 576, "preferred_ru": "Нанами", "status": "provisional", "romaji": "Nanami"}
-{"id": "SPK-0015", "source": "女の子", "kind": "role", "lines": 315, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0015", "source": "女の子", "kind": "role", "lines": 315, "preferred_ru": "Девушка", "status": "provisional"}
 {"id": "SPK-0016", "source": "駄菓子屋のおばーちゃん", "kind": "role", "lines": 264, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0017", "source": "島の少女A", "kind": "role", "lines": 251, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0018", "source": "鷺", "kind": "person", "lines": 247, "preferred_ru": "Саги", "status": "provisional", "romaji": "Sagi"}
@@ -21,7 +21,7 @@
 {"id": "SPK-0021", "source": "島の少女B", "kind": "role", "lines": 224, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0022", "source": "イナリ", "kind": "person", "lines": 207, "preferred_ru": "Инари", "status": "provisional", "romaji": "Inari"}
 {"id": "SPK-0023", "source": "？？？", "kind": "unknown", "lines": 207, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0024", "source": "食堂のおっさん", "kind": "role", "lines": 204, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0024", "source": "食堂のおっさん", "kind": "role", "lines": 204, "preferred_ru": "Мужик из столовой", "status": "provisional"}
 {"id": "SPK-0025", "source": "島の子供B", "kind": "role", "lines": 190, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0026", "source": "島の少女C", "kind": "role", "lines": 180, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0027", "source": "カモメ", "kind": "person", "lines": 171, "preferred_ru": "Камоме", "status": "provisional", "romaji": "Kamome"}
@@ -37,12 +37,12 @@
 {"id": "SPK-0037", "source": "着物の少女", "kind": "role", "lines": 106, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0038", "source": "――", "kind": "person", "lines": 102, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0039", "source": "男性記者", "kind": "role", "lines": 85, "preferred_ru": null, "status": "provisional"}
-{"id": "SPK-0040", "source": "おばーちゃん", "kind": "role", "lines": 80, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0040", "source": "おばーちゃん", "kind": "role", "lines": 80, "preferred_ru": "Бабуля", "status": "provisional"}
 {"id": "SPK-0041", "source": "女性記者", "kind": "role", "lines": 67, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0042", "source": "堀田", "kind": "role", "lines": 66, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0043", "source": "$(110)", "kind": "person", "lines": 65, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0044", "source": "スズメ", "kind": "person", "lines": 60, "preferred_ru": "Сузуме", "status": "provisional", "romaji": "Suzume"}
-{"id": "SPK-0045", "source": "声", "kind": "role", "lines": 58, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0045", "source": "声", "kind": "role", "lines": 58, "preferred_ru": "Голос", "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0046", "source": "半裸男", "kind": "role", "lines": 58, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0047", "source": "小学校女教師", "kind": "role", "lines": 58, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0048", "source": "ラジオ体操大好きさん", "kind": "role", "lines": 56, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
@@ -60,7 +60,7 @@
 {"id": "SPK-0060", "source": "しろはのおじーさん", "kind": "role", "lines": 36, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0061", "source": "ミケネコ", "kind": "role", "lines": 34, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0062", "source": "ツバメ", "kind": "person", "lines": 33, "preferred_ru": "Цубаме", "status": "provisional", "romaji": "Tsubame"}
-{"id": "SPK-0063", "source": "女性", "kind": "role", "lines": 32, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0063", "source": "女性", "kind": "role", "lines": 32, "preferred_ru": "Женщина", "status": "provisional"}
 {"id": "SPK-0064", "source": "頑強なおじーちゃん", "kind": "role", "lines": 30, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0065", "source": "ひとりぼっちの漁師", "kind": "role", "lines": 28, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0066", "source": "屋台のおっさん", "kind": "role", "lines": 28, "preferred_ru": null, "status": "provisional"}
@@ -103,7 +103,7 @@
 {"id": "SPK-0103", "source": "良一妹", "kind": "role", "lines": 10, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0104", "source": "中学時代の友人B", "kind": "role", "lines": 10, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0105", "source": "良一・天善", "kind": "person", "lines": 9, "preferred_ru": "Рёичи & тензен", "status": "provisional", "romaji": "Ryoichi & Tenzen"}
-{"id": "SPK-0106", "source": "船内アナウンス", "kind": "role", "lines": 9, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0106", "source": "船内アナウンス", "kind": "role", "lines": 9, "preferred_ru": "Объявление на судне", "status": "provisional"}
 {"id": "SPK-0107", "source": "白虎", "kind": "role", "lines": 9, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0108", "source": "医者", "kind": "role", "lines": 9, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0109", "source": "少女", "kind": "role", "lines": 9, "preferred_ru": null, "status": "provisional"}
@@ -132,7 +132,7 @@
 {"id": "SPK-0132", "source": "瞳", "kind": "person", "lines": 5, "preferred_ru": "Хитоми", "status": "provisional", "romaji": "Hitomi"}
 {"id": "SPK-0133", "source": "亀", "kind": "role", "lines": 5, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0134", "source": "水泳部主将", "kind": "role", "lines": 5, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
-{"id": "SPK-0135", "source": "野良猫", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0135", "source": "野良猫", "kind": "role", "lines": 4, "preferred_ru": "Бродячая кошка", "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0136", "source": "アナウンサー", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0137", "source": "玄武？", "kind": "person", "lines": 4, "preferred_ru": "Генбу?", "status": "provisional", "romaji": "Genbu?"}
 {"id": "SPK-0138", "source": "鳥", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
