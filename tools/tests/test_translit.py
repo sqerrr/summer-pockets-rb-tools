@@ -4,22 +4,22 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from translit import is_unsettled, translit  # noqa: E402
+from translit import translit  # noqa: E402
 
 
 def test_real_names_from_the_game():
     cases = {
         "Hairi": "Хаири",
         "Umi": "Уми",
-        "Shiroha": "Широха",
+        "Shiroha": "Сироха",
         "Ao": "Ао",
-        "Shizuku": "Шизуку",
+        "Shizuku": "Сидзуку",
         "Tsumugi": "Цумуги",
         "Miki": "Мики",
-        "Shiki": "Шики",
-        "Ryoichi": "Рёичи",
-        "Tenzen": "Тензен",
-        "Kamome": "Камоме",
+        "Shiki": "Сики",
+        "Ryoichi": "Рёити",
+        "Tenzen": "Тэндзэн",
+        "Kamome": "Камомэ",
         "Kyoko": "Кёко",
         "Kobato": "Кобато",
         "Nanami": "Нанами",
@@ -31,29 +31,25 @@ def test_real_names_from_the_game():
 
 
 def test_decided_syllables():
-    assert translit("shi") == "ши"
-    assert translit("chi") == "чи"
-    assert translit("ji") == "джи"
-    assert translit("zu") == "зу"
-    assert translit("te") == "те"
+    assert translit("shi") == "си"
+    assert translit("chi") == "ти"
+    assert translit("ji") == "дзи"
+    assert translit("zu") == "дзу"
+    assert translit("te") == "тэ"
+    assert translit("sha") == "ся"
+    assert translit("shu") == "сю"
+    assert translit("sho") == "сё"
 
 
 def test_long_vowels_are_not_marked():
     assert translit("Kyouko") == "Кёко"
-    assert translit("Ryouichi") == "Рёичи"
+    assert translit("Ryouichi") == "Рёити"
     assert translit("Yuuko") == "Юко"
 
 
 def test_case_is_preserved():
     assert translit("miki") == "мики"
     assert translit("Miki") == "Мики"
-
-
-def test_unsettled_row_is_reported():
-    assert is_unsettled("Shouko")
-    assert is_unsettled("Sharu")
-    assert not is_unsettled("Shizuku")
-    assert not is_unsettled("Miki")
 
 
 def test_empty_input():

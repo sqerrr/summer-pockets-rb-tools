@@ -225,7 +225,7 @@ def check_names(source_ja: str, speaker: str | None, ru: str,
             continue
         # Имя упомянуто в исходнике, но его формы в переводе нет. Это законно,
         # если оно заменено местоимением; сообщаем, но не блокируем.
-        out.append(Finding("names", "DEC-0020",
+        out.append(Finding("names", "DEC-0035",
                            f"имя {source} -> ожидалась форма {russian}",
                            severity="warning"))
     return out
