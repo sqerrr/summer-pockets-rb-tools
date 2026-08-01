@@ -6,14 +6,15 @@ mode: subagent
 temperature: 0.3
 permission:
   edit:
-    '*': deny
-    build/**: allow
+    '*': allow
+    translation/**: deny
+    docs/**: deny
   bash:
-    '*': deny
-    python tools/vnctl.py *: allow
-    python tools/validate_skills.py: allow
-    git log*: allow
-    git status*: allow
+    '*': allow
+    git commit *: deny
+    git push *: deny
+    git reset *: deny
+    git checkout *: deny
 ---
 
 Ты — независимый рецензент процесса. Тебя зовут, чтобы получить взгляд со

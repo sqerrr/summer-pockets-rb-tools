@@ -1,211 +1,72 @@
 ---
 name: vn-project-orchestrator
-description: Resumes project state, checks the gate for one logical work block, and delegates the whole allowed block without repeated permission checks.
-compatibility: Requires Python 3.11+, PyYAML, and tools/vnctl.py.
-metadata:
-  version: "1.0"
+description: Coordinates translation work - picks the next scene, dispatches translator and reviewer, applies confirmed fixes, checkpoints. Use when running or resuming scene translation.
 ---
 
 # VN Project Orchestrator
 
-This is the mandatory entry point for project work. It coordinates the process
-but never translates text and never performs literary review itself.
+Coordinates the work. Does not translate and does not review: those are separate
+agents on purpose, so the reviewer never sees the translator's reasoning.
 
-## Mandatory startup
-
-1. Read `../../../AGENTS.md`.
-2. Read `../../../translation/project-status.yaml`.
-3. Run `python tools/vnctl.py resume`.
-4. Classify the requested logical work block using the CLI names below.
-5. Ask the gate directly. There is no separate gatekeeper skill: the rules live
-   in `tools/vnctl.py`, and a wrapper that only forwards output adds ceremony
-   without adding a check.
+## Start
 
 ```bash
-python tools/vnctl.py gate <operation> --format yaml
+python tools/vnctl.py brief
 ```
 
-6. Stop when `allowed: false`. A normal request such as "continue" or
-   "translate the scene" cannot override the result.
+That is the whole startup. It hands over state, approved decisions, established
+facts and open questions. The phase machine with sixteen gates was removed: over
+the project's history it blocked nothing, and a mechanism that catches nothing
+is a tax rather than a guard.
 
-### Record the state you decided on
+Two prohibitions remain, both in `AGENTS.md`: no release build without a
+verified round-trip, and no `approved` without the user saying so.
 
-Before the first write of the block, capture what the decision was based on:
+## One scene, one pass
 
 ```bash
-git rev-parse --short HEAD
-python -c "import hashlib,pathlib;[print(p,hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()[:12]) for p in ['translation/project-status.yaml','config/project.yaml']]"
+python tools/vnctl.py work next -o build/work.md
 ```
 
-Compare again before writing. If any of the three changed, someone edited the
-project underneath you: re-read the files and re-check the gate. The rule to
-recheck on changed state is useless without a way to notice the change.
-7. When allowed, complete all substeps of that block without repeated gate
-   checks. Recheck only if project status, policy, or operation type changes.
-8. Run `python tools/vnctl.py advance` only when a milestone is complete.
+Picks the next scene with untranslated segments and takes it whole. Whole,
+because the process requires reading a scene before translating its first line —
+a partial batch hides how the scene ends and what device holds it together. It
+is also cheaper: the constant part of the package does not scale with the number
+of lines, so a full scene costs about a third per line of what a thirty-line
+batch costs.
 
-## Operation names
+Then:
 
-| Work | Gate operation | Delegated skill |
-|---|---|---|
-| Inspect repository | `inspect-repository` | orchestrator or relevant specialist |
-| Documentation and specifications | `create-documentation`, `modify-specifications` | relevant specialist |
-| Repository/parser audit and cataloguing | `audit-parser`, `catalogue-sources` | `vn-bootstrap` |
-| Test-line preparation | `translate-test-lines` | active engine adapter |
-| Verification build: test pack, fonts, encoding, in-game evidence | `verify-engine` | active engine adapter |
-| Release build of translated text | `build-game-text` | active engine adapter |
-| Reference corpus audit and fragment curation | `audit-reference-corpus` | `vn-bootstrap`, `vn-reference-curator` |
-| Index and knowledge preparation | `build-index`, `curate-knowledge` | `vn-bootstrap`, then `vn-knowledge-curator` |
-| Pilot context and translation | `build-pilot-context`, `translate-pilot` | `vn-context-builder`, then `vn-scene-translator` |
-| Production context and translation | `build-production-context`, `translate-production` | `vn-context-builder`, then `vn-scene-translator` |
-| Checkpointed queue of scenes | `batch-translate` | context builder, translator, reviewer, curator |
-| Review | `review-pilot`, `review-production` | `vn-scene-reviewer` |
-| Glossary/knowledge updates | `modify-glossary`, `curate-knowledge` | `vn-knowledge-curator` |
-| Final checks | `final-lqa` | `vn-scene-reviewer`, active engine adapter |
-
-`mass-translate` means one opaque whole-route request and remains blocked.
-`batch-translate` is allowed after the production gates: each scene is saved,
-validated, independently reviewed, and checkpointed before the next one.
-
-`verify-engine` covers builds made to produce evidence: a handful of test lines,
-a rebuilt font, a screenshot from the running game. It is available in every
-phase because the roundtrip, Cyrillic, tag and layout gates cannot be closed
-without it. It does not authorise shipping translated content; that stays behind
-`build-game-text` and its tag, choice and Cyrillic gates. The CLI cannot tell the
-two apart by itself, so the distinction is a rule the orchestrator must hold.
-
-## Evidence and completion
-
-Before treating delegated work as complete:
-
-1. Require a concrete artifact or reproducible command result.
-2. Verify that a file used as evidence exists.
-3. Never infer `passed` from prose, confidence, or an agent assertion alone.
-4. Update a gate only through:
-
-```bash
-python tools/vnctl.py set-gate <gate> <status> --evidence <path>
-```
-
-5. Run the relevant validation and build checks.
-6. Run `python tools/vnctl.py advance` when all gates for the current milestone
-   are passed. Phase advancement is progress reporting, not permission for each
-   scene.
-7. Confirm that `translation/project-history.jsonl` received an append-only
-   entry. Never edit or delete old history records.
-
-## Subagents versus skills
-
-A skill is instructions loaded into the current context. It runs here, in
-sequence, and its reading stays in this context afterwards. A subagent is a
-separate process with a fresh context, invoked through `Task`, and several can
-run at once.
-
-That difference is not cosmetic. While translation and review were both skills,
-the reviewer read the translator's reasoning because they shared one context, so
-its independence was a claim rather than a fact. And a single context cannot
-carry hundreds of scenes.
-
-Defined subagents, in `.opencode/agent/`:
-
-| Agent | Model | Why it must be isolated |
-|---|---|---|
-| `vn-translator` | GPT | fresh context per scene; several scenes in parallel |
-| `vn-reviewer` | Opus | must not receive the translator's reasoning |
-| `vn-knowledge` | Opus | reads far more source than it reports; spoiler risk concentrated |
-| `vn-auditor` | Opus | reads across scenes, which per-scene review cannot do |
-| `second-opinion` | GPT | independent judgement on process |
-
-## Which model does which job, and what to do when one is gone
-
-The arrangement was measured on one batch of thirty lines rather than assumed.
-GPT won twenty of twenty-eight lines in a blind preference test and works four
-times faster. Opus produced eight confirmed review findings out of eight against
-three of five, and was the only one to catch a broken verbatim repeat — in both
-translations. So GPT translates and Opus reviews.
-
-A mixed pair is also better by construction: a reviewer on the same model as the
-translator shares its blind spots, and what a model fails to notice while
-translating it will fail to notice while checking.
-
-Every definition names its model explicitly. Left to the default, an agent takes
-the session's model, and the arrangement changes silently when the chat model
-changes — which makes it not a decision but an accident.
-
-Each role has a spare on the other model: `vn-translator-alt` runs on Opus,
-`vn-reviewer-alt` on GPT. If a model is unavailable or rate-limited, switch the
-role to its spare and record which batches ran on which — quality of those
-batches is then not comparable with the rest without saying so.
-
-Skills stay: they hold the instructions an agent follows. This is not agents
-instead of skills.
-
-New agent definitions are files and are picked up only when opencode restarts.
-An agent cannot create another agent mid-session; it can only invoke the ones
-already defined.
-
-## Verify by files, never by the agent's report
-
-A subagent can finish and return nothing at all: no result, no error, no partial
-work. The cause is now known and is not what it looked like: the API rejects an
-assistant-message prefill and the reply is lost, while the work itself completes
-(FND-0049). In every observed case the files were correct and only the report
-vanished. An earlier explanation through step limits was wrong and is withdrawn.
-
-So an empty answer means the report was lost, not that nothing happened — and
-the two are indistinguishable without looking. Agents now write their report to
-`build/report-*.md` as well, so read that before assuming failure.
-
-So after every dispatch, read the artefacts before believing anything:
-
-```bash
-python tools/vnctl.py validate
-python tools/vnctl.py questions
-```
-
-plus the file the agent was supposed to change. A report is a claim; the file is
-the fact. This holds even when the report is detailed and convincing.
-
-Keep each dispatch small enough to finish. The pilot completed five segments and
-silently died on sixty, so the working batch is tens of segments, not hundreds.
-Split a large scene across several calls rather than hoping one call survives.
-
-## How to run a scene queue
-
-1. Build the context package once and pass its path to both the translator and
-   the reviewer, so they judge the same material:
-   `python tools/vnctl.py context <SCENE_ID> -o build/context-<SCENE_ID>.md`
-2. Dispatch translators, one scene per call, several calls in one message.
-3. Dispatch reviewers on the finished scenes. Give them source, translation and
-   the package. Never forward the translator's notes.
-4. Apply confirmed `critical`, `major` and supported `minor` findings; arbitrate
+1. Dispatch `vn-translator` with the package. It writes a patch, checks itself
+   with `work check`, and applies it with `apply-translation`.
+2. Dispatch `vn-reviewer` with the source and the result — never with the
+   translator's notes.
+3. Apply confirmed `critical`, `major` and supported `minor`. Arbitrate
    disagreements yourself.
-5. Validate, set `reviewed`, checkpoint, and only then take the next batch.
-6. Run `vn-auditor` after a block, not after every scene: it needs accumulated
-   volume to find anything.
+4. Run `validate`, then move on.
 
-## Delegation rules
+`vn-knowledge` after a block, `vn-auditor` after several: the auditor needs
+accumulated volume to find anything.
 
-- `vn-bootstrap` owns repository audit, parser verification, catalogue, stable
-  IDs, segmentation, and initial index preparation.
-- Select the engine skill from `project.active_build`. The active Steam/LUCA
-  profile uses `vn-engine-luca`; `vn-engine-siglus` is the legacy adapter.
-- `vn-context-builder` must precede every scene translation or review, but the
-  surrounding block needs only one gate decision.
-- `vn-scene-translator` creates drafts only after an allowed pilot or production
-  gate result.
-- `vn-scene-reviewer` performs independent review; the orchestrator does not
-  substitute for it.
-- `vn-knowledge-curator` updates durable knowledge only after the relevant gate
-  permits it.
-- `vn-reference-retriever` is an optional substep inside an allowed scene block;
-  it needs no extra gate and may return no references.
-- `vn-reference-curator` runs during corpus audit or on demand inside that same
-  scene block. It must not turn external references into a prerequisite.
+## Verify by files, not by the report
 
-## Policy changes
+A subagent can return nothing at all. The cause is an API-level prefill error,
+not a step limit: the work completes and only the reply is lost (`FND-0049`).
+Agents also write their report to `build/report-*.md`, so read that before
+assuming failure.
 
-The user may explicitly request a change to the gate policy itself. Treat that
-as a configuration change: edit the policy consciously, validate it, explain
-the impact, and append history. Never reinterpret an ordinary work request as a
-policy change.
+Launching several subagents at once may need a second attempt. Compare the
+number of results against the number announced and repeat if they differ; that
+is not a malfunction.
+
+## Models
+
+GPT translates, Opus reviews — measured, not assumed (`DEC-0032`). Each role has
+a spare on the other model for when one is unavailable: `vn-translator-alt`,
+`vn-reviewer-alt`.
+
+## Do not grow this file
+
+Until a thousand segments are translated, no new rules, statuses or process
+documents. A tool that catches an error is welcome; a document describing order
+is not. The first fires by itself, the second needs someone to remember it.

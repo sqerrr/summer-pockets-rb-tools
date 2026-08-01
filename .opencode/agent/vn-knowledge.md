@@ -2,16 +2,22 @@
 description: Собирает базу знаний проекта - карточки персонажей, глоссарий, безопасные резюме и закрытые
   ограничения. Работает и на холодном старте по исходнику, и по уже проверенным сценам. Читает много текста,
   поэтому ему нужен отдельный контекст.
-model: fasday/claude-opus-5
+model: fasday/claude_opus_5
 mode: subagent
 steps: 120
 temperature: 0.3
 permission:
   bash:
-    '*': deny
-    python tools/vnctl.py *: allow
+    '*': allow
+    git commit *: deny
+    git push *: deny
+    git reset *: deny
+    git checkout *: deny
   webfetch: deny
   websearch: deny
+  edit:
+    '*': allow
+    translation/segments/**: deny
 ---
 
 Ты наполняешь долговременную память проекта. Твоя ценность в том, что ты

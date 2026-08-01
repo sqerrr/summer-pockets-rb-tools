@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from textrules import check_markup  # noqa: E402
+from textrules import check_markup, strip_ruby  # noqa: E402
 
 
 def rules(ja, ru):
@@ -20,6 +20,11 @@ def test_ruby_must_be_stripped():
     assert rules(ja, "Торисиро, значит.") == set()
     # Ровно то, что сделала модель B.
     assert "markup" in rules(ja, "$[Торисиро$/とり_しろ_じま$], значит.")
+
+
+def test_ruby_stripping_preserves_visible_text_only():
+    assert strip_ruby("$[鳥白島$/とり_しろ_じま$]、か。") == "鳥白島、か。"
+    assert strip_ruby("Обычные [скобки]") == "Обычные [скобки]"
 
 
 def test_variable_must_survive():

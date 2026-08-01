@@ -31,3 +31,7 @@ for ja, speaker, ru, expected, label in cases:
         print(f"        {f.message}")
 
 print("\nитог:", "OK" if bad == 0 else f"ПРОБЛЕМ: {bad}")
+
+
+def test_speaker_label_is_not_required_in_dialogue_body():
+    assert check_names("", "しろは", "Привет.", NAMES) == []

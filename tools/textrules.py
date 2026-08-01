@@ -119,9 +119,9 @@ def check_line(text: str, *, is_dialogue: bool) -> list[Finding]:
     if is_dialogue and LEADING_DASH.match(text):
         out.append(Finding("quotes", "DEC-0022", "тире в начале реплики"))
     if GUILLEMETS.search(text):
-        out.append(Finding("quotes", "DEC-0022",
-                           "ёлочки не отображаются в активной сборке (FND-0039)",
-                           severity="warning"))
+        out.append(Finding("quotes", "DEC-0033",
+                           "ёлочки не отображаются в активной сборке (FND-0039): "
+                           "кавычки записываются прямыми знаками"))
 
     if SILENCE_LINE.match(text):
         expected = SILENCE_DIALOGUE if is_dialogue else SILENCE_NARRATION
@@ -139,6 +139,11 @@ COLOUR = re.compile(r"\$C\[[0-9a-fA-F]*\]")
 # Разделитель веток выбора: 1002 вхождения в 217 записях. Потеря одного
 # разделителя склеивает два варианта в один, и блок выбора ломается молча.
 BRANCH = re.compile(r"\$d")
+
+
+def strip_ruby(text: str) -> str:
+    """Remove a LUCA reading annotation but keep its visible base text."""
+    return RUBY.sub(lambda match: match.group(1), text)
 
 
 def check_markup(source_ja: str, ru: str) -> list[Finding]:
@@ -192,7 +197,10 @@ def check_names(source_ja: str, speaker: str | None, ru: str,
     """
     if not ru.strip() or not names:
         return []
-    haystack = f"{source_ja} {speaker or ''}"
+    # Имя говорящего выводит движок отдельным полем, внутри строки его нет.
+    # Включать его в поиск - гарантированное ложное срабатывание на каждой
+    # реплике рассказчика: его имя стоит в поле, но в тексте не упоминается.
+    haystack = source_ja
     out: list[Finding] = []
     for source, russian in names.items():
         if source not in haystack:

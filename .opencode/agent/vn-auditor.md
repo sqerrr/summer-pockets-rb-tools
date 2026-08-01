@@ -2,18 +2,21 @@
 description: Сквозной художественный аудит по всему переведённому объёму - устойчивость терминов и обращений,
   дрейф письменной манеры, несовпавшие повторы, скопления флагов и годность спецификации. Ищет то, что
   посценное ревью не видит по построению. Файлы не правит.
-model: fasday/claude-opus-5
+model: fasday/claude_opus_5
 mode: subagent
 steps: 80
 temperature: 0.2
 permission:
   edit:
-    '*': deny
-    build/**: allow
+    '*': allow
+    translation/**: deny
+    docs/**: deny
   bash:
-    '*': deny
-    python tools/vnctl.py *: allow
-    python -c *: allow
+    '*': allow
+    git commit *: deny
+    git push *: deny
+    git reset *: deny
+    git checkout *: deny
   webfetch: deny
   websearch: deny
 ---

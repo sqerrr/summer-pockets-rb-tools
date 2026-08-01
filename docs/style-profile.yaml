@@ -120,7 +120,7 @@ dialogue:
 punctuation:
   status: pending
 honorifics:
-  policy: undecided
+  policy: preserve
 humour:
   status: pending
 line_length:
@@ -129,8 +129,8 @@ line_length:
     Числовые ориентиры длины не переносятся из корпуса без объяснения функции.
     Одинаково короткие реплики могут означать противоположные вещи.
 naming:
-  transcription: undecided
-  note: "Собственное решение фиксировать в docs/glossary.yaml."
+  transcription: practical
+  note: "Применять DEC-0020; именованные исключения фиксировать в docs/glossary.yaml."
 
 # Промежуточный слой между фрагментом и решением. Формат — docs/data-model.md.
 # Здесь только собственные формулировки и ссылки на фрагменты, без текста корпуса.

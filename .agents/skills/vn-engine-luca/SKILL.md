@@ -3,7 +3,7 @@ name: vn-engine-luca
 description: Handles the active Steam/LUCA build - SCRIPT.PAK source extraction, multilingual records, relocation-safe rebuilding, direct-Unicode Russian, and automated in-game verification. Use for Steam SCRIPT.PAK, LUCA PAK files, source export, test builds, or runtime language integration.
 compatibility: Requires Python 3.11+, PyYAML, Windows, and the local Steam/LUCA installation identified in config/project.yaml.
 metadata:
-  version: "1.0"
+  version: "1.1"
 ---
 
 # VN Engine LUCA
@@ -39,8 +39,8 @@ the operation.
    or source text.
 4. Canonical Russian is direct Unicode. Do not introduce Siglus carrier codes.
 5. Text records contain exactly three original slots: Japanese, English and
-   Simplified Chinese. A fourth user-facing Russian mode requires runtime/EXE
-   integration and is not implemented by appending a fourth script string.
+   Simplified Chinese. Per `DEC-0024`, production builds put Russian in slot 1
+   (English); Japanese and Simplified Chinese remain available.
 6. Any changed record length requires global relocation of numeric opcodes
    15/17/18/19/21/22 and `_scr_label`.
 7. Validate every rebuilt target with a fresh `Pak` instance and
@@ -81,7 +81,7 @@ For each segment:
 2. Verify entry ID/name hash, record ordinal, opcode, flag, fixed parameters,
    `source_hash`, prefix, tail and original slot hashes.
 3. Convert the record ordinal to the current byte offset.
-4. Apply Russian only through `relocate_script_records()`.
+4. Apply Russian to slot 1 only through `relocate_script_records()`.
 5. Rebuild from the pristine archive and validate all references.
 
 The production segment-to-PAK adapter is not yet implemented. Do not represent
@@ -94,17 +94,19 @@ It does not map `«»`. Canonical translation retains standard Unicode; any
 display substitution or INFO-table patch belongs to build configuration and
 must be verified separately.
 
-## Fourth-Language Boundary
+## Russian Language Slot
 
-Preserving Japanese, English and Chinese while adding Russian is a recorded
-delivery requirement. The implementation remains undecided:
+`DEC-0024` is the active delivery decision:
 
-- native language value 3 requires extensive executable patching;
-- a presentation shim still requires runtime interception and persistence but
-  can reuse English/base non-text assets.
+- Russian replaces the English script slot in built PAK files;
+- the game exposes that text through its existing English language selection;
+- Japanese and Simplified Chinese remain available;
+- canonical English remains in the source catalogue and is not destroyed by a
+  build from the pristine archive.
 
-Do not choose either architecture implicitly during ordinary source, translation
-or build work.
+A native language value 3 and a presentation shim are out of scope for the
+current pipeline. Do not start either architecture without a separate explicit
+project decision.
 
 ## Required Outputs
 
@@ -113,4 +115,5 @@ or build work.
 - independent read-back result;
 - screenshot evidence for visual claims;
 - updated findings/specification when format understanding changes;
-- a clear statement of unresolved runtime/EXE work.
+- confirmation that Russian was written to slot 1 and the other slots were
+  preserved.

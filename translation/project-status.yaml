@@ -1,6 +1,6 @@
 schema_version: 1
-phase: cataloguing
-overall_status: ready_to_advance
+phase: pilot
+overall_status: in_progress
 critical_gates:
   repository_audited:
     status: passed
@@ -77,7 +77,7 @@ critical_gates:
     required_for:
     - final_lqa
 current_task:
-  id: CATALOGUING-NEXT
-  description: advance_to_reference_preparation
-  assigned_skill: vn-project-orchestrator
-last_updated: '2026-07-31T00:50:19+03:00'
+  id: PILOT-NEXT
+  description: run_pilot_workflow
+  assigned_skill: vn-context-builder
+last_updated: '2026-08-01T12:29:12+03:00'
