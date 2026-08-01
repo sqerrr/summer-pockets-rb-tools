@@ -1,7 +1,7 @@
 ---
-description: Основной рецензент на модели fasday/claude_opus_5. Не переводит и не правит файлы, а возвращает
+description: Основной рецензент на модели fasday/gpt5_6_sol. Не переводит и не правит файлы, а возвращает
   список проблем. Не должен получать рассуждения переводчика.
-model: fasday/claude_opus_5
+model: fasday/gpt5_6_sol
 mode: subagent
 steps: 60
 temperature: 0.2

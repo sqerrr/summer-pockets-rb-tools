@@ -52,6 +52,12 @@ Then:
    segments as `translated/total`, percentage and status counts after the whole
    parallel wave, never from a worker's stale partial snapshot.
 
+After a wave is verified, immediately launch the next ready parallel wave. Do
+not wait for a separate user confirmation between batches. Continue until the
+user explicitly stops the run, no ready work remains, or the session context is
+nearly exhausted; at the context boundary, checkpoint and report the exact next
+commands instead of silently stopping.
+
 The user does not read every line or arbitrate local edits. The orchestrator
 asks only project-wide conflicts, grouped into short interactive questions;
 all other reviewer issues must be either applied or rejected with a tracked
@@ -73,9 +79,9 @@ is not a malfunction.
 
 ## Models
 
-GPT translates, Opus reviews — measured, not assumed (`DEC-0032`). Each role has
-a spare on the other model for when one is unavailable: `vn-translator-alt`,
-`vn-reviewer-alt`.
+All project agents use `fasday/gpt5_6_sol` by default (`DEC-0036`). Primary and
+alternate role names remain separate for fresh independent contexts and
+operational fallback, not for model diversity.
 
 ## Do not grow this file
 

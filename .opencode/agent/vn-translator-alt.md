@@ -1,7 +1,7 @@
 ---
-description: Запасной переводчик на модели fasday/claude_opus_5. Запускать по одной сцене на вызов; несколько
+description: Запасной переводчик на модели fasday/gpt5_6_sol. Запускать по одной сцене на вызов; несколько
   вызовов можно вести параллельно. Не выполняет ревью собственного перевода.
-model: fasday/claude_opus_5
+model: fasday/gpt5_6_sol
 mode: subagent
 steps: 120
 temperature: 0.4

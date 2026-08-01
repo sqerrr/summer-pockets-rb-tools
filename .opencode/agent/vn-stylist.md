@@ -16,6 +16,9 @@ permission:
     python tools/vnctl.py review resolve *: allow
     python tools/vnctl.py style check *: allow
     python tools/vnctl.py style apply *: allow
+    '$env:PYTHONIOENCODING=*; python tools/vnctl.py review resolve *': allow
+    '$env:PYTHONIOENCODING=*; python tools/vnctl.py style check *': allow
+    '$env:PYTHONIOENCODING=*; python tools/vnctl.py style apply *': allow
   webfetch: deny
   websearch: allow
 ---
