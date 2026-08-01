@@ -48,6 +48,92 @@ def digest_file(path: Path) -> str:
     return "sha256:" + value.hexdigest()
 
 
+def read_jsonl(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    return [json.loads(line) for line in path.read_text(encoding="utf-8-sig").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")]
+
+
+def write_jsonl_atomic(path: Path, rows: list[dict]) -> None:
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    with tmp.open("w", encoding="utf-8", newline="\n") as fh:
+        for row in rows:
+            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+    tmp.replace(path)
+
+
+def text_hash(rows: list[dict]) -> str:
+    payload = [{"id": row["id"], "translation": row.get("translation", "")} for row in rows]
+    raw = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def style_build_preflight(config: dict, seg_dir: Path,
+                          included_scene_ids: set[str]) -> dict[str, str]:
+    scenes = read_jsonl(ROOT / config.get("paths", {}).get(
+        "scenes", "translation/scenes.jsonl"))
+    route_by_scene = {str(row["scene_id"]): str(row.get("route", "")) for row in scenes}
+    service = set(config.get("workflow", {}).get("style_service_routes") or [])
+    required_routes = {route_by_scene.get(scene_id, "") for scene_id in included_scene_ids} - service
+    if "" in required_routes:
+        raise SystemExit("ОШИБКА: у собираемой сцены нет непрозрачного style block ID")
+
+    rows_by_route: dict[str, list[dict]] = {route: [] for route in required_routes}
+    for path in sorted(seg_dir.glob("*.jsonl")):
+        for row in read_jsonl(path):
+            route = route_by_scene.get(str(row["scene_id"]), "")
+            if route in rows_by_route:
+                rows_by_route[route].append(row)
+
+    ledger_path = ROOT / config.get("paths", {}).get(
+        "style_ledger", "translation/style-ledger.jsonl")
+    events = read_jsonl(ledger_path)
+    route_by_run: dict[str, str] = {}
+    latest_run_by_route: dict[str, str] = {}
+    audits_by_run: dict[str, str] = {}
+    for event in events:
+        if event.get("event") == "run_started":
+            run_id = str(event["run_id"])
+            route = str(event["route"])
+            route_by_run[run_id] = route
+            latest_run_by_route[route] = run_id
+        elif event.get("event") == "route_audited":
+            audits_by_run[str(event.get("run_id", ""))] = str(
+                event.get("route_sha256", ""))
+
+    selected_runs: dict[str, str] = {}
+    failures = []
+    for route, rows in sorted(rows_by_route.items()):
+        current = text_hash(rows)
+        run_id = latest_run_by_route.get(route)
+        audit_hash = audits_by_run.get(run_id or "")
+        if not run_id or not audit_hash:
+            failures.append(f"{route}: художественная вычитка не завершена")
+        elif audit_hash != current:
+            failures.append(f"{route}: текст изменился после сквозного аудита")
+        else:
+            selected_runs[route] = run_id
+    if failures:
+        raise SystemExit("ОШИБКА: production build заблокирован:\n  " + "\n  ".join(failures))
+    return selected_runs
+
+
+def promote_built_segments(seg_dir: Path, source_ids: set[str]) -> int:
+    promoted = 0
+    for path in sorted(seg_dir.glob("*.jsonl")):
+        rows = read_jsonl(path)
+        changed = False
+        for row in rows:
+            if row.get("source_id") in source_ids and row.get("status") == "reviewed":
+                row["status"] = "playable"
+                promoted += 1
+                changed = True
+        if changed:
+            write_jsonl_atomic(path, rows)
+    return promoted
+
+
 def load_translations(seg_dir: Path, statuses: set[str]) -> dict[str, dict]:
     out: dict[str, dict] = {}
     skipped_status = 0
@@ -102,6 +188,8 @@ def main() -> int:
     parser.add_argument("--output", type=Path,
                         default=ROOT / "build" / "steam" / "SCRIPT.russian.PAK")
     parser.add_argument("--status", nargs="+", default=list(DEFAULT_STATUSES))
+    parser.add_argument("--receipt", type=Path,
+                        default=ROOT / "build" / "steam" / "release-receipt.json")
     args = parser.parse_args()
 
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
@@ -118,6 +206,8 @@ def main() -> int:
     labels = load_speaker_labels(ROOT / "translation" / "speakers.jsonl")
     if not translations:
         raise SystemExit("ОШИБКА: нечего собирать, подходящих сегментов нет")
+    style_runs = style_build_preflight(
+        config, seg_dir, {str(item["scene_id"]) for item in translations.values()})
 
     pak = Pak(archive)
     metadata_index = next(
@@ -176,10 +266,41 @@ def main() -> int:
             raise SystemExit(f"ОШИБКА: обратная вычитка разошлась на {entry_index}:{wanted}")
         readback += 1
 
+    output_hash = digest_file(args.output)
+    promoted = promote_built_segments(seg_dir, set(translations))
+    receipt = {
+        "schema_version": 1,
+        "output": str(args.output.relative_to(ROOT)),
+        "output_sha256": output_hash,
+        "statuses": sorted(args.status),
+        "segments_written": len(edits),
+        "readback": readback,
+        "style_runs": style_runs,
+        "promoted_to_playable": promoted,
+    }
+    args.receipt.parent.mkdir(parents=True, exist_ok=True)
+    args.receipt.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n",
+                            encoding="utf-8")
+    ledger_path = ROOT / config.get("paths", {}).get(
+        "style_ledger", "translation/style-ledger.jsonl")
+    ledger = read_jsonl(ledger_path)
+    for route, run_id in sorted(style_runs.items()):
+        ledger.append({
+            "schema_version": 1,
+            "event": "build_readback",
+            "run_id": run_id,
+            "route": route,
+            "output_sha256": output_hash,
+            "written": len(edits),
+            "readback": readback,
+            "receipt": str(args.receipt.relative_to(ROOT)),
+        })
+    write_jsonl_atomic(ledger_path, ledger)
+
     print(f"pristine: {archive}")
     print(f"pristine sha256: {actual_hash}")
     print(f"output: {args.output}")
-    print(f"output sha256: {digest_file(args.output)}")
+    print(f"output sha256: {output_hash}")
     print(f"output size: {args.output.stat().st_size}")
     print(f"статусы в сборке: {', '.join(sorted(args.status))}")
     print(f"сегментов записано: {len(edits)} (пропущено по статусу: {skipped_status})")
@@ -188,6 +309,8 @@ def main() -> int:
     print(f"проверено: records={validation['records']} "
           f"references={validation['references']} labels={validation['labels']}")
     print(f"обратная вычитка совпала: {readback}/{len(expected)}")
+    print(f"статус playable присвоен: {promoted}")
+    print(f"receipt: {args.receipt}")
     return 0
 
 

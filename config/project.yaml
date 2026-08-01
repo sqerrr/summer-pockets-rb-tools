@@ -87,6 +87,8 @@ paths:
   decisions: docs/decisions.jsonl
   findings: docs/project/findings.jsonl
   questions: translation/open-questions.jsonl
+  review_ledger: translation/review-ledger.jsonl
+  style_ledger: translation/style-ledger.jsonl
   summaries: docs/scene-summaries.jsonl
   characters: docs/characters
   private_constraints: private/constraints.jsonl
@@ -120,6 +122,12 @@ workflow:
   internal_examples_limit: 20
   external_reference_limit: 3
   max_scene_segments: 400
+  style_window_min: 600
+  style_window_max: 1000
+  style_context_segments: 75
+  style_service_routes:
+  - BLK0001
+  - BLK0019
   user_progress_scene: ''
   deferred_scenes:
   - SCN0001

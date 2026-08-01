@@ -139,6 +139,10 @@ COLOUR = re.compile(r"\$C\[[0-9a-fA-F]*\]")
 # Разделитель веток выбора: 1002 вхождения в 217 записях. Потеря одного
 # разделителя склеивает два варианта в один, и блок выбора ломается молча.
 BRANCH = re.compile(r"\$d")
+# Управление скоростью/пением встречается в двух физических формах:
+# `$S(044,1)…$S` и `$S056…$S000`. Потеря кода не портит JSONL, но меняет
+# подачу в игре, поэтому сравниваются сами токены и их параметры.
+SPEED = re.compile(r"\$S(?:\([^)]*\)|[0-9]+)?")
 
 
 def strip_ruby(text: str) -> str:
@@ -175,6 +179,14 @@ def check_markup(source_ja: str, ru: str) -> list[Finding]:
         out.append(Finding("markup", "FND-0050",
                            f"разделителей веток выбора {ru_branches}, "
                            f"в исходнике {src_branches}: блок выбора сломан"))
+
+    src_speed = SPEED.findall(source_ja)
+    ru_speed = SPEED.findall(ru)
+    if src_speed != ru_speed:
+        out.append(Finding("markup", "FND-0050",
+                           f"коды скорости/пения не совпадают: "
+                           f"в исходнике {src_speed or 'нет'}, "
+                           f"в переводе {ru_speed or 'нет'}"))
 
     if RUBY.search(ru):
         out.append(Finding("markup", "FND-0050",

@@ -53,6 +53,14 @@ def test_branch_separator_count_must_match():
     assert "markup" in rules(ja, "А$dБ$dВ$dГ$dД")
 
 
+def test_speed_and_song_codes_must_survive_exactly():
+    assert rules("$S(044,1)歌♪", "$S(044,1)Песня♪") == set()
+    assert "markup" in rules("$S(044,1)歌♪", "Песня♪")
+    assert rules("$S(060)歌$S", "$S(060)Песня$S") == set()
+    assert "markup" in rules("$S(060)歌$S", "$S(060)Песня")
+    assert rules("$S056歌$S000", "$S056Песня$S000") == set()
+
+
 def test_plain_text_untouched():
     assert rules("潮風が顔に吹き付ける。", "Морской ветер бьёт в лицо.") == set()
 

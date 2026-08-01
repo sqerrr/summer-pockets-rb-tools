@@ -20,7 +20,9 @@
       "type": "integer"
     },
     "route": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^BLK[0-9]{4}$",
+      "description": "Opaque stable style block ID. It must not reveal route names or future plot information."
     },
     "title_safe": {
       "type": "string"

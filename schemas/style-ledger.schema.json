@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VN Style Pipeline Event",
+  "type": "object",
+  "required": ["schema_version", "event"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "event": {
+      "enum": [
+        "ledger_initialized",
+        "run_started",
+        "window_applied",
+        "window_accepted",
+        "route_audited",
+        "build_readback"
+      ]
+    },
+    "run_id": {"type": "string", "pattern": "^STYLE-BLK[0-9]{4}-[0-9]{2}$"},
+    "route": {"type": "string", "pattern": "^BLK[0-9]{4}$"},
+    "window_id": {"type": "string", "pattern": "^W[0-9]{3}$"}
+  },
+  "additionalProperties": true
+}

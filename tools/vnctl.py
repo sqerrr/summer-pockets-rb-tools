@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 import sqlite3
 import sys
@@ -1107,6 +1108,26 @@ def validate(root: Path, config: dict[str, Any]) -> int:
         if len(orders) != len(set(orders)):
             errors.append(f"scene {scene_id}: duplicate order values")
 
+    scenes_rel = config.get("paths", {}).get("scenes", "translation/scenes.jsonl")
+    scenes_path = root / scenes_rel
+    if scenes_path.exists():
+        scene_catalogue = load_scenes(root, config)
+        catalogue_ids = {str(scene.get("scene_id")) for scene in scene_catalogue}
+        if catalogue_ids != set(by_scene):
+            missing = sorted(set(by_scene) - catalogue_ids)
+            extra = sorted(catalogue_ids - set(by_scene))
+            errors.append(f"scene catalogue mismatch: missing={missing[:5]} extra={extra[:5]}")
+        for scene in scene_catalogue:
+            route = str(scene.get("route", ""))
+            if not re.fullmatch(r"BLK[0-9]{4}", route):
+                errors.append(f"scene {scene.get('scene_id')}: invalid or missing opaque route")
+    style_errors, style_warnings = validate_style_ledger(root, config)
+    errors.extend(style_errors)
+    warnings.extend(style_warnings)
+    review_errors, review_warnings = validate_review_ledger(root, config)
+    errors.extend(review_errors)
+    warnings.extend(review_warnings)
+
     for msg in errors:
         eprint("ERROR:", msg)
     for msg in warnings:
@@ -1139,6 +1160,7 @@ def index_project(root: Path, config: dict[str, Any]) -> int:
             source_hash TEXT NOT NULL,
             file_id TEXT NOT NULL,
             scene_id TEXT NOT NULL,
+            route TEXT NOT NULL,
             ord INTEGER NOT NULL,
             speaker TEXT,
             source TEXT NOT NULL,
@@ -1150,6 +1172,7 @@ def index_project(root: Path, config: dict[str, Any]) -> int:
             metadata_json TEXT NOT NULL
         );
         CREATE INDEX idx_segments_scene ON segments(scene_id, ord);
+        CREATE INDEX idx_segments_route ON segments(route, scene_id, ord);
         CREATE INDEX idx_segments_speaker ON segments(speaker);
         CREATE INDEX idx_segments_status ON segments(status);
         CREATE VIRTUAL TABLE segments_fts USING fts5(
@@ -1194,13 +1217,18 @@ def index_project(root: Path, config: dict[str, Any]) -> int:
     )
 
     segments = load_segments(root, config)
+    route_by_scene = {
+        str(scene["scene_id"]): str(scene.get("route", ""))
+        for scene in load_scenes(root, config)
+    }
     for row in segments:
         r = clean_meta(row)
         cur.execute(
-            "INSERT INTO segments VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO segments VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 r["id"], r.get("source_set_id", ""), r.get("source_id", ""),
-                r.get("source_hash", ""), r["file_id"], r["scene_id"], r["order"],
+                r.get("source_hash", ""), r["file_id"], r["scene_id"],
+                route_by_scene.get(str(r["scene_id"]), ""), r["order"],
                 r.get("speaker"), r.get("source", ""),
                 json.dumps(r.get("sources", {}), ensure_ascii=False),
                 r.get("translation", ""), r.get("status", "todo"),
@@ -1339,6 +1367,18 @@ def approved_examples(db: Path, speakers: list[str], excluded_scene: str, limit_
 
 
 def character_doc(root: Path, config: dict[str, Any], speaker: str) -> str | None:
+    found = character_doc_path(root, config, speaker)
+    return found[0].read_text(encoding="utf-8-sig") if found else None
+
+
+def character_doc_path(root: Path, config: dict[str, Any],
+                       speaker: str) -> tuple[Path, str] | None:
+    """Путь к карточке и её текст.
+
+    Путь нужен затем, что карточка целиком в пакет больше не вклеивается:
+    шестьдесят строк доказательств на персонажа вытесняли собой сам текст.
+    В пакете остаётся манера, а за обоснованием агент ходит по ссылке.
+    """
     base = root / config.get("paths", {}).get("characters", "docs/characters")
     if not base.exists():
         return None
@@ -1346,7 +1386,7 @@ def character_doc(root: Path, config: dict[str, Any], speaker: str) -> str | Non
     candidates = [base / f"{normalized}.md", base / f"{speaker}.md", base / f"{speaker.lower()}.md"]
     for path in candidates:
         if path.exists():
-            return path.read_text(encoding="utf-8-sig")
+            return path, path.read_text(encoding="utf-8-sig")
     # Ярлык говорящего в сегменте - японская строка (羽依里, しろは), а карточки
     # названы латиницей. Поэтому совпадение по имени файла и по id не срабатывает
     # никогда, и карточки не доходили до переводчика вовсе (FND-0048).
@@ -1361,8 +1401,34 @@ def character_doc(root: Path, config: dict[str, Any], speaker: str) -> str | Non
         text = path.read_text(encoding="utf-8-sig")
         head = text.split("---", 2)[1] if text.startswith("---") else text[:800]
         if any(re.search(p, head) for p in patterns):
-            return text
+            return path, text
     return None
+
+
+def voice_digest(doc: str, limit: int = 6) -> str:
+    """Только манера речи: первые пункты раздела о ней.
+
+    Остальное в карточке - подсчёты, проверки чужих утверждений и оговорки о
+    методе. Это доказательства, нужные при разборе трудного места, а не при
+    каждой реплике, поэтому они остаются за ссылкой.
+    """
+    lines = doc.splitlines()
+    start = next((i for i, line in enumerate(lines)
+                  if line.startswith("## ") and "речевая манера" in line.lower()), None)
+    if start is None:
+        return ""
+    out: list[str] = []
+    for line in lines[start + 1:]:
+        if line.startswith("## "):
+            break
+        if line.startswith("- ") or line.startswith("  "):
+            if line.startswith("- "):
+                if len(out) >= limit:
+                    break
+                out.append(line)
+            elif out:
+                out[-1] += " " + line.strip()
+    return "\n".join(out)
 
 
 def glossary_for_scene(root: Path, config: dict[str, Any], source_text: str) -> list[dict[str, Any]]:
@@ -1374,6 +1440,124 @@ def glossary_for_scene(root: Path, config: dict[str, Any], source_text: str) -> 
         if src and src in source_text:
             result.append(item)
     return result
+
+
+def glossary_note(item: dict[str, Any]) -> str:
+    values: list[str] = []
+    for field in ("note", "notes"):
+        value = item.get(field)
+        if isinstance(value, list):
+            values.extend(str(part).strip() for part in value if str(part).strip())
+        elif value is not None and str(value).strip():
+            values.append(str(value).strip())
+    return " ".join(values)
+
+
+def related_questions(root: Path, config: dict[str, Any], scene_ids: set[str],
+                      segment_ids: set[str], glossary: list[dict[str, Any]] | None = None,
+                      *, open_only: bool = True) -> list[dict[str, Any]]:
+    linked_question_ids = {
+        str(question_id)
+        for item in (glossary or [])
+        for question_id in (item.get("open_questions") or [])
+    }
+    path = root / config.get("paths", {}).get(
+        "questions", "translation/open-questions.jsonl")
+    result: list[dict[str, Any]] = []
+    for raw in read_jsonl(path):
+        row = clean_meta(raw)
+        if open_only and row.get("status") != "open":
+            continue
+        linked_segments = set(map(str, row.get("segment_ids", [])))
+        if (str(row.get("scene_id", "")) in scene_ids
+                or bool(linked_segments & segment_ids)
+                or str(row.get("id", "")) in linked_question_ids):
+            result.append(row)
+    return result
+
+
+def active_findings_for_package(root: Path, config: dict[str, Any], *, role: str,
+                                russian_only: bool = False) -> list[dict[str, Any]]:
+    path = root / config.get("paths", {}).get(
+        "findings", "docs/project/findings.jsonl")
+    result: list[dict[str, Any]] = []
+    for raw in read_jsonl(path):
+        row = clean_meta(raw)
+        if findings_relevance(row) != "current":
+            continue
+        if role in {"translator", "review", "review-fix", "review-recheck", "reviewer"}:
+            if row.get("area") not in {"content", "font"}:
+                continue
+        elif role in {"stylist", "auditor"} and row.get("area") != "content":
+            continue
+        statement = " ".join(str(row.get("statement", "")).split())
+        item = {
+            "id": row.get("id"),
+            "status": row.get("status"),
+            "area": row.get("area"),
+            "kind": row.get("kind"),
+            "title": row.get("title"),
+            "statement": statement[:320],
+        }
+        if russian_only:
+            item = {
+                key: CJK_RE.sub("", str(value)).strip() if isinstance(value, str) else value
+                for key, value in item.items()
+            }
+        result.append(item)
+    return result
+
+
+def markdown_section(doc: str, heading: str) -> str:
+    lines = doc.splitlines()
+    start = next((i for i, line in enumerate(lines)
+                  if line.strip().lower() == f"## {heading}".lower()), None)
+    if start is None:
+        return ""
+    out: list[str] = []
+    for line in lines[start + 1:]:
+        if line.startswith("## "):
+            break
+        out.append(line)
+    return "\n".join(out).strip()
+
+
+def voice_contract(doc: str, *, russian_only: bool = False) -> str:
+    status = "unknown"
+    body = doc
+    if doc.startswith("---"):
+        pieces = doc.split("---", 2)
+        if len(pieces) == 3:
+            meta = yaml.safe_load(pieces[1]) if yaml else {}
+            if isinstance(meta, dict):
+                status = str(meta.get("status", "unknown"))
+            body = pieces[2]
+    sections = []
+    for heading in ("Базовая письменная речевая манера", "Обращения", "Не использовать"):
+        text = markdown_section(body, heading)
+        if text:
+            sections.append(f"### {heading}\n{text}")
+    result = f"Статус карточки: {status}.\n" + ("\n\n".join(sections) or "Манера не описана.")
+    if russian_only:
+        result = re.sub(r"「[^」]*」|『[^』]*』", "", result)
+        result = CJK_RE.sub("", result)
+        result = re.sub(r"[ \t]+", " ", result)
+    return result.strip()
+
+
+MARKUP_TOKEN = re.compile(
+    r"\$\[[^\]]*?\$/[^\]]*?\$\]|\$\([0-9]+\)|\$C\[[0-9a-fA-F]*\]|\$d|"
+    r"\$S(?:\([^)]*\)|[0-9]+)?"
+)
+
+
+def markup_contract(source: str) -> dict[str, Any]:
+    tokens = MARKUP_TOKEN.findall(source)
+    ruby_bases = [match.group(1) for match in RUBY.finditer(source)]
+    return {
+        "preserve_exact": [token for token in tokens if not token.startswith("$[")],
+        "remove_ruby_keep_base": ruby_bases,
+    }
 
 
 def safe_constraints(root: Path, config: dict[str, Any], segment_ids: set[str]) -> list[dict[str, Any]]:
@@ -1505,7 +1689,7 @@ def brief(root: Path, config: dict[str, Any]) -> int:
     fpath = root / config.get("paths", {}).get("findings", "docs/project/findings.jsonl")
     for row in read_jsonl(fpath):
         if findings_relevance(row) == "current":
-            print(f"  {row['id']} [{row['kind']}] {row['title']}")
+            print(f"  {row['id']} [{row.get('status')}/{row['kind']}] {row['title']}")
 
     print("\n" + "=" * 70)
     print("ОТКРЫТЫЕ ВОПРОСЫ")
@@ -1561,6 +1745,1531 @@ def next_unfinished_scene(root: Path, config: dict[str, Any]) -> str | None:
     return None
 
 
+STAGE_ORDER = ("переводить", "ревью", "смешанная")
+STYLE_READY_STATUSES = {"reviewed", "playable", "lqa", "approved"}
+STYLE_EVENTS = {
+    "ledger_initialized", "run_started", "window_applied",
+    "window_accepted", "route_audited", "build_readback",
+}
+CJK_RE = re.compile(r"[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff]")
+
+
+def scene_stage(statuses: Counter) -> str:
+    """Ступень конвейера, на которой сцена ждёт работы.
+
+    Ступень выводится из статусов сегментов, а не хранится отдельно: отдельное
+    поле пришлось бы обновлять вручную, и оно разошлось бы с текстом.
+    """
+    if statuses.get("todo"):
+        return "переводить"
+    only = set(statuses)
+    if only == {"draft"}:
+        return "ревью"
+    if only <= STYLE_READY_STATUSES:
+        return ""
+    return "смешанная"
+
+
+def style_ledger_path(root: Path, config: dict[str, Any]) -> Path:
+    rel = config.get("paths", {}).get("style_ledger", "translation/style-ledger.jsonl")
+    return root / rel
+
+
+def load_style_events(root: Path, config: dict[str, Any]) -> list[dict[str, Any]]:
+    return [clean_meta(row) for row in read_jsonl(style_ledger_path(root, config))]
+
+
+def append_style_event(root: Path, config: dict[str, Any], event: dict[str, Any]) -> None:
+    path = style_ledger_path(root, config)
+    rows = load_style_events(root, config)
+    rows.append(event)
+    write_jsonl_atomic(path, rows)
+
+
+def style_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    runs: dict[str, dict[str, Any]] = {}
+    for event in events:
+        run_id = str(event.get("run_id", ""))
+        kind = event.get("event")
+        if kind == "run_started":
+            runs[run_id] = {
+                **event,
+                "applied": {},
+                "accepted": {},
+                "audit": None,
+                "builds": [],
+            }
+        elif run_id in runs and kind == "window_applied":
+            runs[run_id]["applied"][str(event["window_id"])] = event
+        elif run_id in runs and kind == "window_accepted":
+            runs[run_id]["accepted"][str(event["window_id"])] = event
+        elif run_id in runs and kind == "route_audited":
+            runs[run_id]["audit"] = event
+        elif run_id in runs and kind == "build_readback":
+            runs[run_id]["builds"].append(event)
+    return runs
+
+
+def route_scenes(root: Path, config: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    out: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for scene in load_scenes(root, config):
+        route = str(scene.get("route", ""))
+        if route:
+            out[route].append(scene)
+    return dict(out)
+
+
+def style_route_rows(root: Path, config: dict[str, Any], route: str) -> list[dict[str, Any]]:
+    scenes = route_scenes(root, config).get(route)
+    if not scenes:
+        raise ValueError(f"Unknown style block: {route}")
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    rows: list[dict[str, Any]] = []
+    for scene in scenes:
+        path = seg_dir / f"{scene['scene_id']}.jsonl"
+        if not path.exists():
+            raise ValueError(f"Missing segment file for {scene['scene_id']}")
+        rows.extend(clean_meta(row) for row in read_jsonl(path))
+    return rows
+
+
+def style_text_hash(rows: list[dict[str, Any]]) -> str:
+    payload = [{"id": row["id"], "translation": row.get("translation", "")} for row in rows]
+    return sha256_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+
+
+def style_slice_hash(rows: list[dict[str, Any]]) -> str:
+    payload = [{
+        "id": row["id"],
+        "translation": row.get("translation", ""),
+        "status": row.get("status"),
+        "flags": row.get("flags", []),
+    } for row in rows]
+    return sha256_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+
+
+def plan_style_windows(rows: list[dict[str, Any]], minimum: int, maximum: int,
+                       context: int) -> list[dict[str, Any]]:
+    total = len(rows)
+    if not total:
+        return []
+    if minimum <= 0 or maximum < minimum or context < 0:
+        raise ValueError("Invalid style window configuration")
+    if total <= maximum:
+        count = 1
+    else:
+        count = math.ceil(total / maximum)
+        if total // count < minimum:
+            count -= 1
+        if count <= 0 or math.ceil(total / count) > maximum or total // count < minimum:
+            raise ValueError(
+                f"Cannot split {total} segments into windows of {minimum}-{maximum}")
+    base, extra = divmod(total, count)
+    windows: list[dict[str, Any]] = []
+    first = 0
+    for index in range(count):
+        size = base + (1 if index < extra else 0)
+        last = first + size
+        windows.append({
+            "window_id": f"W{index + 1:03d}",
+            "editable_first": str(rows[first]["id"]),
+            "editable_last": str(rows[last - 1]["id"]),
+            "editable_count": size,
+            "context_before": min(context, first),
+            "context_after": min(context, total - last),
+        })
+        first = last
+    return windows
+
+
+def style_window_rows(rows: list[dict[str, Any]], window: dict[str, Any]) -> tuple[
+        list[dict[str, Any]], list[dict[str, Any]]]:
+    by_id = {str(row["id"]): index for index, row in enumerate(rows)}
+    try:
+        first = by_id[str(window["editable_first"])]
+        last = by_id[str(window["editable_last"])] + 1
+    except KeyError as exc:
+        raise ValueError(f"Style window boundary is absent: {exc}") from exc
+    editable = rows[first:last]
+    if len(editable) != int(window["editable_count"]):
+        raise ValueError(f"Style window {window['window_id']} changed size")
+    start = max(0, first - int(window["context_before"]))
+    end = min(len(rows), last + int(window["context_after"]))
+    return rows[start:end], editable
+
+
+def current_style_run(root: Path, config: dict[str, Any], route: str) -> dict[str, Any] | None:
+    runs = style_runs(load_style_events(root, config))
+    candidates = [run for run in runs.values() if run.get("route") == route]
+    return candidates[-1] if candidates else None
+
+
+def style_run_complete(root: Path, config: dict[str, Any], route: str) -> bool:
+    run = current_style_run(root, config, route)
+    if not run or not run.get("audit"):
+        return False
+    rows = style_route_rows(root, config, route)
+    return run["audit"].get("route_sha256") == style_text_hash(rows)
+
+
+def work_queue(root: Path, config: dict[str, Any]) -> int:
+    """Что готово к работе на каждой ступени.
+
+    Без этого очередь отвечала только на вопрос «что переводить», и остальные
+    ступени приходилось искать глазами. Залп из нескольких агентов собирается
+    именно отсюда: каждая ступень идёт на своей сцене, параллельно остальным.
+    """
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    deferred = set(config.get("workflow", {}).get("deferred_scenes") or [])
+    buckets: dict[str, list[tuple[str, int, bool, str]]] = defaultdict(list)
+    active_style_routes = {
+        str(run.get("route")) for run in style_runs(load_style_events(root, config)).values()
+        if run.get("route") and not run.get("audit")
+    }
+    done = 0
+    total_segments = 0
+    translated_segments = 0
+    all_statuses: Counter = Counter()
+    for scene in load_scenes(root, config):
+        scene_id = str(scene["scene_id"])
+        path = seg_dir / f"{scene_id}.jsonl"
+        if not path.exists():
+            continue
+        rows = read_jsonl(path)
+        total_segments += len(rows)
+        translated_segments += sum(
+            1 for row in rows if str(row.get("translation", "")).strip())
+        statuses = Counter(str(r.get("status")) for r in rows)
+        all_statuses.update(statuses)
+        stage = scene_stage(statuses)
+        route = str(scene.get("route", ""))
+        if route in active_style_routes and stage == "смешанная":
+            continue
+        if not stage:
+            if route in set(config.get("workflow", {}).get("style_service_routes") or []):
+                done += 1
+            elif style_run_complete(root, config, route) and set(statuses) <= {
+                    "playable", "lqa", "approved"}:
+                done += 1
+            continue
+        note = ""
+        if stage == "ревью":
+            run = latest_review_for_scene(root, config, scene_id)
+            if not run:
+                note = "нет импортированного review-run"
+            elif run.get("accepted"):
+                note = "принято, обновить статусы"
+            elif run.get("resolution"):
+                escalations = sum(1 for item in run["resolution"].get(
+                    "resolutions", []) if item.get("escalation"))
+                note = (f"ждёт решения пользователя: {escalations}"
+                        if escalations else "ждёт перепроверки")
+            else:
+                counts = Counter(str(issue.get("severity")) for issue in run.get("issues", []))
+                note = "ждёт правок " + "/".join(
+                    f"{key}:{counts[key]}" for key in ("critical", "major", "minor", "preference")
+                    if counts[key])
+        buckets[stage].append((scene_id, len(rows), scene_id in deferred, note))
+
+    for stage in STAGE_ORDER:
+        items = buckets.get(stage) or []
+        if not items:
+            continue
+        items.sort(key=lambda item: (item[2], item[0]))
+        shown = ", ".join(
+            f"{scene_id} ({count}{', отложена' if is_deferred else ''}"
+            f"{', ' + note if note else ''})"
+            for scene_id, count, is_deferred, note in items[:8])
+        tail = f" … ещё {len(items) - 8}" if len(items) > 8 else ""
+        print(f"{stage:12} {shown}{tail}")
+
+    service = set(config.get("workflow", {}).get("style_service_routes") or [])
+    style_items: list[str] = []
+    build_items: list[str] = []
+    for route, scenes in sorted(route_scenes(root, config).items()):
+        if route in service:
+            continue
+        rows = style_route_rows(root, config, route)
+        statuses = {str(row.get("status")) for row in rows}
+        run = current_style_run(root, config, route)
+        if run and not run.get("audit"):
+            accepted = len(run["accepted"])
+            style_items.append(f"{route} ({accepted}/{len(run['windows'])} окон принято)")
+        elif statuses <= STYLE_READY_STATUSES and not style_run_complete(root, config, route):
+            style_items.append(f"{route} ({len(rows)}, начать)")
+        elif style_run_complete(root, config, route) and "reviewed" in statuses:
+            build_items.append(f"{route} ({len(rows)})")
+    if style_items:
+        print(f"{'вычитка':12} " + ", ".join(style_items[:8]))
+    if build_items:
+        print(f"{'собирать':12} " + ", ".join(build_items[:8]))
+    print(f"{'готово':12} {done} сцен")
+    percent = 100.0 * translated_segments / total_segments if total_segments else 0.0
+    status_text = ", ".join(f"{key}={value}" for key, value in sorted(all_statuses.items()))
+    print(f"{'статус':12} {translated_segments}/{total_segments} ({percent:.1f}%); {status_text}")
+    return 0
+
+
+SILENCE_ONLY = re.compile(r"^[\s\u3000…\u2026「」『』]*$")
+# Только явный обрыв: запятая, многоточие или っ на конце. Голая падежная
+# частица сюда не входит намеренно - 「俺が」 это законченное эллиптическое
+# высказывание, и запрет на нём заморозил бы ровно те строки, которые надо
+# чинить: «Я.» вместо «Это я.», «Сердце.» вместо «В сердце».
+DANGLING_TAIL = re.compile(r"(?:[、,]|\u2026|っ)\s*[」』]?\s*$")
+
+
+def style_start(root: Path, config: dict[str, Any], route: str) -> int:
+    service = set(config.get("workflow", {}).get("style_service_routes") or [])
+    if route in service:
+        raise ValueError(f"Service block {route} is not a literary style run")
+    rows = style_route_rows(root, config, route)
+    bad = Counter(str(row.get("status")) for row in rows
+                  if str(row.get("status")) not in STYLE_READY_STATUSES)
+    if bad:
+        raise ValueError(f"Style block {route} is not reviewed completely: {dict(bad)}")
+    current = current_style_run(root, config, route)
+    if current and not current.get("audit"):
+        raise ValueError(f"Style run already active: {current['run_id']}")
+    if style_run_complete(root, config, route):
+        print(f"{route}: current text already passed style audit")
+        return 0
+    events = load_style_events(root, config)
+    serial = 1 + sum(1 for event in events
+                     if event.get("event") == "run_started" and event.get("route") == route)
+    run_id = f"STYLE-{route}-{serial:02d}"
+    workflow = config.get("workflow", {})
+    windows = plan_style_windows(
+        rows,
+        int(workflow.get("style_window_min", 600)),
+        int(workflow.get("style_window_max", 1000)),
+        int(workflow.get("style_context_segments", 75)),
+    )
+    append_style_event(root, config, {
+        "schema_version": 1,
+        "event": "run_started",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "run_id": run_id,
+        "route": route,
+        "route_sha256": style_text_hash(rows),
+        "segment_count": len(rows),
+        "windows": windows,
+    })
+    print(f"{run_id}: {len(rows)} segments, {len(windows)} windows")
+    return 0
+
+
+def speaker_labels(root: Path) -> dict[str, str]:
+    labels: dict[str, str] = {}
+    for row in read_jsonl(root / "translation/speakers.jsonl"):
+        labels[str(row.get("source"))] = str(row.get("preferred_ru") or row.get("id"))
+    return labels
+
+
+def russian_voice_digest(doc: str, limit: int = 3) -> str:
+    text = voice_digest(doc, limit=limit)
+    text = re.sub(r"「[^」]*」|『[^』]*』", "", text)
+    text = CJK_RE.sub("", text)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r" +([,.;:])", r"\1", text)
+    return "\n".join(line.rstrip() for line in text.splitlines() if line.strip())
+
+
+def source_text_by_segment(root: Path, config: dict[str, Any],
+                           rows: list[dict[str, Any]]) -> dict[str, str]:
+    keys = {(str(row["source_set_id"]), str(row["source_id"])) for row in rows}
+    records = load_source_records(root, config, keys)
+    out: dict[str, str] = {}
+    for row in rows:
+        item = records[(str(row["source_set_id"]), str(row["source_id"]))]
+        slots = {str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
+                 for slot in item.get("slots", [])}
+        out[str(row["id"])] = slots.get("ja", "")
+    return out
+
+
+def style_package(root: Path, config: dict[str, Any], run_id: str) -> str:
+    runs = style_runs(load_style_events(root, config))
+    run = runs.get(run_id)
+    if not run:
+        raise ValueError(f"Unknown style run: {run_id}")
+    window = next((w for w in run["windows"]
+                   if str(w["window_id"]) not in run["applied"]), None)
+    if not window:
+        return f"# {run_id}\n\nВсе окна применены; ожидается проверка дельты и аудит.\n"
+    rows = style_route_rows(root, config, str(run["route"]))
+    package_rows, editable = style_window_rows(rows, window)
+    editable_ids = {str(row["id"]) for row in editable}
+    all_ids = {str(row["id"]) for row in package_rows}
+    labels = speaker_labels(root)
+    source_texts = source_text_by_segment(root, config, package_rows)
+    constraints: list[str] = []
+    for item in safe_constraints(root, config, all_ids):
+        for rule in item.get("safe_rules", []):
+            constraints.append(f"- {', '.join(item['segment_ids'])}: {rule}")
+    for row in package_rows:
+        sid = str(row["id"])
+        source = source_texts[sid]
+        if SILENCE_ONLY.fullmatch(source):
+            constraints.append(f"- {sid}: строка молчания, словами не заполнять")
+        elif DANGLING_TAIL.search(source):
+            constraints.append(
+                f"- {sid}: мысль оборвана; переформулировать можно, договаривать нельзя")
+
+    source_text = "\n".join(source_texts.values())
+    glossary = glossary_for_scene(root, config, source_text)
+
+    base_sha = style_slice_hash(package_rows)
+    parts = [
+        f"# Русская вычитка {run_id} / {window['window_id']}",
+        "",
+        f"Редактируемо: {len(editable)} сегментов. Контекст по краям неизменяем.",
+        f"base_sha256: `{base_sha}`",
+        "",
+        "Оригинала и переводов-посредников в пакете нет намеренно. Судить нужно "
+        "русский текст как самостоятельный.",
+        "Смысловой инвентарь `before` заблокирован: конкретные существа, предметы, "
+        "места, числа, элементы списка и оба участника сравнения нельзя удалять, "
+        "обобщать или заменять отрицательной формулой. Если без этого фраза не "
+        "чинится, оставь текст и добавь needs_source_check.",
+    ]
+    if constraints:
+        parts.extend(["", "## Ограничения", "", *sorted(set(constraints))])
+    parts.extend(["", render_required_knowledge(
+        root, config, package_rows, glossary, role="stylist", russian_only=True)])
+    parts.extend(["", "## Текст", "", "```jsonl"])
+    for row in package_rows:
+        parts.append(json.dumps({
+            "id": row["id"],
+            "scene": row["scene_id"],
+            "scope": "editable" if str(row["id"]) in editable_ids else "context",
+            "speaker": labels.get(str(row.get("speaker")), None) if row.get("speaker") else None,
+            "ru": row.get("translation", ""),
+            "flags": row.get("flags", []),
+            "markup": markup_contract(str(row.get("translation", ""))),
+        }, ensure_ascii=False))
+    parts.extend([
+        "```", "", "## Сдать", "",
+        f"Патч: `build/style-{run_id}-{window['window_id']}.jsonl`.",
+        "Первая строка:",
+        "```json",
+        json.dumps({"__style_window__": {
+            "run_id": run_id,
+            "window_id": window["window_id"],
+            "base_sha256": base_sha,
+        }}, ensure_ascii=False),
+        "```",
+        "Дальше только реально изменённые editable-записи:",
+        '```json\n{"id":"...","before":"...","translation":"...","reason":"..."}\n```',
+        "При риске смыслового изменения текст не переписывай: оставь `translation` "
+        "равным `before` и добавь `\"flags\":[\"needs_source_check\"]`.",
+        "Статус в патче не указывается: его назначает инструмент.",
+        "",
+        f"Проверка: `python tools/vnctl.py style check {run_id} "
+        f"{window['window_id']} build/style-{run_id}-{window['window_id']}.jsonl`",
+        f"Применение: `python tools/vnctl.py style apply {run_id} "
+        f"{window['window_id']} build/style-{run_id}-{window['window_id']}.jsonl`",
+    ])
+    output = "\n".join(parts)
+    if CJK_RE.search(output):
+        raise RuntimeError("Russian-only style package contains CJK")
+    return output
+
+
+def style_run_window(root: Path, config: dict[str, Any], run_id: str,
+                     window_id: str) -> tuple[dict[str, Any], dict[str, Any],
+                                               list[dict[str, Any]], list[dict[str, Any]],
+                                               list[dict[str, Any]]]:
+    run = style_runs(load_style_events(root, config)).get(run_id)
+    if not run:
+        raise ValueError(f"Unknown style run: {run_id}")
+    window = next((item for item in run["windows"]
+                   if str(item["window_id"]) == window_id), None)
+    if not window:
+        raise ValueError(f"Unknown style window: {run_id}/{window_id}")
+    rows = style_route_rows(root, config, str(run["route"]))
+    package_rows, editable = style_window_rows(rows, window)
+    return run, window, rows, package_rows, editable
+
+
+def validate_style_patch(root: Path, config: dict[str, Any], run_id: str,
+                         window_id: str, patch_path: Path) -> tuple[
+                             list[str], list[dict[str, Any]], dict[str, Any]]:
+    patch_file = patch_path if patch_path.is_absolute() else root / patch_path
+    if not patch_file.exists():
+        return [f"patch not found: {patch_file}"], [], {}
+    run, window, _, package_rows, editable = style_run_window(
+        root, config, run_id, window_id)
+    if window_id in run["applied"]:
+        return [f"window already applied: {run_id}/{window_id}"], [], {}
+    raw_rows = read_jsonl(patch_file)
+    headers = [row.get("__style_window__") for row in raw_rows if row.get("__style_window__")]
+    if len(headers) != 1 or not isinstance(headers[0], dict):
+        return ["patch must contain exactly one __style_window__ header"], [], {}
+    header = headers[0]
+    errors: list[str] = []
+    if header.get("run_id") != run_id or header.get("window_id") != window_id:
+        errors.append("patch header does not match requested run/window")
+    current_hash = style_slice_hash(package_rows)
+    if header.get("base_sha256") != current_hash:
+        errors.append(
+            f"stale style package: header={header.get('base_sha256')} current={current_hash}")
+
+    editable_by_id = {str(row["id"]): row for row in editable}
+    entries: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    source_texts = source_text_by_segment(root, config, editable)
+    qa = read_yaml(root / "config/qa-rules.yaml", {}) or {}
+    allowed_flags = set(qa.get("allowed_flags", []))
+    allowed_fields = {"id", "before", "translation", "reason", "flags"}
+    for index, raw in enumerate(raw_rows, start=1):
+        if raw.get("__style_window__"):
+            continue
+        entry = clean_meta(raw)
+        unknown = set(entry) - allowed_fields
+        sid = str(entry.get("id", ""))
+        if unknown:
+            errors.append(f"line {index}: unknown fields {sorted(unknown)}")
+            continue
+        if sid in seen:
+            errors.append(f"line {index}: duplicate id {sid}")
+            continue
+        seen.add(sid)
+        current = editable_by_id.get(sid)
+        if not current:
+            errors.append(f"line {index}: {sid!r} is not editable in this window")
+            continue
+        before = str(entry.get("before", ""))
+        after = str(entry.get("translation", ""))
+        reason = str(entry.get("reason", "")).strip()
+        if before != str(current.get("translation", "")):
+            errors.append(f"line {index}: before text does not match canonical text for {sid}")
+        if not after.strip():
+            errors.append(f"line {index}: empty translation for {sid}")
+        if not reason:
+            errors.append(f"line {index}: missing reason for {sid}")
+        old_flags = list(current.get("flags", []) or [])
+        new_flags = list(entry.get("flags", old_flags) or [])
+        if not set(old_flags) <= set(new_flags):
+            errors.append(f"line {index}: style patch may not remove flags from {sid}")
+        if set(new_flags) - set(old_flags) - {"needs_source_check"}:
+            errors.append(f"line {index}: style patch may add only needs_source_check to {sid}")
+        if set(new_flags) - allowed_flags:
+            errors.append(f"line {index}: unknown flags for {sid}")
+        if after == before and new_flags == old_flags:
+            errors.append(f"line {index}: no-op entry for {sid}")
+        findings = check_line(after, is_dialogue=bool(current.get("speaker")))
+        findings += check_markup(source_texts[sid], after)
+        for finding in findings:
+            errors.append(f"line {index}: {sid} {finding.decision} {finding.message}")
+        entry["flags"] = new_flags
+        entries.append(entry)
+    return errors, entries, header
+
+
+def style_check(root: Path, config: dict[str, Any], run_id: str,
+                window_id: str, patch_path: Path) -> int:
+    errors, entries, _ = validate_style_patch(root, config, run_id, window_id, patch_path)
+    for message in errors:
+        eprint(f"ERROR: {message}")
+    print(f"Style patch {run_id}/{window_id}: {len(entries)} changes, {len(errors)} errors")
+    return 1 if errors else 0
+
+
+def write_scene_transaction(root: Path, config: dict[str, Any],
+                            scene_rows: dict[str, list[dict[str, Any]]]) -> None:
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    originals: dict[Path, bytes] = {}
+    written: list[Path] = []
+    try:
+        for scene_id, rows in scene_rows.items():
+            path = seg_dir / f"{scene_id}.jsonl"
+            originals[path] = path.read_bytes()
+            write_jsonl_atomic(path, rows)
+            written.append(path)
+    except Exception:
+        for path in written:
+            path.write_bytes(originals[path])
+        raise
+
+
+def style_apply(root: Path, config: dict[str, Any], run_id: str,
+                window_id: str, patch_path: Path) -> int:
+    errors, entries, header = validate_style_patch(
+        root, config, run_id, window_id, patch_path)
+    if errors:
+        for message in errors:
+            eprint(f"ERROR: {message}")
+        return 1
+    _, _, _, _, editable = style_run_window(root, config, run_id, window_id)
+    editable_by_id = {str(row["id"]): row for row in editable}
+    affected = sorted({str(editable_by_id[str(entry["id"])]["scene_id"]) for entry in entries})
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    scene_rows = {
+        scene_id: [clean_meta(row) for row in read_jsonl(seg_dir / f"{scene_id}.jsonl")]
+        for scene_id in affected
+    }
+    canonical = {str(row["id"]): row for rows in scene_rows.values() for row in rows}
+    changes: list[dict[str, Any]] = []
+    for entry in entries:
+        sid = str(entry["id"])
+        row = canonical[sid]
+        changes.append({
+            "id": sid,
+            "scene_id": row["scene_id"],
+            "before": row.get("translation", ""),
+            "after": entry["translation"],
+            "before_status": row.get("status"),
+            "flags_before": row.get("flags", []),
+            "flags_after": entry["flags"],
+            "reason": entry["reason"],
+        })
+        row["translation"] = entry["translation"]
+        row["flags"] = entry["flags"]
+        row["status"] = "draft"
+    if scene_rows:
+        write_scene_transaction(root, config, scene_rows)
+    patch_file = patch_path if patch_path.is_absolute() else root / patch_path
+    append_style_event(root, config, {
+        "schema_version": 1,
+        "event": "window_applied",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "run_id": run_id,
+        "window_id": window_id,
+        "input_sha256": header["base_sha256"],
+        "patch_sha256": sha256_file(patch_file),
+        "changes": changes,
+    })
+    print(f"{run_id}/{window_id}: applied {len(changes)} changes; changed rows are draft")
+    return 0
+
+
+def style_review_package(root: Path, config: dict[str, Any], run_id: str,
+                         window_id: str) -> str:
+    run, _, route_rows, _, _ = style_run_window(root, config, run_id, window_id)
+    applied = run["applied"].get(window_id)
+    if not applied:
+        raise ValueError(f"Style window is not applied: {run_id}/{window_id}")
+    changed_ids = [str(item["id"]) for item in applied.get("changes", [])]
+    by_id = {str(row["id"]): row for row in route_rows}
+    changed_rows = [by_id[sid] for sid in changed_ids]
+    keys = {(str(row["source_set_id"]), str(row["source_id"])) for row in changed_rows}
+    records = load_source_records(root, config, keys)
+    labels = speaker_labels(root)
+    positions = {str(row["id"]): i for i, row in enumerate(route_rows)}
+    knowledge_rows: list[dict[str, Any]] = []
+    for row in changed_rows:
+        key = (str(row["source_set_id"]), str(row["source_id"]))
+        slots = {str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
+                 for slot in records[key].get("slots", [])}
+        knowledge_rows.append({**row, "sources": slots})
+    glossary = glossary_for_scene(
+        root, config, "\n".join(
+            "\n".join(item.get("sources", {}).values()) for item in knowledge_rows))
+    parts = [
+        f"# Проверка стилевой дельты {run_id} / {window_id}", "",
+        "Проверяй только изменённые записи. Соседи даны как неизменяемый контекст.",
+        "Задача: убедиться, что улучшение русского не изменило смысл, степень "
+        "выразительности, обрыв, двусмысленность, повтор или роль реплики.", "",
+        "Отдельно сверь конкретные сущности и предметы, оба участника и направление "
+        "каждого сравнения, элементы перечней, числа, отрицание, модальность и "
+        "причинность. Обобщение конкретного образа означает VERDICT: REVISE.", "",
+        render_required_knowledge(
+            root, config, knowledge_rows, glossary, role="reviewer"), "",
+        "## Изменения", "", "```jsonl",
+    ]
+    before_by_id = {str(item["id"]): item for item in applied.get("changes", [])}
+    for row in changed_rows:
+        key = (str(row["source_set_id"]), str(row["source_id"]))
+        slots = {str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
+                 for slot in records[key].get("slots", [])}
+        index = positions[str(row["id"])]
+        neighbors = route_rows[max(0, index - 2):index] + route_rows[index + 1:index + 3]
+        parts.append(json.dumps({
+            "id": row["id"],
+            "speaker": row.get("speaker"),
+            "sources": slots,
+            "before": before_by_id[str(row["id"])]["before"],
+            "after": row.get("translation", ""),
+            "reason": before_by_id[str(row["id"])].get("reason"),
+            "flags": row.get("flags", []),
+            "markup": markup_contract(slots.get("ja", "")),
+            "neighbors_ru": [{"id": n["id"], "ru": n.get("translation", "")}
+                             for n in neighbors],
+        }, ensure_ascii=False))
+    parts.extend([
+        "```", "", "## Вердикт", "",
+        "Запиши отчёт в `build/style-review-" + run_id + "-" + window_id + ".md`.",
+        "Первая непустая строка после заголовка должна быть одной из двух:",
+        "`VERDICT: ACCEPT` — смысл не снесён; `VERDICT: REVISE` — есть правки.",
+        "При REVISE перечисли ID, severity, причину и окончательный русский вариант.",
+        "Canonical files не правь.",
+    ])
+    return "\n".join(parts)
+
+
+def report_accepts(path: Path) -> bool:
+    return bool(re.search(r"(?m)^VERDICT:\s*ACCEPT\s*$", path.read_text(encoding="utf-8-sig")))
+
+
+def style_accept(root: Path, config: dict[str, Any], run_id: str,
+                 window_id: str, report_path: Path, reviewer: str) -> int:
+    report = report_path if report_path.is_absolute() else root / report_path
+    if not report.exists():
+        raise ValueError(f"Review report not found: {report}")
+    if not report_accepts(report):
+        raise ValueError("Style delta review did not say VERDICT: ACCEPT")
+    run, _, _, _, _ = style_run_window(root, config, run_id, window_id)
+    applied = run["applied"].get(window_id)
+    if not applied:
+        raise ValueError(f"Style window is not applied: {run_id}/{window_id}")
+    if window_id in run["accepted"]:
+        raise ValueError(f"Style window already accepted: {run_id}/{window_id}")
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    affected = sorted({str(change["scene_id"]) for change in applied.get("changes", [])})
+    scene_rows = {
+        scene_id: [clean_meta(row) for row in read_jsonl(seg_dir / f"{scene_id}.jsonl")]
+        for scene_id in affected
+    }
+    canonical = {str(row["id"]): row for rows in scene_rows.values() for row in rows}
+    final = []
+    for change in applied.get("changes", []):
+        row = canonical[str(change["id"])]
+        if row.get("status") != "draft":
+            raise ValueError(f"Changed segment is not awaiting delta review: {row['id']}")
+        row["status"] = "reviewed"
+        final.append({"id": row["id"], "translation": row.get("translation", "")})
+    if scene_rows:
+        write_scene_transaction(root, config, scene_rows)
+    append_style_event(root, config, {
+        "schema_version": 1,
+        "event": "window_accepted",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "run_id": run_id,
+        "window_id": window_id,
+        "reviewer": reviewer,
+        "report_sha256": sha256_file(report),
+        "final_delta_sha256": sha256_text(json.dumps(final, ensure_ascii=False)),
+    })
+    print(f"{run_id}/{window_id}: delta accepted, {len(final)} rows reviewed")
+    return 0
+
+
+def style_audit_package(root: Path, config: dict[str, Any], run_id: str) -> str:
+    run = style_runs(load_style_events(root, config)).get(run_id)
+    if not run:
+        raise ValueError(f"Unknown style run: {run_id}")
+    if len(run["accepted"]) != len(run["windows"]):
+        raise ValueError(f"Not all style windows are accepted: {len(run['accepted'])}/{len(run['windows'])}")
+    rows = style_route_rows(root, config, str(run["route"]))
+    labels = speaker_labels(root)
+    changed = [change for event in run["applied"].values()
+               for change in event.get("changes", [])]
+    source_texts = source_text_by_segment(root, config, rows)
+    glossary = glossary_for_scene(root, config, "\n".join(source_texts.values()))
+    parts = [
+        f"# Сквозной аудит {run_id}", "",
+        f"Блок: {run['route']}; сегментов: {len(rows)}; стилевых правок: {len(changed)}.",
+        "Проверь весь русский блок на дрейф голосов, разошедшиеся повторы, "
+        "термины, обращения и неравномерность вычитки. Это аудит блока, не новое "
+        "переписывание строк.", "",
+        render_required_knowledge(
+            root, config, rows, glossary, role="auditor", russian_only=True), "",
+        "## Стилевые изменения", "", "```jsonl",
+    ]
+    for change in changed:
+        parts.append(json.dumps({
+            "id": change.get("id"),
+            "scene": change.get("scene_id"),
+            "before": change.get("before"),
+            "after": change.get("after"),
+            "reason": change.get("reason"),
+            "flags_before": change.get("flags_before", []),
+            "flags_after": change.get("flags_after", []),
+        }, ensure_ascii=False))
+    parts.extend(["```", "", "## Текст", "", "```jsonl"])
+    for row in rows:
+        parts.append(json.dumps({
+            "id": row["id"],
+            "scene": row["scene_id"],
+            "speaker": labels.get(str(row.get("speaker"))) if row.get("speaker") else None,
+            "ru": row.get("translation", ""),
+            "flags": row.get("flags", []),
+            "markup": markup_contract(str(row.get("translation", ""))),
+        }, ensure_ascii=False))
+    parts.extend([
+        "```", "", "## Вердикт", "",
+        f"Отчёт: `build/style-audit-{run_id}.md`.",
+        "После заголовка: `VERDICT: ACCEPT` либо `VERDICT: REVISE`.",
+        "REVISE означает, что конкретный дефект надо исправить и повторить аудит.",
+    ])
+    output = "\n".join(parts)
+    if CJK_RE.search(output):
+        raise RuntimeError("Russian-only audit package contains CJK")
+    return output
+
+
+def style_accept_audit(root: Path, config: dict[str, Any], run_id: str,
+                       report_path: Path, auditor: str) -> int:
+    report = report_path if report_path.is_absolute() else root / report_path
+    if not report.exists() or not report_accepts(report):
+        raise ValueError("Route audit report is absent or did not say VERDICT: ACCEPT")
+    run = style_runs(load_style_events(root, config)).get(run_id)
+    if not run:
+        raise ValueError(f"Unknown style run: {run_id}")
+    if len(run["accepted"]) != len(run["windows"]):
+        raise ValueError("Route audit cannot pass before every window is accepted")
+    rows = style_route_rows(root, config, str(run["route"]))
+    append_style_event(root, config, {
+        "schema_version": 1,
+        "event": "route_audited",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "run_id": run_id,
+        "route": run["route"],
+        "route_sha256": style_text_hash(rows),
+        "auditor": auditor,
+        "report_sha256": sha256_file(report),
+    })
+    print(f"{run_id}: route audit accepted; build is allowed for current text hash")
+    return 0
+
+
+def style_status(root: Path, config: dict[str, Any]) -> int:
+    runs = style_runs(load_style_events(root, config))
+    if not runs:
+        print("Style runs: 0")
+        return 0
+    for run in runs.values():
+        audit = "audited" if run.get("audit") else "pending audit"
+        print(f"{run['run_id']}: {run['route']}, "
+              f"applied={len(run['applied'])}/{len(run['windows'])}, "
+              f"accepted={len(run['accepted'])}/{len(run['windows'])}, {audit}")
+    return 0
+
+
+def validate_style_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str], list[str]]:
+    errors: list[str] = []
+    warnings: list[str] = []
+    events = load_style_events(root, config)
+    known_routes = set(route_scenes(root, config))
+    runs: dict[str, dict[str, Any]] = {}
+    for index, event in enumerate(events, start=1):
+        kind = event.get("event")
+        if event.get("schema_version") != 1:
+            errors.append(f"style ledger line {index}: unsupported schema_version")
+        if kind not in STYLE_EVENTS:
+            errors.append(f"style ledger line {index}: unknown event {kind!r}")
+            continue
+        if kind == "run_started":
+            run_id = str(event.get("run_id", ""))
+            if run_id in runs:
+                errors.append(f"style ledger line {index}: duplicate run {run_id}")
+            if event.get("route") not in known_routes:
+                errors.append(f"style ledger line {index}: unknown route {event.get('route')}")
+            windows = event.get("windows")
+            if not isinstance(windows, list) or not windows:
+                errors.append(f"style ledger line {index}: run without windows")
+            runs[run_id] = {"windows": {str(w.get('window_id')) for w in windows or []},
+                            "applied": set(), "accepted": set(), "audited": False}
+        elif kind != "ledger_initialized":
+            run_id = str(event.get("run_id", ""))
+            run = runs.get(run_id)
+            if not run:
+                errors.append(f"style ledger line {index}: event references unknown run {run_id}")
+                continue
+            window_id = str(event.get("window_id", ""))
+            if kind == "window_applied":
+                if window_id not in run["windows"]:
+                    errors.append(f"style ledger line {index}: unknown window {window_id}")
+                if window_id in run["applied"]:
+                    errors.append(f"style ledger line {index}: window applied twice {window_id}")
+                run["applied"].add(window_id)
+            elif kind == "window_accepted":
+                if window_id not in run["applied"]:
+                    errors.append(f"style ledger line {index}: window accepted before apply {window_id}")
+                if window_id in run["accepted"]:
+                    errors.append(f"style ledger line {index}: window accepted twice {window_id}")
+                run["accepted"].add(window_id)
+            elif kind == "route_audited":
+                if run["accepted"] != run["windows"]:
+                    errors.append(f"style ledger line {index}: route audited before all windows")
+                if run["audited"]:
+                    errors.append(f"style ledger line {index}: route audited twice")
+                run["audited"] = True
+            elif kind == "build_readback" and not run["audited"]:
+                errors.append(f"style ledger line {index}: build before route audit")
+    return errors, warnings
+
+
+REVIEW_EVENTS = {"ledger_initialized", "review_imported", "review_resolved", "review_accepted"}
+REVIEW_SEVERITIES = {"critical", "major", "minor", "preference"}
+REVIEW_DISPOSITIONS = {"applied", "rejected"}
+
+
+def review_ledger_path(root: Path, config: dict[str, Any]) -> Path:
+    rel = config.get("paths", {}).get("review_ledger", "translation/review-ledger.jsonl")
+    return root / rel
+
+
+def load_review_events(root: Path, config: dict[str, Any]) -> list[dict[str, Any]]:
+    return [clean_meta(row) for row in read_jsonl(review_ledger_path(root, config))]
+
+
+def append_review_event(root: Path, config: dict[str, Any], event: dict[str, Any]) -> None:
+    path = review_ledger_path(root, config)
+    rows = load_review_events(root, config)
+    rows.append(event)
+    write_jsonl_atomic(path, rows)
+
+
+def review_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    runs: dict[str, dict[str, Any]] = {}
+    for event in events:
+        review_id = str(event.get("review_id", ""))
+        kind = event.get("event")
+        if kind == "review_imported":
+            runs[review_id] = {**event, "resolution": None, "accepted": None}
+        elif review_id in runs and kind == "review_resolved":
+            runs[review_id]["resolution"] = event
+        elif review_id in runs and kind == "review_accepted":
+            runs[review_id]["accepted"] = event
+    return runs
+
+
+def scene_review_hash(rows: list[dict[str, Any]]) -> str:
+    payload = [{
+        "id": str(row.get("id")),
+        "translation": str(row.get("translation", "")),
+        "flags": list(row.get("flags", []) or []),
+    } for row in rows]
+    return sha256_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+
+
+def next_review_id(root: Path, config: dict[str, Any], scene_id: str) -> str:
+    serial = 1 + sum(
+        1 for run in review_runs(load_review_events(root, config)).values()
+        if run.get("scene_id") == scene_id
+    )
+    return f"REV-{scene_id}-{serial:02d}"
+
+
+def latest_review_for_scene(root: Path, config: dict[str, Any],
+                            scene_id: str) -> dict[str, Any] | None:
+    items = [run for run in review_runs(load_review_events(root, config)).values()
+             if run.get("scene_id") == scene_id]
+    return items[-1] if items else None
+
+
+def review_package(root: Path, config: dict[str, Any], scene_id: str) -> str:
+    seg_file = root / config.get("paths", {}).get(
+        "segments", "translation/segments") / f"{scene_id}.jsonl"
+    rows = [clean_meta(row) for row in read_jsonl(seg_file)]
+    if not rows:
+        raise ValueError(f"Unknown or empty scene: {scene_id}")
+    if {str(row.get("status")) for row in rows} != {"draft"}:
+        raise ValueError(f"Scene {scene_id} is not a complete draft")
+    review_id = next_review_id(root, config, scene_id)
+    base_hash = scene_review_hash(rows)
+    db = db_path(root, config)
+    if not db.exists():
+        raise FileNotFoundError(f"Index not found: {db}. Run: python tools/vnctl.py index")
+    con = sqlite3.connect(db)
+    con.row_factory = sqlite3.Row
+    indexed = con.execute(
+        "SELECT id, translation, flags_json FROM segments WHERE scene_id=? ORDER BY ord",
+        (scene_id,),
+    ).fetchall()
+    con.close()
+    indexed_rows = [{
+        "id": row["id"], "translation": row["translation"],
+        "flags": json.loads(row["flags_json"] or "[]"),
+    } for row in indexed]
+    if scene_review_hash(indexed_rows) != base_hash:
+        raise ValueError("knowledge index is stale; run python tools/vnctl.py index")
+    context = build_context(root, config, scene_id, purpose="review")
+    parts = [
+        f"# Двуязычное ревью {review_id}", "",
+        context, "",
+        "## Машинный отчёт", "",
+        "Пользователь этот текст не читает. Ты находишь проблемы, а оркестратор "
+        "применяет или явно отклоняет каждую из них. Источник истины — JSONL, "
+        "не свободный Markdown.", "",
+        f"Запиши `build/review-{review_id}.jsonl`. Первая строка:", "",
+        "```json",
+        json.dumps({"__review__": {
+            "review_id": review_id,
+            "scene_id": scene_id,
+            "base_sha256": base_hash,
+        }}, ensure_ascii=False),
+        "```", "",
+        "Дальше одна строка на каждое замечание, включая preference:", "",
+        "```json",
+        json.dumps({
+            "issue_id": f"{review_id}-I001",
+            "severity": "major",
+            "category": "accuracy",
+            "segment_ids": ["SEG_..."],
+            "problem": "Что именно сломано.",
+            "suggested_changes": [{"id": "SEG_...", "translation": "Окончательный вариант."}],
+        }, ensure_ascii=False),
+        "```", "",
+        "Если замечаний нет, файл содержит только заголовок. Итоговые счётчики "
+        "выводятся из JSONL, вручную их не объявляй.",
+    ]
+    return "\n".join(parts)
+
+
+def review_import(root: Path, config: dict[str, Any], scene_id: str,
+                  report_path: Path, reviewer: str) -> int:
+    report = report_path if report_path.is_absolute() else root / report_path
+    raw_rows = read_jsonl(report)
+    headers = [row.get("__review__") for row in raw_rows if row.get("__review__")]
+    if len(headers) != 1 or not isinstance(headers[0], dict):
+        raise ValueError("review report must contain exactly one __review__ header")
+    header = headers[0]
+    review_id = str(header.get("review_id", ""))
+    if not re.fullmatch(rf"REV-{re.escape(scene_id)}-[0-9]{{2}}", review_id):
+        raise ValueError("review_id does not match scene")
+    if review_id in review_runs(load_review_events(root, config)):
+        raise ValueError(f"Review already imported: {review_id}")
+    seg_file = root / config.get("paths", {}).get(
+        "segments", "translation/segments") / f"{scene_id}.jsonl"
+    scene_rows = [clean_meta(row) for row in read_jsonl(seg_file)]
+    current_hash = scene_review_hash(scene_rows)
+    if header.get("scene_id") != scene_id or header.get("base_sha256") != current_hash:
+        raise ValueError("review report is for another or stale scene version")
+    by_id = {str(row["id"]): row for row in scene_rows}
+    issues: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for raw in raw_rows:
+        if raw.get("__review__"):
+            continue
+        issue = clean_meta(raw)
+        issue_id = str(issue.get("issue_id", ""))
+        if not re.fullmatch(rf"{re.escape(review_id)}-I[0-9]{{3}}", issue_id):
+            raise ValueError(f"invalid issue_id: {issue_id!r}")
+        if issue_id in seen:
+            raise ValueError(f"duplicate issue_id: {issue_id}")
+        seen.add(issue_id)
+        if issue.get("severity") not in REVIEW_SEVERITIES:
+            raise ValueError(f"{issue_id}: invalid severity")
+        if not str(issue.get("category", "")).strip() or not str(issue.get("problem", "")).strip():
+            raise ValueError(f"{issue_id}: category and problem are required")
+        segment_ids = list(map(str, issue.get("segment_ids", [])))
+        if not segment_ids or any(sid not in by_id for sid in segment_ids):
+            raise ValueError(f"{issue_id}: segment_ids must belong to {scene_id}")
+        changes = issue.get("suggested_changes", []) or []
+        if not isinstance(changes, list):
+            raise ValueError(f"{issue_id}: suggested_changes must be a list")
+        for change in changes:
+            if str(change.get("id", "")) not in segment_ids:
+                raise ValueError(f"{issue_id}: suggested change outside issue segment_ids")
+            if not str(change.get("translation", "")).strip():
+                raise ValueError(f"{issue_id}: suggested translation is empty")
+        issues.append(issue)
+    agent_file = root / ".opencode" / "agent" / f"{reviewer}.md"
+    append_review_event(root, config, {
+        "schema_version": 1,
+        "event": "review_imported",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "review_id": review_id,
+        "scene_id": scene_id,
+        "base_sha256": current_hash,
+        "reviewer": reviewer,
+        "reviewer_prompt_sha256": sha256_file(agent_file) if agent_file.exists() else None,
+        "report_sha256": sha256_file(report),
+        "issues": issues,
+    })
+    counts = Counter(str(issue["severity"]) for issue in issues)
+    print(f"{review_id}: imported {len(issues)} issues {dict(counts)}")
+    return 0
+
+
+def review_resolution_package(root: Path, config: dict[str, Any], review_id: str) -> str:
+    run = review_runs(load_review_events(root, config)).get(review_id)
+    if not run:
+        raise ValueError(f"Unknown review: {review_id}")
+    if run.get("accepted"):
+        raise ValueError(f"Review already accepted: {review_id}")
+    scene_id = str(run["scene_id"])
+    seg_file = root / config.get("paths", {}).get(
+        "segments", "translation/segments") / f"{scene_id}.jsonl"
+    rows = [clean_meta(row) for row in read_jsonl(seg_file)]
+    expected_hash = (run.get("resolution") or {}).get("result_sha256", run["base_sha256"])
+    if scene_review_hash(rows) != expected_hash:
+        raise ValueError("canonical scene changed after review; create a new review")
+    by_id = {str(row["id"]): row for row in rows}
+    context = build_context(root, config, scene_id, purpose="review-fix")
+    templates = []
+    for issue in run.get("issues", []):
+        changes = []
+        for suggestion in issue.get("suggested_changes", []) or []:
+            sid = str(suggestion.get("id"))
+            changes.append({
+                "id": sid,
+                "before": by_id[sid].get("translation", ""),
+                "translation": suggestion.get("translation", ""),
+                "flags": by_id[sid].get("flags", []),
+            })
+        templates.append({
+            "issue_id": issue.get("issue_id"),
+            "disposition": "rejected" if issue.get("severity") == "preference" else "applied",
+            "reason": "Краткое обоснование решения.",
+            "changes": changes,
+        })
+    parts = [
+        f"# Применение замечаний ревью {review_id}", "", context, "",
+        "## Замечания", "", "```json",
+        json.dumps(run.get("issues", []), ensure_ascii=False, indent=2),
+        "```", "",
+        "Приоритет этого режима: точный и естественный русский. Не проводи новое "
+        "ревью вместо рецензента, но и не вставляй его формулировку механически, "
+        "если она по-русски хуже: исправь названный дефект минимальным вариантом.",
+        "Формы из глоссария и утверждённых решений заблокированы. Японские бытовые "
+        "реалии и родственные обращения не заменяй функциональным русским эквивалентом, "
+        "если пакет закрепляет транслитерированную форму.", "",
+        f"Запиши `build/resolutions-{review_id}.jsonl`: ровно одна строка на каждый "
+        "issue_id, без пропусков. Начальная заготовка:", "", "```jsonl",
+    ]
+    parts.extend(json.dumps(item, ensure_ascii=False) for item in templates)
+    parts.extend([
+        "```", "",
+        "`critical`, `major` и подтверждённый `minor` обычно `applied`; preference "
+        "обычно `rejected`. Любое отклонение требует конкретной причины. Глобальную "
+        "развилку не угадывай: оставь рабочий вариант, сохрани/добавь нужный `needs_*` "
+        "и добавь `escalation` с полями `question` и `provisional` — оркестратор "
+        "соберёт такие вопросы для пользователя пачкой. Пока escalation не снят "
+        "новым resolution, review close заблокирован.", "",
+        f"Применение: `python tools/vnctl.py review resolve {review_id} "
+        f"build/resolutions-{review_id}.jsonl --actor vn-stylist`",
+    ])
+    return "\n".join(parts)
+
+
+def review_resolve(root: Path, config: dict[str, Any], review_id: str,
+                   resolutions_path: Path, actor: str) -> int:
+    run = review_runs(load_review_events(root, config)).get(review_id)
+    if not run:
+        raise ValueError(f"Unknown review: {review_id}")
+    if run.get("accepted"):
+        raise ValueError(f"Review already accepted: {review_id}")
+    scene_id = str(run["scene_id"])
+    seg_file = root / config.get("paths", {}).get(
+        "segments", "translation/segments") / f"{scene_id}.jsonl"
+    rows = [clean_meta(row) for row in read_jsonl(seg_file)]
+    expected_hash = (run.get("resolution") or {}).get("result_sha256", run["base_sha256"])
+    if scene_review_hash(rows) != expected_hash:
+        raise ValueError("canonical scene changed after review; create a new review")
+    issues = {str(issue["issue_id"]): issue for issue in run.get("issues", [])}
+    path = resolutions_path if resolutions_path.is_absolute() else root / resolutions_path
+    resolutions = [clean_meta(row) for row in read_jsonl(path)]
+    by_resolution = {str(row.get("issue_id", "")): row for row in resolutions}
+    if len(by_resolution) != len(resolutions):
+        raise ValueError("duplicate issue_id in resolutions")
+    if set(by_resolution) != set(issues):
+        missing = sorted(set(issues) - set(by_resolution))
+        extra = sorted(set(by_resolution) - set(issues))
+        raise ValueError(f"every issue needs a disposition: missing={missing}, extra={extra}")
+    qa = read_yaml(root / "config/qa-rules.yaml", {}) or {}
+    allowed_flags = set(qa.get("allowed_flags", []))
+    by_id = {str(row["id"]): row for row in rows}
+    changed: dict[str, dict[str, Any]] = {}
+    normalized: list[dict[str, Any]] = []
+    for issue_id, resolution in by_resolution.items():
+        disposition = resolution.get("disposition")
+        reason = str(resolution.get("reason", "")).strip()
+        if disposition not in REVIEW_DISPOSITIONS or not reason:
+            raise ValueError(f"{issue_id}: disposition and reason are required")
+        issue_ids = set(map(str, issues[issue_id].get("segment_ids", [])))
+        changes = resolution.get("changes", []) or []
+        escalation = resolution.get("escalation")
+        if escalation is not None:
+            if (not isinstance(escalation, dict)
+                    or not str(escalation.get("question", "")).strip()
+                    or not str(escalation.get("provisional", "")).strip()):
+                raise ValueError(
+                    f"{issue_id}: escalation requires question and provisional")
+        if disposition == "rejected" and changes:
+            raise ValueError(f"{issue_id}: rejected issue may not carry changes")
+        normalized_changes: list[dict[str, Any]] = []
+        for change in changes:
+            sid = str(change.get("id", ""))
+            if sid not in issue_ids:
+                raise ValueError(f"{issue_id}: change outside issue segment_ids")
+            current = by_id[sid]
+            before = str(change.get("before", ""))
+            after = str(change.get("translation", ""))
+            if before != str(current.get("translation", "")):
+                raise ValueError(f"{issue_id}: stale before text for {sid}")
+            if not after.strip():
+                raise ValueError(f"{issue_id}: empty translation for {sid}")
+            flags = list(change.get("flags", current.get("flags", [])) or [])
+            if set(flags) - allowed_flags:
+                raise ValueError(f"{issue_id}: unknown flags for {sid}")
+            candidate = {"translation": after, "flags": flags}
+            if sid in changed and changed[sid] != candidate:
+                raise ValueError(f"conflicting resolutions for {sid}")
+            source = source_text_by_segment(root, config, [current])[sid]
+            findings = check_line(after, is_dialogue=bool(current.get("speaker")))
+            findings += check_markup(source, after)
+            if findings:
+                detail = "; ".join(f"{item.decision}: {item.message}" for item in findings)
+                raise ValueError(f"{issue_id}: invalid change for {sid}: {detail}")
+            changed[sid] = candidate
+            normalized_changes.append({
+                "id": sid,
+                "before": before,
+                "translation": after,
+                "flags": flags,
+            })
+        normalized.append({
+            "issue_id": issue_id,
+            "disposition": disposition,
+            "reason": reason,
+            "changes": normalized_changes,
+            **({"escalation": {
+                "question": str(escalation["question"]).strip(),
+                "provisional": str(escalation["provisional"]).strip(),
+            }} if escalation is not None else {}),
+        })
+    for sid, change in changed.items():
+        by_id[sid]["translation"] = change["translation"]
+        by_id[sid]["flags"] = change["flags"]
+        by_id[sid]["status"] = "draft"
+    if changed:
+        write_jsonl_atomic(seg_file, rows)
+    result_hash = scene_review_hash(rows)
+    append_review_event(root, config, {
+        "schema_version": 1,
+        "event": "review_resolved",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "review_id": review_id,
+        "scene_id": scene_id,
+        "actor": actor,
+        "input_sha256": expected_hash,
+        "resolutions_sha256": sha256_file(path),
+        "result_sha256": result_hash,
+        "resolutions": normalized,
+    })
+    counts = Counter(str(item["disposition"]) for item in normalized)
+    print(f"{review_id}: resolved {len(normalized)} issues {dict(counts)}; "
+          f"changed {len(changed)} segments")
+    return 0
+
+
+def review_recheck_package(root: Path, config: dict[str, Any], review_id: str) -> str:
+    run = review_runs(load_review_events(root, config)).get(review_id)
+    if not run or not run.get("resolution"):
+        raise ValueError(f"Review has no complete resolution: {review_id}")
+    scene_id = str(run["scene_id"])
+    context = build_context(root, config, scene_id, purpose="review-recheck")
+    result_hash = str(run["resolution"]["result_sha256"])
+    parts = [
+        f"# Перепроверка применённых замечаний {review_id}", "", context, "",
+        "## Замечания и решения оркестратора", "", "```json",
+        json.dumps({
+            "issues": run.get("issues", []),
+            "resolutions": run["resolution"].get("resolutions", []),
+        }, ensure_ascii=False, indent=2),
+        "```", "",
+        "Проверь, что каждое applied действительно исправлено, каждый rejected "
+        "обоснован, а правки не внесли новую ошибку. Пользователь текст не читает.", "",
+        f"Запиши `build/verdict-{review_id}.jsonl` одной строкой:", "", "```json",
+        json.dumps({
+            "review_id": review_id,
+            "scene_sha256": result_hash,
+            "verdict": "accept",
+            "open_issue_ids": [],
+        }, ensure_ascii=False),
+        "```", "",
+        "При `revise` перечисли в `open_issue_ids` все незакрытые issue_id и "
+        "опиши исправления в отдельном Markdown-отчёте.",
+    ]
+    return "\n".join(parts)
+
+
+def review_close(root: Path, config: dict[str, Any], review_id: str,
+                 verdict_path: Path, reviewer: str) -> int:
+    run = review_runs(load_review_events(root, config)).get(review_id)
+    if not run or not run.get("resolution"):
+        raise ValueError(f"Review has no complete resolution: {review_id}")
+    if run.get("accepted"):
+        raise ValueError(f"Review already accepted: {review_id}")
+    verdict_file = verdict_path if verdict_path.is_absolute() else root / verdict_path
+    verdict_rows = [clean_meta(row) for row in read_jsonl(verdict_file)]
+    if len(verdict_rows) != 1:
+        raise ValueError("review verdict must contain exactly one JSON object")
+    verdict = verdict_rows[0]
+    scene_id = str(run["scene_id"])
+    seg_file = root / config.get("paths", {}).get(
+        "segments", "translation/segments") / f"{scene_id}.jsonl"
+    rows = [clean_meta(row) for row in read_jsonl(seg_file)]
+    current_hash = scene_review_hash(rows)
+    if (verdict.get("review_id") != review_id
+            or verdict.get("scene_sha256") != current_hash
+            or verdict.get("verdict") != "accept"
+            or verdict.get("open_issue_ids") not in ([], None)):
+        raise ValueError("review verdict does not accept the current scene hash")
+    if current_hash != run["resolution"].get("result_sha256"):
+        raise ValueError("scene changed after resolution")
+    escalations = [item.get("issue_id") for item in run["resolution"].get(
+        "resolutions", []) if item.get("escalation")]
+    if escalations:
+        raise ValueError(
+            f"review has unresolved user escalations: {', '.join(map(str, escalations))}")
+    bad = Counter(str(row.get("status")) for row in rows if row.get("status") != "draft")
+    if bad:
+        raise ValueError(f"scene is not awaiting review close: {dict(bad)}")
+    for row in rows:
+        row["status"] = "reviewed"
+    write_jsonl_atomic(seg_file, rows)
+    append_review_event(root, config, {
+        "schema_version": 1,
+        "event": "review_accepted",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "review_id": review_id,
+        "scene_id": scene_id,
+        "scene_sha256": current_hash,
+        "reviewer": reviewer,
+        "verdict_sha256": sha256_file(verdict_file),
+    })
+    print(f"{review_id}: accepted; {len(rows)} segments are reviewed")
+    return 0
+
+
+def review_status(root: Path, config: dict[str, Any]) -> int:
+    runs = review_runs(load_review_events(root, config))
+    if not runs:
+        print("Review runs: 0")
+        return 0
+    for run in runs.values():
+        issues = run.get("issues", [])
+        state = "accepted" if run.get("accepted") else (
+            "resolved" if run.get("resolution") else "open")
+        counts = Counter(str(issue.get("severity")) for issue in issues)
+        escalations = sum(1 for item in (run.get("resolution") or {}).get(
+            "resolutions", []) if item.get("escalation"))
+        suffix = f", escalations={escalations}" if escalations else ""
+        print(f"{run['review_id']}: {run['scene_id']}, {state}, {dict(counts)}{suffix}")
+    return 0
+
+
+def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str], list[str]]:
+    errors: list[str] = []
+    warnings: list[str] = []
+    known_scenes = {str(scene["scene_id"]) for scene in load_scenes(root, config)}
+    runs: dict[str, dict[str, Any]] = {}
+    for index, event in enumerate(load_review_events(root, config), start=1):
+        kind = event.get("event")
+        if event.get("schema_version") != 1:
+            errors.append(f"review ledger line {index}: unsupported schema_version")
+        if kind not in REVIEW_EVENTS:
+            errors.append(f"review ledger line {index}: unknown event {kind!r}")
+            continue
+        if kind == "ledger_initialized":
+            continue
+        review_id = str(event.get("review_id", ""))
+        if kind == "review_imported":
+            if review_id in runs:
+                errors.append(f"review ledger line {index}: duplicate review {review_id}")
+                continue
+            scene_id = str(event.get("scene_id", ""))
+            if scene_id not in known_scenes:
+                errors.append(f"review ledger line {index}: unknown scene {scene_id}")
+            issues = event.get("issues", []) or []
+            issue_ids = [str(issue.get("issue_id", "")) for issue in issues]
+            if len(issue_ids) != len(set(issue_ids)):
+                errors.append(f"review ledger line {index}: duplicate issue IDs")
+            if any(issue.get("severity") not in REVIEW_SEVERITIES for issue in issues):
+                errors.append(f"review ledger line {index}: invalid issue severity")
+            runs[review_id] = {"issues": set(issue_ids), "resolved": False, "accepted": False}
+            continue
+        run = runs.get(review_id)
+        if not run:
+            errors.append(f"review ledger line {index}: event before import {review_id}")
+            continue
+        if kind == "review_resolved":
+            resolution_ids = {str(item.get("issue_id", ""))
+                              for item in event.get("resolutions", []) or []}
+            if resolution_ids != run["issues"]:
+                errors.append(f"review ledger line {index}: incomplete issue dispositions")
+            run["resolved"] = True
+        elif kind == "review_accepted":
+            if not run["resolved"]:
+                errors.append(f"review ledger line {index}: accepted before resolution")
+            if run["accepted"]:
+                errors.append(f"review ledger line {index}: accepted twice")
+            run["accepted"] = True
+    return errors, warnings
+
+
+def prior_review_issues(root: Path, config: dict[str, Any],
+                        segment_ids: set[str]) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    for run in review_runs(load_review_events(root, config)).values():
+        if not run.get("accepted"):
+            continue
+        resolutions = {
+            str(item.get("issue_id")): item
+            for item in (run.get("resolution") or {}).get("resolutions", [])
+        }
+        for issue in run.get("issues", []):
+            linked = set(map(str, issue.get("segment_ids", [])))
+            if not linked & segment_ids:
+                continue
+            resolution = resolutions.get(str(issue.get("issue_id")), {})
+            result.append({
+                "issue_id": issue.get("issue_id"),
+                "severity": issue.get("severity"),
+                "category": issue.get("category"),
+                "segment_ids": sorted(linked & segment_ids),
+                "problem": issue.get("problem"),
+                "disposition": resolution.get("disposition"),
+                "reason": resolution.get("reason"),
+            })
+    return result
+
+
+def render_required_knowledge(root: Path, config: dict[str, Any],
+                              rows: list[dict[str, Any]], glossary: list[dict[str, Any]],
+                              *, role: str, russian_only: bool = False) -> str:
+    scene_ids = {str(row.get("scene_id", "")) for row in rows}
+    segment_ids = {str(row.get("id", "")) for row in rows}
+    questions_rows = related_questions(root, config, scene_ids, segment_ids, glossary)
+    findings_rows = active_findings_for_package(
+        root, config, role=role, russian_only=russian_only)
+    reviews = prior_review_issues(root, config, segment_ids)
+    labels = speaker_labels(root)
+    parts = ["## ОБЯЗАТЕЛЬНЫЕ ЗНАНИЯ", ""]
+
+    parts.extend(["### Утверждённые решения", ""])
+    decisions = rules_checklist(root, config)
+    decision_lines = [CJK_RE.sub("", item).strip() if russian_only else item
+                      for item in decisions]
+    parts.extend([f"- {item}" for item in decision_lines] or ["Нет."])
+
+    parts.extend(["", "### Решения по этим строкам", ""])
+    db = db_path(root, config)
+    linked = linked_decisions(db, segment_ids) if db.exists() else []
+    linked_lines = []
+    for item in linked:
+        text = str(item.get("decision", ""))
+        if russian_only:
+            text = CJK_RE.sub("", text).strip()
+        linked_lines.append(f"- [{item.get('id')}] {text}")
+    parts.extend(linked_lines or ["Нет."])
+
+    parts.extend(["", "### Активные находки", ""])
+    for item in findings_rows:
+        parts.append(f"- [{item['id']}] [{item['status']}] {item['title']}: {item['statement']}")
+    if not findings_rows:
+        parts.append("Нет.")
+
+    parts.extend(["", "### Глоссарий: формы и ловушки", ""])
+    for item in glossary:
+        note = glossary_note(item)
+        if russian_only:
+            note = CJK_RE.sub("", note).strip()
+            parts.append(f"- {item.get('preferred_ru')} [{item.get('status')}]"
+                         + (f": {note}" if note else ""))
+        else:
+            parts.append(f"- {item.get('source')} -> {item.get('preferred_ru')} "
+                         f"[{item.get('status')}]" + (f": {note}" if note else ""))
+    if not glossary:
+        parts.append("Нет.")
+
+    parts.extend(["", "### Голоса и обращения", ""])
+    voice_items = []
+    for speaker in sorted({str(row.get("speaker")) for row in rows if row.get("speaker")}):
+        found = character_doc_path(root, config, speaker)
+        if found:
+            voice_items.append(
+                f"#### {labels.get(speaker, speaker if not russian_only else 'SPK-UNKNOWN')}\n"
+                f"{voice_contract(found[1], russian_only=russian_only)}"
+            )
+    parts.extend(voice_items or ["Нет карточек для участников."])
+
+    parts.extend(["", "### Открытые вопросы и рабочие варианты", ""])
+    for item in questions_rows:
+        if russian_only:
+            safe = {
+                "id": item.get("id"), "kind": item.get("kind"),
+                "segment_ids": item.get("segment_ids", []),
+                "provisional": CJK_RE.sub("", str(item.get("provisional", ""))).strip(),
+            }
+        else:
+            safe = {key: item.get(key) for key in (
+                "id", "kind", "scene_id", "segment_ids", "question", "provisional")}
+        parts.append("- " + json.dumps(safe, ensure_ascii=False))
+    if not questions_rows:
+        parts.append("Нет.")
+
+    parts.extend(["", "### Действующие флаги", ""])
+    flagged = [{"id": row.get("id"), "flags": list(row.get("flags", []) or [])}
+               for row in rows if row.get("flags")]
+    parts.extend(["- " + json.dumps(item, ensure_ascii=False) for item in flagged] or ["Нет."])
+
+    parts.extend(["", "### Ранее принятые замечания ревьюеров", ""])
+    for item in reviews:
+        safe_item = dict(item)
+        if russian_only:
+            for field in ("problem", "reason"):
+                safe_item[field] = CJK_RE.sub("", str(safe_item.get(field, ""))).strip()
+        parts.append("- " + json.dumps(safe_item, ensure_ascii=False))
+    if not reviews:
+        parts.append("Нет.")
+
+    parts.extend(["", "### Безопасные сюжетные ограничения", ""])
+    constraints = safe_constraints(root, config, segment_ids)
+    for item in constraints:
+        rules = [str(rule) for rule in item.get("safe_rules", [])]
+        if russian_only:
+            rules = [CJK_RE.sub("", rule).strip() for rule in rules]
+        parts.append(f"- {item.get('id')}: " + "; ".join(rule for rule in rules if rule))
+    if not constraints:
+        parts.append("Нет.")
+
+    parts.extend([
+        "", "### Неприкосновенные смысловые опоры", "",
+        "Конкретные существа, виды, предметы, части тела, места, числа, элементы "
+        "перечня, оба участника и направление сравнения, отрицание, модальность, "
+        "причина и следствие не обобщаются и не удаляются.",
+        "", "### Защищённая разметка", "",
+    ])
+    markup_rows = []
+    for row in rows:
+        source = str(row.get("translation", "")) if russian_only else str(
+            (row.get("sources") or {}).get("ja", row.get("source", "")))
+        contract = markup_contract(source)
+        if contract["preserve_exact"] or contract["remove_ruby_keep_base"]:
+            markup_rows.append({"id": row.get("id"), **contract})
+    parts.extend(["- " + json.dumps(item, ensure_ascii=False) for item in markup_rows] or ["Нет."])
+
+    routes = {str(scene.get("scene_id")): str(scene.get("route", ""))
+              for scene in load_scenes(root, config)}
+    parts.extend(["", "### Состояние блока и ревью", ""])
+    for scene_id in sorted(scene_ids):
+        latest = latest_review_for_scene(root, config, scene_id)
+        review_state = "нет review-run"
+        if latest:
+            review_state = "accepted" if latest.get("accepted") else (
+                "resolved" if latest.get("resolution") else "open")
+        parts.append(f"- {scene_id}: route={routes.get(scene_id, '')}, review={review_state}")
+
+    parts.extend(["", "### Релевантные прежние переводы", ""])
+    if role == "translator":
+        parts.append("Автоподстановки нет: одинаковый японский текст может требовать разных "
+                     "форм. Кандидаты из индекса — только подсказка с проверкой контекста.")
+    else:
+        parts.append("Текущий русский текст и соседний контекст переданы ниже; предыдущие "
+                     "решения ревью перечислены отдельным разделом выше.")
+    output = "\n".join(parts)
+    if "private_reason" in output:
+        raise RuntimeError("Spoiler safety failure: private_reason leaked into knowledge block")
+    if russian_only and CJK_RE.search(output):
+        raise RuntimeError("Russian-only knowledge block contains CJK")
+    return output
+
+
 def work_next(root: Path, config: dict[str, Any], scene_id: str,
               size: int, start: int | None) -> str:
     """Компактный рабочий пакет на одну порцию строк.
@@ -1597,9 +3306,12 @@ def work_next(root: Path, config: dict[str, Any], scene_id: str,
     source_text = "\n".join(
         ["\n".join(json.loads(r["sources_json"]).values()) for r in batch] + speakers)
     glossary = glossary_for_scene(root, config, source_text)
-    seg_ids = {str(r["id"]) for r in batch}
-    constraints = safe_constraints(root, config, seg_ids)
-    decisions = linked_decisions(db, seg_ids)
+    batch_items = []
+    for row in batch:
+        item = dict(row)
+        item["sources"] = json.loads(row["sources_json"])
+        item["flags"] = json.loads(row["flags_json"] or "[]")
+        batch_items.append(item)
     con.close()
 
     parts: list[str] = []
@@ -1608,34 +3320,19 @@ def work_next(root: Path, config: dict[str, Any], scene_id: str,
     parts.append("\nСпецификация здесь не повторяется: читай её из своего определения.\n"
                  "Ниже только то, что меняется от порции к порции.")
 
-    checklist = rules_checklist(root, config)
-    if checklist:
-        parts.append("\n## Действующие решения\n")
-        parts.extend("- " + line for line in checklist)
+    parts.append("\n" + render_required_knowledge(
+        root, config, batch_items, glossary, role="translator"))
 
-    if glossary:
-        parts.append("\n## Термины в этой порции\n")
-        for g in glossary:
-            note = f"  ({g['notes']})" if g.get("notes") else ""
-            parts.append(f"- {g.get('source')} -> {g.get('preferred_ru')} "
-                         f"[{g.get('status')}]{note}")
-
-    for name in speakers:
-        doc = character_doc(root, config, name)
-        if doc:
-            # Заголовок и служебный блок карточки в пакете не нужны: переводчику
-            # важна манера, а не идентификатор файла.
-            body = doc.split("---", 2)[-1].strip()
-            parts.append(f"\n## Манера речи: {name}\n")
-            parts.append(body)
-
-    if constraints:
-        parts.append("\n## Ограничения\n")
-        parts.extend("- " + str(c) for c in constraints)
-
-    if decisions:
-        parts.append("\n## Решения по этим строкам\n")
-        parts.extend(f"- [{d.get('id')}] {d.get('decision')}" for d in decisions)
+    # Соседние сцены переводятся одновременно и друг друга не видят. Один и тот
+    # же 蔵 вышел «складом», «кладовой» и «амбаром» в трёх параллельных партиях,
+    # и свёл их потом человек. Глоссарий этого не ловит: слова в нём ещё нет.
+    parts.append("\n## Прежде чем вводить новое слово\n")
+    parts.append("Соседние сцены переводятся одновременно и твоего решения не "
+                 "видят. Термин, реалию, прозвище и название постройки проверяй "
+                 "по уже переведённому:\n\n"
+                 "```bash\npython tools/vnctl.py lines --contains СЛОВО --limit 20\n```\n\n"
+                 "Нашёл русскую форму — бери её. Не нашёл и слово повторится "
+                 "дальше — заводи вопрос в очередь, а не молча решай.")
 
     if lead:
         parts.append("\n## Предыдущие строки, для связности\n```jsonl")
@@ -1648,11 +3345,13 @@ def work_next(root: Path, config: dict[str, Any], scene_id: str,
         parts.append("```")
 
     parts.append("\n## Переводить\n```jsonl")
-    for r in batch:
+    for r in batch_items:
         parts.append(json.dumps({
             "id": r["id"],
             "speaker": r["speaker"],
-            "sources": json.loads(r["sources_json"]),
+            "sources": r["sources"],
+            "flags": r["flags"],
+            "markup": markup_contract(str(r["sources"].get("ja", ""))),
         }, ensure_ascii=False))
     parts.append("```")
 
@@ -1668,7 +3367,7 @@ def work_next(root: Path, config: dict[str, Any], scene_id: str,
 
 
 def lines_query(root: Path, config: dict[str, Any], speaker: str | None,
-                contains: str | None, limit: int, stats: bool) -> int:
+                contains: str | None, scene: str | None, limit: int, stats: bool) -> int:
     """Выборка реплик из индекса.
 
     Нужна затем, чтобы агент знаний и аудитор не обходили 96 806 сегментов
@@ -1691,6 +3390,9 @@ def lines_query(root: Path, config: dict[str, Any], speaker: str | None,
     if contains:
         where.append("(sources_json LIKE ? OR translation LIKE ?)")
         params.extend([f"%{contains}%"] * 2)
+    if scene:
+        where.append("scene_id = ?")
+        params.append(scene)
     clause = (" WHERE " + " AND ".join(where)) if where else ""
 
     total = con.execute(f"SELECT COUNT(*) FROM segments{clause}", params).fetchone()[0]
@@ -1714,7 +3416,8 @@ def lines_query(root: Path, config: dict[str, Any], speaker: str | None,
         return 0
 
     rows = con.execute(
-        f"SELECT id, scene_id, ord, speaker, sources_json, translation "
+        f"SELECT id, scene_id, route, ord, speaker, sources_json, translation, "
+        f"status, flags_json "
         f"FROM segments{clause} ORDER BY scene_id, ord LIMIT ?",
         params + [limit]).fetchall()
     for row in rows:
@@ -1722,7 +3425,9 @@ def lines_query(root: Path, config: dict[str, Any], speaker: str | None,
         print(json.dumps({
             "id": row["id"], "scene": row["scene_id"], "ord": row["ord"],
             "speaker": row["speaker"], "ja": sources.get("ja", ""),
-            "en": sources.get("en", ""), "ru": row["translation"] or "",
+            "en": sources.get("en", ""), "zh-Hans": sources.get("zh-Hans", ""),
+            "ru": row["translation"] or "", "status": row["status"],
+            "flags": json.loads(row["flags_json"] or "[]"), "route": row["route"],
         }, ensure_ascii=False))
     con.close()
     return 0
@@ -1778,7 +3483,8 @@ def work_check(root: Path, config: dict[str, Any], patch_path: Path) -> int:
     return 0 if problems == 0 else 1
 
 
-def build_context(root: Path, config: dict[str, Any], scene_id: str) -> str:
+def build_context(root: Path, config: dict[str, Any], scene_id: str,
+                  purpose: str = "context") -> str:
     db = db_path(root, config)
     if not db.exists():
         raise FileNotFoundError(f"Index not found: {db}. Run: python tools/vnctl.py index")
@@ -1833,13 +3539,28 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str) -> str:
         workflow.get("similar_examples_limit", 20),
     ))
     examples = approved_examples(db, speakers, scene_id, example_limit)
+    current_items: list[dict[str, Any]] = []
+    for row in rows:
+        item = dict(row)
+        item["sources"] = json.loads(row["sources_json"])
+        item["flags"] = json.loads(row["flags_json"] or "[]")
+        current_items.append(item)
 
     spec = (root / "docs/translation-spec.md").read_text(encoding="utf-8-sig")
     progress = read_yaml(root / "docs/progress.yaml", {}) or {}
 
     parts: list[str] = []
     parts.append(f"# Контекст сцены {scene_id}\n")
-    parts.append("## Задача\nПеревести или проверить текущую сцену по правилам проекта. Не выводить будущие сюжетные сведения.\n")
+    task_text = {
+        "review": "Провести независимое двуязычное ревью текущего draft.",
+        "review-fix": "Применить и формально разрешить все замечания независимого ревью.",
+        "review-recheck": "Перепроверить применение всех замечаний ревью.",
+        "knowledge": "Извлечь минимальную дельту знаний из проверенной сцены.",
+    }.get(purpose, "Перевести или проверить текущую сцену по правилам проекта.")
+    parts.append(f"## Задача\n{task_text} Не выводить будущие сюжетные сведения.\n")
+    parts.append(render_required_knowledge(
+        root, config, current_items, glossary, role=purpose))
+    parts.append("")
     parts.append("## Текущий прогресс\n```yaml\n" + (yaml.safe_dump(progress, allow_unicode=True, sort_keys=False) if yaml else json.dumps(progress, ensure_ascii=False, indent=2)) + "```\n")
     parts.append("## Глобальная спецификация\n" + spec + "\n")
     parts.append("## Действующие утверждённые решения\n")
@@ -1896,7 +3617,10 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str) -> str:
             item = {
                 "id": r["id"], "source_id": r["source_id"], "speaker": r["speaker"],
                 "sources": json.loads(r["sources_json"]), "source": r["source"],
-                "translation": r["translation"], "status": r["status"]
+                "translation": r["translation"], "status": r["status"],
+                "flags": json.loads(r["flags_json"] or "[]"),
+                "route": r["route"],
+                "markup": markup_contract(json.loads(r["sources_json"]).get("ja", "")),
             }
             parts.append(json.dumps(item, ensure_ascii=False))
         parts.append("```\n")
@@ -2038,6 +3762,11 @@ def apply_translation(root: Path, config: dict[str, Any], scene_id: str, patch_p
         if "status" in entry and entry["status"] not in allowed_statuses:
             errors.append(f"patch line {index}: invalid status {entry['status']!r}")
             continue
+        if "status" in entry and entry["status"] not in {"todo", "draft"}:
+            errors.append(
+                f"patch line {index}: apply-translation may not grant "
+                f"{entry['status']!r}; use review close, build read-back or LQA")
+            continue
         if "confidence" in entry and entry["confidence"] not in APPLY_CONFIDENCE:
             errors.append(f"patch line {index}: invalid confidence {entry['confidence']!r}")
             continue
@@ -2079,7 +3808,7 @@ def write_jsonl_atomic(path: Path, rows: list[dict[str, Any]]) -> None:
     tmp.replace(path)
 
 
-from textrules import check_length, check_line, check_markup, check_names, strip_ruby  # noqa: E402
+from textrules import RUBY, check_length, check_line, check_markup, check_names, strip_ruby  # noqa: E402
 
 
 FINDING_AREAS = {"scene-pack", "engine", "font", "encoding", "tooling", "content"}
@@ -2166,11 +3895,13 @@ def main() -> int:
     p_set_gate.add_argument("--evidence")
     p_context = sub.add_parser("context")
     p_context.add_argument("scene_id")
+    p_context.add_argument("--purpose", choices=("context", "knowledge"), default="context")
     p_context.add_argument("-o", "--output", type=Path)
     sub.add_parser("brief")
     p_lines = sub.add_parser("lines")
     p_lines.add_argument("--speaker")
     p_lines.add_argument("--contains")
+    p_lines.add_argument("--scene")
     p_lines.add_argument("--limit", type=int, default=50)
     p_lines.add_argument("--stats", action="store_true")
     p_work = sub.add_parser("work")
@@ -2180,8 +3911,65 @@ def main() -> int:
     p_wnext.add_argument("--size", type=int, default=0)
     p_wnext.add_argument("--start", type=int, default=None)
     p_wnext.add_argument("-o", "--output", type=Path)
+    work_sub.add_parser("queue")
     p_wcheck = work_sub.add_parser("check")
     p_wcheck.add_argument("patch", type=Path)
+    p_review = sub.add_parser("review")
+    review_sub = p_review.add_subparsers(dest="review_command", required=True)
+    review_sub.add_parser("status")
+    p_rpackage = review_sub.add_parser("package")
+    p_rpackage.add_argument("scene_id")
+    p_rpackage.add_argument("-o", "--output", type=Path)
+    p_rimport = review_sub.add_parser("import")
+    p_rimport.add_argument("scene_id")
+    p_rimport.add_argument("report", type=Path)
+    p_rimport.add_argument("--reviewer", required=True)
+    p_rfix = review_sub.add_parser("fix")
+    p_rfix.add_argument("review_id")
+    p_rfix.add_argument("-o", "--output", type=Path)
+    p_rresolve = review_sub.add_parser("resolve")
+    p_rresolve.add_argument("review_id")
+    p_rresolve.add_argument("resolutions", type=Path)
+    p_rresolve.add_argument("--actor", required=True)
+    p_rrecheck = review_sub.add_parser("recheck")
+    p_rrecheck.add_argument("review_id")
+    p_rrecheck.add_argument("-o", "--output", type=Path)
+    p_rclose = review_sub.add_parser("close")
+    p_rclose.add_argument("review_id")
+    p_rclose.add_argument("verdict", type=Path)
+    p_rclose.add_argument("--reviewer", required=True)
+    p_style = sub.add_parser("style")
+    style_sub = p_style.add_subparsers(dest="style_command", required=True)
+    style_sub.add_parser("status")
+    p_sstart = style_sub.add_parser("start")
+    p_sstart.add_argument("route")
+    p_snext = style_sub.add_parser("next")
+    p_snext.add_argument("run_id")
+    p_snext.add_argument("-o", "--output", type=Path)
+    p_scheck = style_sub.add_parser("check")
+    p_scheck.add_argument("run_id")
+    p_scheck.add_argument("window_id")
+    p_scheck.add_argument("patch", type=Path)
+    p_sapply = style_sub.add_parser("apply")
+    p_sapply.add_argument("run_id")
+    p_sapply.add_argument("window_id")
+    p_sapply.add_argument("patch", type=Path)
+    p_sreview = style_sub.add_parser("review")
+    p_sreview.add_argument("run_id")
+    p_sreview.add_argument("window_id")
+    p_sreview.add_argument("-o", "--output", type=Path)
+    p_saccept = style_sub.add_parser("accept")
+    p_saccept.add_argument("run_id")
+    p_saccept.add_argument("window_id")
+    p_saccept.add_argument("report", type=Path)
+    p_saccept.add_argument("--reviewer", required=True)
+    p_saudit = style_sub.add_parser("audit")
+    p_saudit.add_argument("run_id")
+    p_saudit.add_argument("-o", "--output", type=Path)
+    p_saa = style_sub.add_parser("accept-audit")
+    p_saa.add_argument("run_id")
+    p_saa.add_argument("report", type=Path)
+    p_saa.add_argument("--auditor", required=True)
     p_apply = sub.add_parser("apply-translation")
     p_apply.add_argument("scene_id")
     p_apply.add_argument("patch", type=Path)
@@ -2216,8 +4004,10 @@ def main() -> int:
             return brief(root, config)
         if args.command == "lines":
             return lines_query(root, config, args.speaker, args.contains,
-                               args.limit, args.stats)
+                               args.scene, args.limit, args.stats)
         if args.command == "work":
+            if args.work_command == "queue":
+                return work_queue(root, config)
             if args.work_command == "next":
                 scene_id = args.scene_id or next_unfinished_scene(root, config)
                 if not scene_id:
@@ -2233,10 +4023,78 @@ def main() -> int:
                     print(content)
                 return 0
             return work_check(root, config, args.patch)
+        if args.command == "review":
+            if args.review_command == "status":
+                return review_status(root, config)
+            if args.review_command == "import":
+                return review_import(root, config, args.scene_id, args.report, args.reviewer)
+            if args.review_command == "resolve":
+                return review_resolve(
+                    root, config, args.review_id, args.resolutions, args.actor)
+            if args.review_command == "close":
+                return review_close(
+                    root, config, args.review_id, args.verdict, args.reviewer)
+            if args.review_command == "package":
+                content = review_package(root, config, args.scene_id)
+            elif args.review_command == "fix":
+                content = review_resolution_package(root, config, args.review_id)
+            else:
+                content = review_recheck_package(root, config, args.review_id)
+            if args.output:
+                out = args.output if args.output.is_absolute() else root / args.output
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.write_text(content, encoding="utf-8")
+                print(out)
+            else:
+                print(content)
+            return 0
+        if args.command == "style":
+            if args.style_command == "status":
+                return style_status(root, config)
+            if args.style_command == "start":
+                return style_start(root, config, args.route)
+            if args.style_command == "next":
+                content = style_package(root, config, args.run_id)
+                if args.output:
+                    out = args.output if args.output.is_absolute() else root / args.output
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_text(content, encoding="utf-8")
+                    print(out)
+                else:
+                    print(content)
+                return 0
+            if args.style_command == "check":
+                return style_check(root, config, args.run_id, args.window_id, args.patch)
+            if args.style_command == "apply":
+                return style_apply(root, config, args.run_id, args.window_id, args.patch)
+            if args.style_command == "review":
+                content = style_review_package(root, config, args.run_id, args.window_id)
+                if args.output:
+                    out = args.output if args.output.is_absolute() else root / args.output
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_text(content, encoding="utf-8")
+                    print(out)
+                else:
+                    print(content)
+                return 0
+            if args.style_command == "accept":
+                return style_accept(root, config, args.run_id, args.window_id,
+                                    args.report, args.reviewer)
+            if args.style_command == "audit":
+                content = style_audit_package(root, config, args.run_id)
+                if args.output:
+                    out = args.output if args.output.is_absolute() else root / args.output
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_text(content, encoding="utf-8")
+                    print(out)
+                else:
+                    print(content)
+                return 0
+            return style_accept_audit(root, config, args.run_id, args.report, args.auditor)
         if args.command == "apply-translation":
             return apply_translation(root, config, args.scene_id, args.patch)
         if args.command == "context":
-            content = build_context(root, config, args.scene_id)
+            content = build_context(root, config, args.scene_id, purpose=args.purpose)
             if args.output:
                 out = args.output if args.output.is_absolute() else root / args.output
                 out.parent.mkdir(parents=True, exist_ok=True)

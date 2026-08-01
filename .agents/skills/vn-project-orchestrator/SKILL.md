@@ -39,11 +39,23 @@ Then:
 
 1. Dispatch `vn-translator` with the package. It writes a patch, checks itself
    with `work check`, and applies it with `apply-translation`.
-2. Dispatch `vn-reviewer` with the source and the result — never with the
-   translator's notes.
-3. Apply confirmed `critical`, `major` and supported `minor`. Arbitrate
-   disagreements yourself.
-4. Run `validate`, then move on.
+2. Build `vnctl review package`, then dispatch `vn-reviewer` with that package —
+   never with the translator's notes. Import its machine JSONL with
+   `vnctl review import`.
+3. Dispatch `vn-stylist` on `vnctl review fix`. It is the only post-review
+   editor: it resolves every issue and applies the result through
+   `vnctl review resolve`. Several scenes may run in parallel.
+4. Dispatch a source-aware reviewer on `vnctl review recheck`, then close the
+   accepted current hash with `vnctl review close`. Only this command grants
+   `reviewed`.
+5. Run `validate`, `index`, `work queue` and `stats`. Always report translated
+   segments as `translated/total`, percentage and status counts after the whole
+   parallel wave, never from a worker's stale partial snapshot.
+
+The user does not read every line or arbitrate local edits. The orchestrator
+asks only project-wide conflicts, grouped into short interactive questions;
+all other reviewer issues must be either applied or rejected with a tracked
+reason.
 
 `vn-knowledge` after a block, `vn-auditor` after several: the auditor needs
 accumulated volume to find anything.

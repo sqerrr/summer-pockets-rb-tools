@@ -28,9 +28,11 @@ permission:
 - `AGENTS.md`, раздел «Обновление знаний»;
 - `docs/spoiler-policy.md` — разделение безопасной и закрытой областей;
 - `docs/progress.yaml` — режим защиты; сейчас `strict`;
-- `.agents/skills/vn-knowledge-curator/SKILL.md`, включая раздел про холодный
-  старт;
 - `docs/data-model.md` — форматы записей.
+
+В начале обязательно выполни `python tools/vnctl.py brief`: так active findings
+приходят вместе с явным status `verified` или `assumed`, а не восстанавливаются
+по памяти.
 
 ## Инструмент вместо обхода файлов
 
@@ -39,12 +41,16 @@ permission:
 
 ```bash
 python tools/vnctl.py lines --speaker 紬 --stats      сколько реплик и где
-python tools/vnctl.py lines --speaker 紬 --limit 40   сами реплики с ja/en/ru
+python tools/vnctl.py lines --speaker 紬 --limit 40   ja/en/zh/ru + status/flags/route
 python tools/vnctl.py lines --contains むぎゅ --stats  где встречается присловье
+python tools/vnctl.py context SCN0043 --purpose knowledge -o build/knowledge-SCN0043.md
 ```
 
 Выборка идёт из индекса, дубликатов не даёт. Наблюдение о манере подкрепляется
 числом из `--stats`, а не впечатлением от прочитанного куска.
+Для дельты по сцене используй knowledge-context: его раздел `ОБЯЗАТЕЛЬНЫЕ
+ЗНАНИЯ` явно содержит decisions, active findings, glossary traps, voices,
+questions, flags, review history и markup.
 
 ## Два режима
 
