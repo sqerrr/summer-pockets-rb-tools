@@ -12,8 +12,11 @@ permission:
     '*': deny
     build/**: allow
   bash:
-    '*': deny
-    '*vnctl.py*': allow
+    '*': allow
+    git commit *: deny
+    git push *: deny
+    git reset *: deny
+    git checkout *: deny
   webfetch: deny
   websearch: allow
 ---

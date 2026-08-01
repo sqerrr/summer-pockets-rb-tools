@@ -39,3 +39,24 @@ def test_linked_decisions_only_returns_current_approved_items(tmp_path):
 
     assert [row["id"] for row in result] == ["DEC-1"]
     assert "private_reason" not in result[0]
+
+
+def test_cli_reconfigures_stdio_to_utf8(monkeypatch):
+    vnctl = load_vnctl()
+
+    class Stream:
+        def __init__(self):
+            self.calls = []
+
+        def reconfigure(self, **kwargs):
+            self.calls.append(kwargs)
+
+    stdout = Stream()
+    stderr = Stream()
+    monkeypatch.setattr(vnctl.sys, "stdout", stdout)
+    monkeypatch.setattr(vnctl.sys, "stderr", stderr)
+
+    vnctl.configure_stdio_encoding()
+
+    assert stdout.calls == [{"encoding": "utf-8", "errors": "strict"}]
+    assert stderr.calls == [{"encoding": "utf-8", "errors": "strict"}]

@@ -26,6 +26,7 @@ def make_project(tmp_path: Path):
     (tmp_path / "translation/segments").mkdir(parents=True)
     (tmp_path / "config").mkdir()
     (tmp_path / "docs").mkdir()
+    (tmp_path / "private").mkdir()
     (tmp_path / "source/parsed").mkdir(parents=True)
     scenes = [{"scene_id": "SCN0001", "file_id": "S1", "route": "BLK0002"}]
     write_jsonl(tmp_path / "translation/scenes.jsonl", scenes)
@@ -42,7 +43,7 @@ def make_project(tmp_path: Path):
             "scene_id": "SCN0001",
             "order": index,
             "speaker": "話者",
-            "translation": f"Фраза {index}.",
+            "translation": ("Имя пишется как 空." if index == 4 else f"Фраза {index}."),
             "status": "reviewed",
             "flags": [],
         })
@@ -60,6 +61,10 @@ def make_project(tmp_path: Path):
     }])
     write_jsonl(tmp_path / "translation/style-ledger.jsonl", [{
         "schema_version": 1, "event": "ledger_initialized"
+    }])
+    write_jsonl(tmp_path / "private/constraints.jsonl", [{
+        "id": "HIDDEN-1", "segment_ids": ["SEG0"], "status": "active",
+        "safe_rules": ["Сохранить двусмысленность 原文."]
     }])
     write_jsonl(tmp_path / "docs/decisions.jsonl", [{
         "id": "DEC-1", "type": "terminology", "scope": "global",
@@ -110,6 +115,12 @@ def test_style_pipeline_is_windowed_russian_only_and_never_creates_lqa(tmp_path)
     assert package.count('"scope": "editable"') == 3
     assert package.count('"scope": "context"') == 1
 
+    parallel_package = vnctl.style_package(tmp_path, config, run_id, "W002")
+    assert "STYLE-BLK0002-01 / W002" in parallel_package
+    assert "Имя пишется как [иероглиф]." in parallel_package
+    assert parallel_package.count('"scope": "editable"') == 1
+    assert parallel_package.count('"scope": "context"') == 2
+
     run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
     route_rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
     package_rows, _ = vnctl.style_window_rows(route_rows, run["windows"][0])
@@ -129,8 +140,38 @@ def test_style_pipeline_is_windowed_russian_only_and_never_creates_lqa(tmp_path)
     assert changed["status"] == "draft"
     assert changed["status"] != "lqa"
 
+    revise_report = tmp_path / "build/style-review-revise.md"
+    revise_report.write_text(
+        "# Review\n\nVERDICT: REVISE\n\n- SEG0: уточнить формулировку.\n",
+        encoding="utf-8")
+    fix_package = vnctl.style_revision_package(
+        tmp_path, config, run_id, "W001", revise_report)
+    assert "__style_revision__" in fix_package
+    assert "SEG0: уточнить формулировку" in fix_package
+
+    revision = tmp_path / "build/style-revision-1.jsonl"
+    current = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")[0]
+    write_jsonl(revision, [
+        {"__style_revision__": {
+            "run_id": run_id,
+            "window_id": "W001",
+            "base_sha256": vnctl.style_slice_hash([current]),
+            "report_sha256": vnctl.sha256_file(revise_report),
+            "allowed_ids": ["SEG0"],
+        }},
+        {"id": "SEG0", "before": "Новая фраза.",
+         "translation": "Исправленная фраза.",
+         "reason": "Уточнено после source-aware проверки."},
+    ])
+    assert vnctl.style_revise(
+        tmp_path, config, run_id, "W001", revision, revise_report,
+        "vn-stylist") == 0
+    revised = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")[0]
+    assert revised["translation"] == "Исправленная фраза."
+
     review_package = vnctl.style_review_package(tmp_path, config, run_id, "W001")
     assert "原文0" in review_package
+    assert "Исправленная фраза." in review_package
     report1 = tmp_path / "build/review-1.md"
     report1.write_text("# Review\nVERDICT: ACCEPT\n", encoding="utf-8")
     assert vnctl.style_accept(
@@ -154,7 +195,7 @@ def test_style_pipeline_is_windowed_russian_only_and_never_creates_lqa(tmp_path)
         tmp_path, config, run_id, "W002", report2, "vn-reviewer") == 0
 
     audit_package = vnctl.style_audit_package(tmp_path, config, run_id)
-    assert "Новая фраза." in audit_package
+    assert "Исправленная фраза." in audit_package
     audit = tmp_path / "build/audit.md"
     audit.write_text("# Audit\nVERDICT: ACCEPT\n", encoding="utf-8")
     assert vnctl.style_accept_audit(
@@ -231,10 +272,8 @@ def test_project_agents_use_gpt_and_have_required_execution_permissions():
     agents = {name: (agent_dir / name).read_text(encoding="utf-8") for name in names}
     for text in agents.values():
         assert "model: fasday/gpt5_6_sol" in text
-    for name, text in agents.items():
-        if name != "vn-stylist.md":
-            assert "  bash:\n    '*': allow" in text
+    for text in agents.values():
+        assert "  bash:\n    '*': allow" in text
     stylist = agents["vn-stylist.md"]
-    assert "  bash:\n    '*': deny\n    '*vnctl.py*': allow" in stylist
     assert "  read:\n    '*': deny\n    build/**: allow" in stylist
     assert "  edit:\n    '*': deny\n    build/**: allow" in stylist

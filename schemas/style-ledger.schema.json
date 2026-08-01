@@ -10,6 +10,7 @@
         "ledger_initialized",
         "run_started",
         "window_applied",
+        "window_revised",
         "window_accepted",
         "route_audited",
         "build_readback"

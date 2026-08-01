@@ -1752,9 +1752,14 @@ STAGE_ORDER = ("переводить", "ревью", "смешанная")
 STYLE_READY_STATUSES = {"reviewed", "playable", "lqa", "approved"}
 STYLE_EVENTS = {
     "ledger_initialized", "run_started", "window_applied",
-    "window_accepted", "route_audited", "build_readback",
+    "window_revised", "window_accepted", "route_audited", "build_readback",
 }
 CJK_RE = re.compile(r"[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff]")
+CJK_RUN_RE = re.compile(CJK_RE.pattern + "+")
+
+
+def russian_only_projection(text: str) -> str:
+    return CJK_RUN_RE.sub("[иероглиф]", text)
 
 
 def scene_stage(statuses: Counter) -> str:
@@ -1799,12 +1804,16 @@ def style_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
             runs[run_id] = {
                 **event,
                 "applied": {},
+                "revisions": {},
                 "accepted": {},
                 "audit": None,
                 "builds": [],
             }
         elif run_id in runs and kind == "window_applied":
             runs[run_id]["applied"][str(event["window_id"])] = event
+        elif run_id in runs and kind == "window_revised":
+            window_id = str(event["window_id"])
+            runs[run_id]["revisions"].setdefault(window_id, []).append(event)
         elif run_id in runs and kind == "window_accepted":
             runs[run_id]["accepted"][str(event["window_id"])] = event
         elif run_id in runs and kind == "route_audited":
@@ -1812,6 +1821,26 @@ def style_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
         elif run_id in runs and kind == "build_readback":
             runs[run_id]["builds"].append(event)
     return runs
+
+
+def style_effective_changes(run: dict[str, Any], window_id: str) -> list[dict[str, Any]]:
+    applied = run.get("applied", {}).get(window_id)
+    if not applied:
+        return []
+    order = [str(change["id"]) for change in applied.get("changes", [])]
+    by_id = {str(change["id"]): dict(change) for change in applied.get("changes", [])}
+    for event in run.get("revisions", {}).get(window_id, []):
+        for revision in event.get("changes", []):
+            sid = str(revision["id"])
+            if sid not in by_id:
+                by_id[sid] = dict(revision)
+                order.append(sid)
+                continue
+            by_id[sid]["after"] = revision.get("after", by_id[sid].get("after"))
+            by_id[sid]["flags_after"] = revision.get(
+                "flags_after", by_id[sid].get("flags_after", []))
+            by_id[sid]["reason"] = revision.get("reason", by_id[sid].get("reason"))
+    return [by_id[sid] for sid in order]
 
 
 def route_scenes(root: Path, config: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
@@ -2091,25 +2120,43 @@ def source_text_by_segment(root: Path, config: dict[str, Any],
     return out
 
 
-def style_package(root: Path, config: dict[str, Any], run_id: str) -> str:
+def style_package(root: Path, config: dict[str, Any], run_id: str,
+                  window_id: str | None = None) -> str:
     runs = style_runs(load_style_events(root, config))
     run = runs.get(run_id)
     if not run:
         raise ValueError(f"Unknown style run: {run_id}")
-    window = next((w for w in run["windows"]
-                   if str(w["window_id"]) not in run["applied"]), None)
+    if window_id:
+        window = next((w for w in run["windows"]
+                       if str(w["window_id"]) == window_id), None)
+        if not window:
+            raise ValueError(f"Unknown style window: {run_id}/{window_id}")
+        if window_id in run["applied"]:
+            raise ValueError(f"Style window already applied: {run_id}/{window_id}")
+    else:
+        window = next((w for w in run["windows"]
+                       if str(w["window_id"]) not in run["applied"]), None)
     if not window:
         return f"# {run_id}\n\nВсе окна применены; ожидается проверка дельты и аудит.\n"
     rows = style_route_rows(root, config, str(run["route"]))
     package_rows, editable = style_window_rows(rows, window)
-    editable_ids = {str(row["id"]) for row in editable}
+    cjk_locked_ids = {
+        str(row["id"]) for row in editable
+        if CJK_RE.search(str(row.get("translation", "")))
+    }
+    editable_ids = {str(row["id"]) for row in editable} - cjk_locked_ids
     all_ids = {str(row["id"]) for row in package_rows}
     labels = speaker_labels(root)
     source_texts = source_text_by_segment(root, config, package_rows)
     constraints: list[str] = []
     for item in safe_constraints(root, config, all_ids):
         for rule in item.get("safe_rules", []):
-            constraints.append(f"- {', '.join(item['segment_ids'])}: {rule}")
+            safe_rule = russian_only_projection(str(rule)).strip()
+            if safe_rule:
+                constraints.append(f"- {', '.join(item['segment_ids'])}: {safe_rule}")
+    for sid in sorted(cjk_locked_ids):
+        constraints.append(
+            f"- {sid}: строка содержит намеренное иероглифическое написание; не редактировать")
     for row in package_rows:
         sid = str(row["id"])
         source = source_texts[sid]
@@ -2126,7 +2173,7 @@ def style_package(root: Path, config: dict[str, Any], run_id: str) -> str:
     parts = [
         f"# Русская вычитка {run_id} / {window['window_id']}",
         "",
-        f"Редактируемо: {len(editable)} сегментов. Контекст по краям неизменяем.",
+        f"Редактируемо: {len(editable_ids)} сегментов. Контекст по краям неизменяем.",
         f"base_sha256: `{base_sha}`",
         "",
         "Оригинала и переводов-посредников в пакете нет намеренно. Судить нужно "
@@ -2147,7 +2194,7 @@ def style_package(root: Path, config: dict[str, Any], run_id: str) -> str:
             "scene": row["scene_id"],
             "scope": "editable" if str(row["id"]) in editable_ids else "context",
             "speaker": labels.get(str(row.get("speaker")), None) if row.get("speaker") else None,
-            "ru": row.get("translation", ""),
+            "ru": russian_only_projection(str(row.get("translation", ""))),
             "flags": row.get("flags", []),
             "markup": markup_contract(str(row.get("translation", ""))),
         }, ensure_ascii=False))
@@ -2218,7 +2265,10 @@ def validate_style_patch(root: Path, config: dict[str, Any], run_id: str,
         errors.append(
             f"stale style package: header={header.get('base_sha256')} current={current_hash}")
 
-    editable_by_id = {str(row["id"]): row for row in editable}
+    editable_by_id = {
+        str(row["id"]): row for row in editable
+        if not CJK_RE.search(str(row.get("translation", "")))
+    }
     entries: list[dict[str, Any]] = []
     seen: set[str] = set()
     source_texts = source_text_by_segment(root, config, editable)
@@ -2347,13 +2397,189 @@ def style_apply(root: Path, config: dict[str, Any], run_id: str,
     return 0
 
 
+STYLE_SEGMENT_ID_RE = re.compile(r"\bSEG[A-Za-z0-9_]+\b")
+
+
+def style_revision_report(path: Path) -> tuple[str, set[str]]:
+    text = path.read_text(encoding="utf-8-sig")
+    if not re.search(r"(?m)^VERDICT:\s*REVISE\s*$", text):
+        raise ValueError("Style revision requires a report with VERDICT: REVISE")
+    return text, set(STYLE_SEGMENT_ID_RE.findall(text))
+
+
+def validate_style_revision(root: Path, config: dict[str, Any], run_id: str,
+                            window_id: str, patch_path: Path,
+                            report_path: Path) -> tuple[
+                                list[str], list[dict[str, Any]], dict[str, Any]]:
+    patch_file = patch_path if patch_path.is_absolute() else root / patch_path
+    if not patch_file.exists():
+        return [f"patch not found: {patch_file}"], [], {}
+    report_file = report_path if report_path.is_absolute() else root / report_path
+    if not report_file.exists():
+        return [f"review report not found: {report_file}"], [], {}
+    try:
+        _, report_ids = style_revision_report(report_file)
+    except ValueError as exc:
+        return [str(exc)], [], {}
+    run, _, route_rows, _, editable = style_run_window(root, config, run_id, window_id)
+    if window_id not in run["applied"]:
+        return [f"window is not applied: {run_id}/{window_id}"], [], {}
+    if window_id in run["accepted"]:
+        return [f"window already accepted: {run_id}/{window_id}"], [], {}
+    editable_ids = {str(row["id"]) for row in editable
+                    if not CJK_RE.search(str(row.get("translation", "")))}
+    allowed_ids = report_ids & editable_ids
+    by_id = {str(row["id"]): row for row in route_rows if str(row["id"]) in allowed_ids}
+    current_rows = [row for row in route_rows if str(row["id"]) in allowed_ids]
+    raw_rows = read_jsonl(patch_file)
+    headers = [row.get("__style_revision__") for row in raw_rows
+               if row.get("__style_revision__")]
+    if len(headers) != 1 or not isinstance(headers[0], dict):
+        return ["patch must contain exactly one __style_revision__ header"], [], {}
+    header = headers[0]
+    errors: list[str] = []
+    if header.get("run_id") != run_id or header.get("window_id") != window_id:
+        errors.append("revision header does not match requested run/window")
+    if report_ids - editable_ids:
+        errors.append(
+            "review report references IDs outside editable scope: "
+            + ", ".join(sorted(report_ids - editable_ids)))
+    if header.get("report_sha256") != sha256_file(report_file):
+        errors.append("revision header report hash does not match review report")
+    if header.get("allowed_ids") != sorted(allowed_ids):
+        errors.append("revision header allowed_ids do not match review report")
+    current_hash = style_slice_hash(current_rows)
+    if header.get("base_sha256") != current_hash:
+        errors.append(
+            f"stale style revision: header={header.get('base_sha256')} current={current_hash}")
+
+    source_texts = source_text_by_segment(root, config, current_rows)
+    qa = read_yaml(root / "config/qa-rules.yaml", {}) or {}
+    allowed_flags = set(qa.get("allowed_flags", []))
+    allowed_fields = {"id", "before", "translation", "reason", "flags"}
+    entries: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, raw in enumerate(raw_rows, start=1):
+        if raw.get("__style_revision__"):
+            continue
+        entry = clean_meta(raw)
+        unknown = set(entry) - allowed_fields
+        sid = str(entry.get("id", ""))
+        if unknown:
+            errors.append(f"line {index}: unknown fields {sorted(unknown)}")
+            continue
+        if sid in seen:
+            errors.append(f"line {index}: duplicate id {sid}")
+            continue
+        seen.add(sid)
+        current = by_id.get(sid)
+        if not current:
+            errors.append(f"line {index}: {sid!r} is not named by the review report")
+            continue
+        if str(current.get("status")) not in ({"draft"} | STYLE_READY_STATUSES):
+            errors.append(f"line {index}: {sid} is not eligible for style revision")
+        before = str(entry.get("before", ""))
+        after = str(entry.get("translation", ""))
+        reason = str(entry.get("reason", "")).strip()
+        if before != str(current.get("translation", "")):
+            errors.append(f"line {index}: before text does not match canonical text for {sid}")
+        if not after.strip():
+            errors.append(f"line {index}: empty translation for {sid}")
+        if not reason:
+            errors.append(f"line {index}: missing reason for {sid}")
+        old_flags = list(current.get("flags", []) or [])
+        new_flags = list(entry.get("flags", old_flags) or [])
+        if not set(old_flags) <= set(new_flags):
+            errors.append(f"line {index}: style revision may not remove flags from {sid}")
+        if set(new_flags) - set(old_flags) - {"needs_source_check"}:
+            errors.append(f"line {index}: style revision may add only needs_source_check to {sid}")
+        if set(new_flags) - allowed_flags:
+            errors.append(f"line {index}: unknown flags for {sid}")
+        if after == before and new_flags == old_flags:
+            errors.append(f"line {index}: no-op entry for {sid}")
+        findings = check_line(after, is_dialogue=bool(current.get("speaker")))
+        findings += check_markup(source_texts[sid], after)
+        for finding in findings:
+            errors.append(f"line {index}: {sid} {finding.decision} {finding.message}")
+        entry["flags"] = new_flags
+        entries.append(entry)
+    if not entries:
+        errors.append("style revision must contain at least one changed entry")
+    return errors, entries, header
+
+
+def style_revise(root: Path, config: dict[str, Any], run_id: str, window_id: str,
+                 patch_path: Path, report_path: Path, actor: str) -> int:
+    errors, entries, header = validate_style_revision(
+        root, config, run_id, window_id, patch_path, report_path)
+    if errors:
+        for message in errors:
+            eprint(f"ERROR: {message}")
+        return 1
+    _, _, route_rows, _, _ = style_run_window(root, config, run_id, window_id)
+    route_by_id = {str(row["id"]): row for row in route_rows}
+    affected = sorted({str(route_by_id[str(entry["id"])]["scene_id"]) for entry in entries})
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    scene_rows = {
+        scene_id: [clean_meta(row) for row in read_jsonl(seg_dir / f"{scene_id}.jsonl")]
+        for scene_id in affected
+    }
+    original_rows = {scene_id: [dict(row) for row in rows]
+                     for scene_id, rows in scene_rows.items()}
+    canonical = {str(row["id"]): row for rows in scene_rows.values() for row in rows}
+    changes: list[dict[str, Any]] = []
+    for entry in entries:
+        sid = str(entry["id"])
+        row = canonical[sid]
+        changes.append({
+            "id": sid,
+            "scene_id": row["scene_id"],
+            "before": row.get("translation", ""),
+            "after": entry["translation"],
+            "before_status": row.get("status"),
+            "flags_before": row.get("flags", []),
+            "flags_after": entry["flags"],
+            "reason": entry["reason"],
+        })
+        row["translation"] = entry["translation"]
+        row["flags"] = entry["flags"]
+        row["status"] = "draft"
+    write_scene_transaction(root, config, scene_rows)
+    patch_file = patch_path if patch_path.is_absolute() else root / patch_path
+    event = {
+        "schema_version": 1,
+        "event": "window_revised",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "run_id": run_id,
+        "window_id": window_id,
+        "actor": actor,
+        "report_sha256": header["report_sha256"],
+        "input_sha256": header["base_sha256"],
+        "patch_sha256": sha256_file(patch_file),
+        "changes": changes,
+    }
+    try:
+        append_style_event(root, config, event)
+    except Exception:
+        revisions = style_runs(load_style_events(root, config)).get(
+            run_id, {}).get("revisions", {}).get(window_id, [])
+        if any(item.get("patch_sha256") == event["patch_sha256"] for item in revisions):
+            print(f"{run_id}/{window_id}: revised {len(changes)} changes")
+            return 0
+        write_scene_transaction(root, config, original_rows)
+        raise
+    print(f"{run_id}/{window_id}: revised {len(changes)} changes")
+    return 0
+
+
 def style_review_package(root: Path, config: dict[str, Any], run_id: str,
                          window_id: str) -> str:
     run, _, route_rows, _, _ = style_run_window(root, config, run_id, window_id)
     applied = run["applied"].get(window_id)
     if not applied:
         raise ValueError(f"Style window is not applied: {run_id}/{window_id}")
-    changed_ids = [str(item["id"]) for item in applied.get("changes", [])]
+    effective = style_effective_changes(run, window_id)
+    changed_ids = [str(item["id"]) for item in effective]
     by_id = {str(row["id"]): row for row in route_rows}
     changed_rows = [by_id[sid] for sid in changed_ids]
     keys = {(str(row["source_set_id"]), str(row["source_id"])) for row in changed_rows}
@@ -2381,7 +2607,7 @@ def style_review_package(root: Path, config: dict[str, Any], run_id: str,
             root, config, knowledge_rows, glossary, role="reviewer"), "",
         "## Изменения", "", "```jsonl",
     ]
-    before_by_id = {str(item["id"]): item for item in applied.get("changes", [])}
+    before_by_id = {str(item["id"]): item for item in effective}
     for row in changed_rows:
         key = (str(row["source_set_id"]), str(row["source_id"]))
         slots = {str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
@@ -2411,6 +2637,72 @@ def style_review_package(root: Path, config: dict[str, Any], run_id: str,
     return "\n".join(parts)
 
 
+def style_revision_package(root: Path, config: dict[str, Any], run_id: str,
+                           window_id: str, report_path: Path) -> str:
+    report = report_path if report_path.is_absolute() else root / report_path
+    if not report.exists():
+        raise ValueError(f"Style review report not found: {report}")
+    review_text, report_ids = style_revision_report(report)
+    run, _, route_rows, _, editable = style_run_window(root, config, run_id, window_id)
+    if window_id not in run["applied"]:
+        raise ValueError(f"Style window is not applied: {run_id}/{window_id}")
+    if window_id in run["accepted"]:
+        raise ValueError(f"Style window already accepted: {run_id}/{window_id}")
+    editable_ids = {str(row["id"]) for row in editable
+                    if not CJK_RE.search(str(row.get("translation", "")))}
+    outside = report_ids - editable_ids
+    if outside:
+        raise ValueError(
+            "Style review references IDs outside editable scope: "
+            + ", ".join(sorted(outside)))
+    allowed_ids = report_ids & editable_ids
+    current_rows = [row for row in route_rows if str(row["id"]) in allowed_ids]
+    if not current_rows:
+        raise ValueError("Style review does not name any editable segment ID")
+    base_sha = style_slice_hash(current_rows)
+    context = style_review_package(root, config, run_id, window_id)
+    context = context.split("\n## Вердикт", 1)[0]
+    patch_name = f"build/style-revision-{run_id}-{window_id}.jsonl"
+    parts = [
+        f"# Исправление стилевой дельты {run_id} / {window_id}", "",
+        "Режим vn-stylist: source-aware исправление замечаний delta-review. "
+        "Не проводи новое независимое ревью; исправь только перечисленные ниже ID.", "",
+        context, "", "## Строки из замечаний", "", "```jsonl",
+    ]
+    records = load_source_records(
+        root, config, {(str(row["source_set_id"]), str(row["source_id"]))
+                       for row in current_rows})
+    for row in current_rows:
+        record = records[(str(row["source_set_id"]), str(row["source_id"]))]
+        slots = {str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
+                 for slot in record.get("slots", [])}
+        parts.append(json.dumps({
+            "id": row["id"],
+            "speaker": row.get("speaker"),
+            "sources": slots,
+            "current": row.get("translation", ""),
+            "flags": row.get("flags", []),
+            "markup": markup_contract(slots.get("ja", "")),
+        }, ensure_ascii=False))
+    parts.extend([
+        "```", "", "## Замечания рецензента", "", review_text.strip(), "",
+        "## Сдать", "", f"Патч: `{patch_name}`.", "Первая строка:", "```json",
+        json.dumps({"__style_revision__": {
+            "run_id": run_id,
+            "window_id": window_id,
+            "base_sha256": base_sha,
+            "report_sha256": sha256_file(report),
+            "allowed_ids": sorted(allowed_ids),
+        }}, ensure_ascii=False),
+        "```",
+        "Дальше только реально исправленные записи с полями `id`, `before`, "
+        "`translation`, `reason` и при необходимости `flags`.",
+        f"Применение: `python tools/vnctl.py style revise {run_id} {window_id} "
+        f"{patch_name} --report {report_path} --actor vn-stylist`.",
+    ])
+    return "\n".join(parts)
+
+
 def report_accepts(path: Path) -> bool:
     return bool(re.search(r"(?m)^VERDICT:\s*ACCEPT\s*$", path.read_text(encoding="utf-8-sig")))
 
@@ -2429,14 +2721,15 @@ def style_accept(root: Path, config: dict[str, Any], run_id: str,
     if window_id in run["accepted"]:
         raise ValueError(f"Style window already accepted: {run_id}/{window_id}")
     seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
-    affected = sorted({str(change["scene_id"]) for change in applied.get("changes", [])})
+    effective = style_effective_changes(run, window_id)
+    affected = sorted({str(change["scene_id"]) for change in effective})
     scene_rows = {
         scene_id: [clean_meta(row) for row in read_jsonl(seg_dir / f"{scene_id}.jsonl")]
         for scene_id in affected
     }
     canonical = {str(row["id"]): row for rows in scene_rows.values() for row in rows}
     final = []
-    for change in applied.get("changes", []):
+    for change in effective:
         row = canonical[str(change["id"])]
         if row.get("status") != "draft":
             raise ValueError(f"Changed segment is not awaiting delta review: {row['id']}")
@@ -2466,8 +2759,8 @@ def style_audit_package(root: Path, config: dict[str, Any], run_id: str) -> str:
         raise ValueError(f"Not all style windows are accepted: {len(run['accepted'])}/{len(run['windows'])}")
     rows = style_route_rows(root, config, str(run["route"]))
     labels = speaker_labels(root)
-    changed = [change for event in run["applied"].values()
-               for change in event.get("changes", [])]
+    changed = [change for window in run["windows"]
+               for change in style_effective_changes(run, str(window["window_id"]))]
     source_texts = source_text_by_segment(root, config, rows)
     glossary = glossary_for_scene(root, config, "\n".join(source_texts.values()))
     parts = [
@@ -2484,9 +2777,9 @@ def style_audit_package(root: Path, config: dict[str, Any], run_id: str) -> str:
         parts.append(json.dumps({
             "id": change.get("id"),
             "scene": change.get("scene_id"),
-            "before": change.get("before"),
-            "after": change.get("after"),
-            "reason": change.get("reason"),
+            "before": russian_only_projection(str(change.get("before", ""))),
+            "after": russian_only_projection(str(change.get("after", ""))),
+            "reason": russian_only_projection(str(change.get("reason", ""))),
             "flags_before": change.get("flags_before", []),
             "flags_after": change.get("flags_after", []),
         }, ensure_ascii=False))
@@ -2496,7 +2789,7 @@ def style_audit_package(root: Path, config: dict[str, Any], run_id: str) -> str:
             "id": row["id"],
             "scene": row["scene_id"],
             "speaker": labels.get(str(row.get("speaker"))) if row.get("speaker") else None,
-            "ru": row.get("translation", ""),
+            "ru": russian_only_projection(str(row.get("translation", ""))),
             "flags": row.get("flags", []),
             "markup": markup_contract(str(row.get("translation", ""))),
         }, ensure_ascii=False))
@@ -2587,6 +2880,11 @@ def validate_style_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str]
                 if window_id in run["applied"]:
                     errors.append(f"style ledger line {index}: window applied twice {window_id}")
                 run["applied"].add(window_id)
+            elif kind == "window_revised":
+                if window_id not in run["applied"]:
+                    errors.append(f"style ledger line {index}: window revised before apply {window_id}")
+                if window_id in run["accepted"]:
+                    errors.append(f"style ledger line {index}: window revised after accept {window_id}")
             elif kind == "window_accepted":
                 if window_id not in run["applied"]:
                     errors.append(f"style ledger line {index}: window accepted before apply {window_id}")
@@ -3911,7 +4209,19 @@ def findings(root: Path, config: dict[str, Any]) -> int:
     return 1 if errors else 0
 
 
+def configure_stdio_encoding() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if not reconfigure:
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="strict")
+        except (AttributeError, TypeError, ValueError):
+            pass
+
+
 def main() -> int:
+    configure_stdio_encoding()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="Project root")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -3982,6 +4292,7 @@ def main() -> int:
     p_sstart.add_argument("route")
     p_snext = style_sub.add_parser("next")
     p_snext.add_argument("run_id")
+    p_snext.add_argument("--window", dest="window_id")
     p_snext.add_argument("-o", "--output", type=Path)
     p_scheck = style_sub.add_parser("check")
     p_scheck.add_argument("run_id")
@@ -3991,10 +4302,21 @@ def main() -> int:
     p_sapply.add_argument("run_id")
     p_sapply.add_argument("window_id")
     p_sapply.add_argument("patch", type=Path)
+    p_srevise = style_sub.add_parser("revise")
+    p_srevise.add_argument("run_id")
+    p_srevise.add_argument("window_id")
+    p_srevise.add_argument("patch", type=Path)
+    p_srevise.add_argument("--report", type=Path, required=True)
+    p_srevise.add_argument("--actor", required=True)
     p_sreview = style_sub.add_parser("review")
     p_sreview.add_argument("run_id")
     p_sreview.add_argument("window_id")
     p_sreview.add_argument("-o", "--output", type=Path)
+    p_sfix = style_sub.add_parser("fix")
+    p_sfix.add_argument("run_id")
+    p_sfix.add_argument("window_id")
+    p_sfix.add_argument("report", type=Path)
+    p_sfix.add_argument("-o", "--output", type=Path)
     p_saccept = style_sub.add_parser("accept")
     p_saccept.add_argument("run_id")
     p_saccept.add_argument("window_id")
@@ -4091,7 +4413,7 @@ def main() -> int:
             if args.style_command == "start":
                 return style_start(root, config, args.route)
             if args.style_command == "next":
-                content = style_package(root, config, args.run_id)
+                content = style_package(root, config, args.run_id, args.window_id)
                 if args.output:
                     out = args.output if args.output.is_absolute() else root / args.output
                     out.parent.mkdir(parents=True, exist_ok=True)
@@ -4104,8 +4426,23 @@ def main() -> int:
                 return style_check(root, config, args.run_id, args.window_id, args.patch)
             if args.style_command == "apply":
                 return style_apply(root, config, args.run_id, args.window_id, args.patch)
+            if args.style_command == "revise":
+                return style_revise(
+                    root, config, args.run_id, args.window_id, args.patch,
+                    args.report, args.actor)
             if args.style_command == "review":
                 content = style_review_package(root, config, args.run_id, args.window_id)
+                if args.output:
+                    out = args.output if args.output.is_absolute() else root / args.output
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_text(content, encoding="utf-8")
+                    print(out)
+                else:
+                    print(content)
+                return 0
+            if args.style_command == "fix":
+                content = style_revision_package(
+                    root, config, args.run_id, args.window_id, args.report)
                 if args.output:
                     out = args.output if args.output.is_absolute() else root / args.output
                     out.parent.mkdir(parents=True, exist_ok=True)
