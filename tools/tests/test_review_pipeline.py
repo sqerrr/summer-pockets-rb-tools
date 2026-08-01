@@ -1,6 +1,7 @@
 import importlib.util
 import json
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -220,3 +221,71 @@ def test_review_ledger_validation_accepts_complete_state(tmp_path):
     errors, warnings = vnctl.validate_review_ledger(tmp_path, config)
     assert errors == []
     assert warnings == []
+
+
+def test_review_ledger_serializes_concurrent_events(tmp_path):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+
+    def append(index):
+        vnctl.append_review_event(tmp_path, config, {
+            "schema_version": 1,
+            "event": "review_imported",
+            "review_id": f"REV-SCN0001-{index:02d}",
+            "scene_id": "SCN0001",
+        })
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        list(pool.map(append, range(1, 17)))
+
+    events = vnctl.load_review_events(tmp_path, config)
+    assert len(events) == 17
+    assert len({event.get("review_id") for event in events[1:]}) == 16
+
+
+def test_review_close_rolls_back_and_recovers_interrupted_ledger_write(tmp_path, monkeypatch):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    assert vnctl.index_project(tmp_path, config) == 0
+    review_id = "REV-SCN0001-01"
+    base_hash = vnctl.scene_review_hash(vnctl.read_jsonl(
+        tmp_path / "translation/segments/SCN0001.jsonl"))
+    report = tmp_path / "build/review.jsonl"
+    write_jsonl(report, [
+        {"__review__": {"review_id": review_id, "scene_id": "SCN0001",
+                         "base_sha256": base_hash}},
+        {"issue_id": f"{review_id}-I001", "severity": "minor",
+         "category": "language", "segment_ids": ["SEG1"],
+         "problem": "Проверка.", "suggested_changes": []},
+    ])
+    assert vnctl.review_import(
+        tmp_path, config, "SCN0001", report, "vn-reviewer") == 0
+    resolutions = tmp_path / "build/resolutions.jsonl"
+    write_jsonl(resolutions, [{
+        "issue_id": f"{review_id}-I001", "disposition": "applied",
+        "reason": "Текст уже корректен.", "changes": [],
+    }])
+    assert vnctl.review_resolve(
+        tmp_path, config, review_id, resolutions, "vn-stylist") == 0
+    verdict = tmp_path / "build/verdict.jsonl"
+    write_jsonl(verdict, [{
+        "review_id": review_id, "scene_sha256": base_hash,
+        "verdict": "accept", "open_issue_ids": [],
+    }])
+
+    real_append = vnctl.append_review_event
+    monkeypatch.setattr(vnctl, "append_review_event", lambda *args: (_ for _ in ()).throw(OSError("busy")))
+    with pytest.raises(OSError, match="busy"):
+        vnctl.review_close(tmp_path, config, review_id, verdict, "vn-reviewer")
+    assert {row["status"] for row in vnctl.read_jsonl(
+        tmp_path / "translation/segments/SCN0001.jsonl")} == {"draft"}
+
+    rows = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")
+    for row in rows:
+        row["status"] = "reviewed"
+    write_jsonl(tmp_path / "translation/segments/SCN0001.jsonl", rows)
+    monkeypatch.setattr(vnctl, "append_review_event", real_append)
+    assert vnctl.review_close(
+        tmp_path, config, review_id, verdict, "vn-reviewer") == 0
+    assert vnctl.review_runs(vnctl.load_review_events(
+        tmp_path, config))[review_id]["accepted"]

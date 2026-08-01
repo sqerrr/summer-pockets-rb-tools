@@ -9,10 +9,13 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import re
 import sqlite3
 import sys
+import time
 from collections import Counter, defaultdict
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
@@ -1781,9 +1784,10 @@ def load_style_events(root: Path, config: dict[str, Any]) -> list[dict[str, Any]
 
 def append_style_event(root: Path, config: dict[str, Any], event: dict[str, Any]) -> None:
     path = style_ledger_path(root, config)
-    rows = load_style_events(root, config)
-    rows.append(event)
-    write_jsonl_atomic(path, rows)
+    with exclusive_file_lock(path):
+        rows = load_style_events(root, config)
+        rows.append(event)
+        write_jsonl_atomic(path, rows)
 
 
 def style_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -2616,9 +2620,10 @@ def load_review_events(root: Path, config: dict[str, Any]) -> list[dict[str, Any
 
 def append_review_event(root: Path, config: dict[str, Any], event: dict[str, Any]) -> None:
     path = review_ledger_path(root, config)
-    rows = load_review_events(root, config)
-    rows.append(event)
-    write_jsonl_atomic(path, rows)
+    with exclusive_file_lock(path):
+        rows = load_review_events(root, config)
+        rows.append(event)
+        write_jsonl_atomic(path, rows)
 
 
 def review_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -3016,13 +3021,16 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
     if escalations:
         raise ValueError(
             f"review has unresolved user escalations: {', '.join(map(str, escalations))}")
-    bad = Counter(str(row.get("status")) for row in rows if row.get("status") != "draft")
-    if bad:
-        raise ValueError(f"scene is not awaiting review close: {dict(bad)}")
-    for row in rows:
-        row["status"] = "reviewed"
-    write_jsonl_atomic(seg_file, rows)
-    append_review_event(root, config, {
+    statuses = {str(row.get("status")) for row in rows}
+    if statuses not in ({"draft"}, {"reviewed"}):
+        raise ValueError(f"scene is not awaiting review close: {dict(Counter(statuses))}")
+    recovering = statuses == {"reviewed"}
+    original_rows = [dict(row) for row in rows]
+    if not recovering:
+        for row in rows:
+            row["status"] = "reviewed"
+        write_jsonl_atomic(seg_file, rows)
+    event = {
         "schema_version": 1,
         "event": "review_accepted",
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
@@ -3031,7 +3039,17 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
         "scene_sha256": current_hash,
         "reviewer": reviewer,
         "verdict_sha256": sha256_file(verdict_file),
-    })
+    }
+    try:
+        append_review_event(root, config, event)
+    except Exception:
+        accepted = review_runs(load_review_events(root, config)).get(review_id, {}).get("accepted")
+        if accepted:
+            print(f"{review_id}: accepted; {len(rows)} segments are reviewed")
+            return 0
+        if not recovering:
+            write_jsonl_atomic(seg_file, original_rows)
+        raise
     print(f"{review_id}: accepted; {len(rows)} segments are reviewed")
     return 0
 
@@ -3806,6 +3824,25 @@ def write_jsonl_atomic(path: Path, rows: list[dict[str, Any]]) -> None:
             clean = {k: v for k, v in row.items() if not k.startswith("__")}
             fh.write(json.dumps(clean, ensure_ascii=False) + "\n")
     tmp.replace(path)
+
+
+@contextmanager
+def exclusive_file_lock(path: Path, timeout: float = 30.0):
+    lock_path = path.with_suffix(path.suffix + ".lock")
+    deadline = time.monotonic() + timeout
+    fd: int | None = None
+    while fd is None:
+        try:
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            if time.monotonic() >= deadline:
+                raise RuntimeError(f"timed out waiting for ledger lock: {lock_path}")
+            time.sleep(0.05)
+    try:
+        yield
+    finally:
+        os.close(fd)
+        lock_path.unlink(missing_ok=True)
 
 
 from textrules import RUBY, check_length, check_line, check_markup, check_names, strip_ruby  # noqa: E402

@@ -218,3 +218,23 @@ def test_agent_contracts_forbid_generalizing_concrete_images():
     assert "review resolve" in stylist
     assert "бэнто" in stylist
     assert "братик" in stylist
+
+
+def test_project_agents_use_gpt_and_have_required_execution_permissions():
+    root = Path(__file__).parents[2]
+    agent_dir = root / ".opencode/agent"
+    names = (
+        "vn-translator.md", "vn-translator-alt.md", "vn-reviewer.md",
+        "vn-reviewer-alt.md", "vn-stylist.md", "vn-knowledge.md",
+        "vn-auditor.md", "second-opinion.md",
+    )
+    agents = {name: (agent_dir / name).read_text(encoding="utf-8") for name in names}
+    for text in agents.values():
+        assert "model: fasday/gpt5_6_sol" in text
+    for name, text in agents.items():
+        if name != "vn-stylist.md":
+            assert "  bash:\n    '*': allow" in text
+    stylist = agents["vn-stylist.md"]
+    assert "  bash:\n    '*': deny\n    '*vnctl.py*': allow" in stylist
+    assert "  read:\n    '*': deny\n    build/**: allow" in stylist
+    assert "  edit:\n    '*': deny\n    build/**: allow" in stylist

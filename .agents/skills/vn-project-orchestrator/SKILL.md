@@ -58,6 +58,14 @@ user explicitly stops the run, no ready work remains, or the session context is
 nearly exhausted; at the context boundary, checkpoint and report the exact next
 commands instead of silently stopping.
 
+Treat the pipeline as buffered production, not equal status counts. For an
+eight-worker wave, start from 3 translation slots, 3 reviewer slots (initial
+review or recheck), and 2 stylist slots (review fix or route style). Keep roughly
+6–12 complete draft scenes available for review and 2–6 reviewed/resolved scenes
+available for the next editing stage. Reassign slots to the current bottleneck
+when a buffer leaves that range; never keep producing drafts while downstream
+queues are already overflowing.
+
 The user does not read every line or arbitrate local edits. The orchestrator
 asks only project-wide conflicts, grouped into short interactive questions;
 all other reviewer issues must be either applied or rejected with a tracked
