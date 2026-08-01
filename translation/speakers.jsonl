@@ -13,7 +13,7 @@
 {"id": "SPK-0013", "source": "小鳩", "kind": "person", "lines": 601, "preferred_ru": "Кобато", "status": "provisional", "romaji": "Kobato"}
 {"id": "SPK-0014", "source": "七海", "kind": "person", "lines": 576, "preferred_ru": "Нанами", "status": "provisional", "romaji": "Nanami"}
 {"id": "SPK-0015", "source": "女の子", "kind": "role", "lines": 315, "preferred_ru": "Девушка", "status": "provisional"}
-{"id": "SPK-0016", "source": "駄菓子屋のおばーちゃん", "kind": "role", "lines": 264, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0016", "source": "駄菓子屋のおばーちゃん", "kind": "role", "lines": 264, "preferred_ru": "Бабуля из лавки сладостей", "status": "approved"}
 {"id": "SPK-0017", "source": "島の少女A", "kind": "role", "lines": 251, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0018", "source": "鷺", "kind": "person", "lines": 247, "preferred_ru": "Саги", "status": "provisional", "romaji": "Sagi"}
 {"id": "SPK-0019", "source": "藍", "kind": "person", "lines": 240, "preferred_ru": "Аи", "status": "provisional", "romaji": "Ai"}
