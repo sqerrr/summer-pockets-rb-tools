@@ -1806,6 +1806,7 @@ def style_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
                 "applied": {},
                 "revisions": {},
                 "accepted": {},
+                "reopened": set(),
                 "audit": None,
                 "builds": [],
             }
@@ -1814,8 +1815,14 @@ def style_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
         elif run_id in runs and kind == "window_revised":
             window_id = str(event["window_id"])
             runs[run_id]["revisions"].setdefault(window_id, []).append(event)
+            if window_id in runs[run_id]["accepted"]:
+                runs[run_id]["reopened"].add(window_id)
+            runs[run_id]["accepted"].pop(window_id, None)
+            runs[run_id]["audit"] = None
         elif run_id in runs and kind == "window_accepted":
-            runs[run_id]["accepted"][str(event["window_id"])] = event
+            window_id = str(event["window_id"])
+            runs[run_id]["accepted"][window_id] = event
+            runs[run_id]["reopened"].discard(window_id)
         elif run_id in runs and kind == "route_audited":
             runs[run_id]["audit"] = event
         elif run_id in runs and kind == "build_readback":
@@ -2424,8 +2431,6 @@ def validate_style_revision(root: Path, config: dict[str, Any], run_id: str,
     run, _, route_rows, _, editable = style_run_window(root, config, run_id, window_id)
     if window_id not in run["applied"]:
         return [f"window is not applied: {run_id}/{window_id}"], [], {}
-    if window_id in run["accepted"]:
-        return [f"window already accepted: {run_id}/{window_id}"], [], {}
     editable_ids = {str(row["id"]) for row in editable
                     if not CJK_RE.search(str(row.get("translation", "")))}
     allowed_ids = report_ids & editable_ids
@@ -2646,8 +2651,6 @@ def style_revision_package(root: Path, config: dict[str, Any], run_id: str,
     run, _, route_rows, _, editable = style_run_window(root, config, run_id, window_id)
     if window_id not in run["applied"]:
         raise ValueError(f"Style window is not applied: {run_id}/{window_id}")
-    if window_id in run["accepted"]:
-        raise ValueError(f"Style window already accepted: {run_id}/{window_id}")
     editable_ids = {str(row["id"]) for row in editable
                     if not CJK_RE.search(str(row.get("translation", "")))}
     outside = report_ids - editable_ids
@@ -2729,9 +2732,10 @@ def style_accept(root: Path, config: dict[str, Any], run_id: str,
     }
     canonical = {str(row["id"]): row for rows in scene_rows.values() for row in rows}
     final = []
+    allowed_statuses = {"draft", "reviewed"} if window_id in run["reopened"] else {"draft"}
     for change in effective:
         row = canonical[str(change["id"])]
-        if row.get("status") != "draft":
+        if row.get("status") not in allowed_statuses:
             raise ValueError(f"Changed segment is not awaiting delta review: {row['id']}")
         row["status"] = "reviewed"
         final.append({"id": row["id"], "translation": row.get("translation", "")})
@@ -2751,6 +2755,115 @@ def style_accept(root: Path, config: dict[str, Any], run_id: str,
     return 0
 
 
+def style_sibling_anchors(root: Path, config: dict[str, Any], run: dict[str, Any],
+                          segment_ids: set[str]) -> dict[str, dict[str, str]]:
+    latest: dict[str, dict[str, str]] = {}
+    review_events = load_review_events(root, config)
+    review_states = review_runs(review_events)
+    for event in review_events:
+        if event.get("event") != "review_resolved":
+            continue
+        review_id = str(event.get("review_id", ""))
+        state = review_states.get(review_id, {})
+        if not state.get("accepted"):
+            continue
+        superseded = state.get("superseded_issues", {})
+        for resolution in event.get("resolutions", []) or []:
+            issue_id = str(resolution.get("issue_id", ""))
+            if resolution.get("disposition") != "applied" or issue_id in superseded:
+                continue
+            for change in resolution.get("changes", []) or []:
+                sid = str(change.get("id", ""))
+                before = str(change.get("before", ""))
+                after = str(change.get("translation", ""))
+                if sid in segment_ids and before != after:
+                    latest[sid] = {
+                        "anchor": sid,
+                        "provenance": issue_id,
+                        "before": before,
+                        "after": after,
+                    }
+
+    for window in run.get("windows", []):
+        window_id = str(window.get("window_id", ""))
+        if window_id not in run.get("accepted", {}):
+            continue
+        events = [run.get("applied", {}).get(window_id)]
+        events.extend(run.get("revisions", {}).get(window_id, []))
+        for event in events:
+            if not event:
+                continue
+            for change in event.get("changes", []) or []:
+                sid = str(change.get("id", ""))
+                before = str(change.get("before", ""))
+                after = str(change.get("after", ""))
+                if sid in segment_ids and before != after:
+                    latest[sid] = {
+                        "anchor": sid,
+                        "provenance": f"{run['run_id']}/{window_id}",
+                        "before": before,
+                        "after": after,
+                    }
+    return latest
+
+
+def style_exact_source_sibling_blockers(
+        root: Path, config: dict[str, Any], run: dict[str, Any],
+        rows: list[dict[str, Any]], source_texts: dict[str, str]) -> list[dict[str, str]]:
+    segment_ids = {str(row["id"]) for row in rows}
+    anchors = style_sibling_anchors(root, config, run, segment_ids)
+    if not anchors:
+        return []
+
+    def source_signature(row: dict[str, Any]) -> tuple[str, str, str]:
+        source = source_texts[str(row["id"])]
+        contract = json.dumps(
+            markup_contract(source), ensure_ascii=False, sort_keys=True,
+            separators=(",", ":"))
+        return source, str(row.get("speaker") or ""), contract
+
+    fingerprints: dict[str, tuple[tuple[str, str, str], ...]] = {}
+    by_scene: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        by_scene[str(row["scene_id"])].append(row)
+    for scene_rows in by_scene.values():
+        for index in range(2, len(scene_rows) - 2):
+            context = scene_rows[index - 2:index] + scene_rows[index + 1:index + 3]
+            fingerprints[str(scene_rows[index]["id"])] = tuple(
+                source_signature(item) for item in context)
+
+    groups: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        sid = str(row["id"])
+        fingerprint = fingerprints.get(sid)
+        if fingerprint is not None:
+            groups[(*source_signature(row), fingerprint)].append(row)
+
+    blockers: list[dict[str, str]] = []
+    by_id = {str(row["id"]): row for row in rows}
+    for anchor_id, anchor in anchors.items():
+        anchor_row = by_id.get(anchor_id)
+        fingerprint = fingerprints.get(anchor_id)
+        if (not anchor_row or fingerprint is None
+                or str(anchor_row.get("translation", "")) != anchor["after"]):
+            continue
+        key = (*source_signature(anchor_row), fingerprint)
+        for sibling in groups.get(key, []):
+            sibling_id = str(sibling["id"])
+            if (sibling_id != anchor_id
+                    and str(sibling.get("translation", "")) == anchor["before"]):
+                blockers.append({
+                    "anchor": anchor_id,
+                    "sibling": sibling_id,
+                    "provenance": anchor["provenance"],
+                    "before": anchor["before"],
+                    "after": anchor["after"],
+                })
+    return sorted(blockers, key=lambda item: (
+        item["anchor"], item["sibling"], item["provenance"],
+        item["before"], item["after"]))
+
+
 def style_audit_package(root: Path, config: dict[str, Any], run_id: str) -> str:
     run = style_runs(load_style_events(root, config)).get(run_id)
     if not run:
@@ -2758,10 +2871,18 @@ def style_audit_package(root: Path, config: dict[str, Any], run_id: str) -> str:
     if len(run["accepted"]) != len(run["windows"]):
         raise ValueError(f"Not all style windows are accepted: {len(run['accepted'])}/{len(run['windows'])}")
     rows = style_route_rows(root, config, str(run["route"]))
+    source_texts = source_text_by_segment(root, config, rows)
+    blockers = style_exact_source_sibling_blockers(
+        root, config, run, rows, source_texts)
+    if blockers:
+        diagnostics = "\n".join(
+            json.dumps(item, ensure_ascii=False) for item in blockers)
+        raise ValueError(
+            f"Exact-source sibling preflight blocked style audit: {len(blockers)} blocker(s)\n"
+            + diagnostics)
     labels = speaker_labels(root)
     changed = [change for window in run["windows"]
                for change in style_effective_changes(run, str(window["window_id"]))]
-    source_texts = source_text_by_segment(root, config, rows)
     glossary = glossary_for_scene(root, config, "\n".join(source_texts.values()))
     parts = [
         f"# Сквозной аудит {run_id}", "",
@@ -2883,8 +3004,8 @@ def validate_style_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str]
             elif kind == "window_revised":
                 if window_id not in run["applied"]:
                     errors.append(f"style ledger line {index}: window revised before apply {window_id}")
-                if window_id in run["accepted"]:
-                    errors.append(f"style ledger line {index}: window revised after accept {window_id}")
+                run["accepted"].discard(window_id)
+                run["audited"] = False
             elif kind == "window_accepted":
                 if window_id not in run["applied"]:
                     errors.append(f"style ledger line {index}: window accepted before apply {window_id}")
@@ -2902,7 +3023,10 @@ def validate_style_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str]
     return errors, warnings
 
 
-REVIEW_EVENTS = {"ledger_initialized", "review_imported", "review_resolved", "review_accepted"}
+REVIEW_EVENTS = {
+    "ledger_initialized", "review_imported", "review_resolved", "review_accepted",
+    "review_issue_superseded",
+}
 REVIEW_SEVERITIES = {"critical", "major", "minor", "preference"}
 REVIEW_DISPOSITIONS = {"applied", "rejected"}
 
@@ -2930,11 +3054,17 @@ def review_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
         review_id = str(event.get("review_id", ""))
         kind = event.get("event")
         if kind == "review_imported":
-            runs[review_id] = {**event, "resolution": None, "accepted": None}
+            runs[review_id] = {
+                **event, "resolution": None, "accepted": None,
+                "superseded_issues": {},
+            }
         elif review_id in runs and kind == "review_resolved":
             runs[review_id]["resolution"] = event
         elif review_id in runs and kind == "review_accepted":
             runs[review_id]["accepted"] = event
+        elif review_id in runs and kind == "review_issue_superseded":
+            issue_id = str(event.get("issue_id", ""))
+            runs[review_id]["superseded_issues"][issue_id] = event
     return runs
 
 
@@ -3352,6 +3482,49 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
     return 0
 
 
+def review_issue_supersede(root: Path, config: dict[str, Any], issue_id: str,
+                           question_id: str, actor: str, reason: str) -> int:
+    actor = actor.strip()
+    reason = reason.strip()
+    if not actor or not reason:
+        raise ValueError("actor and reason are required")
+    runs = review_runs(load_review_events(root, config))
+    matches = [
+        (review_id, run)
+        for review_id, run in runs.items()
+        if issue_id in {str(issue.get("issue_id", "")) for issue in run.get("issues", [])}
+    ]
+    if len(matches) != 1:
+        raise ValueError(f"review issue must exist exactly once: {issue_id}")
+    review_id, run = matches[0]
+    if not run.get("accepted"):
+        raise ValueError(f"review issue is not accepted: {issue_id}")
+    if issue_id in run.get("superseded_issues", {}):
+        raise ValueError(f"review issue already superseded: {issue_id}")
+    questions_path = root / config.get("paths", {}).get(
+        "questions", "translation/open-questions.jsonl")
+    questions = {
+        str(row.get("id", "")): clean_meta(row) for row in read_jsonl(questions_path)
+    }
+    question = questions.get(question_id)
+    if not question:
+        raise ValueError(f"unknown question: {question_id}")
+    if question.get("status") != "open":
+        raise ValueError(f"superseding question is not open: {question_id}")
+    append_review_event(root, config, {
+        "schema_version": 1,
+        "event": "review_issue_superseded",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "review_id": review_id,
+        "issue_id": issue_id,
+        "question_id": question_id,
+        "actor": actor,
+        "reason": reason,
+    })
+    print(f"{issue_id}: superseded by {question_id}")
+    return 0
+
+
 def review_status(root: Path, config: dict[str, Any]) -> int:
     runs = review_runs(load_review_events(root, config))
     if not runs:
@@ -3373,6 +3546,11 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
     errors: list[str] = []
     warnings: list[str] = []
     known_scenes = {str(scene["scene_id"]) for scene in load_scenes(root, config)}
+    questions_path = root / config.get("paths", {}).get(
+        "questions", "translation/open-questions.jsonl")
+    question_statuses = {
+        str(row.get("id", "")): row.get("status") for row in read_jsonl(questions_path)
+    }
     runs: dict[str, dict[str, Any]] = {}
     for index, event in enumerate(load_review_events(root, config), start=1):
         kind = event.get("event")
@@ -3397,7 +3575,10 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
                 errors.append(f"review ledger line {index}: duplicate issue IDs")
             if any(issue.get("severity") not in REVIEW_SEVERITIES for issue in issues):
                 errors.append(f"review ledger line {index}: invalid issue severity")
-            runs[review_id] = {"issues": set(issue_ids), "resolved": False, "accepted": False}
+            runs[review_id] = {
+                "issues": set(issue_ids), "resolved": False, "accepted": False,
+                "superseded": set(),
+            }
             continue
         run = runs.get(review_id)
         if not run:
@@ -3415,6 +3596,21 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
             if run["accepted"]:
                 errors.append(f"review ledger line {index}: accepted twice")
             run["accepted"] = True
+        elif kind == "review_issue_superseded":
+            issue_id = str(event.get("issue_id", ""))
+            question_id = str(event.get("question_id", ""))
+            if not run["accepted"]:
+                errors.append(f"review ledger line {index}: issue superseded before accept")
+            if issue_id not in run["issues"]:
+                errors.append(f"review ledger line {index}: unknown issue {issue_id}")
+            if question_statuses.get(question_id) != "open":
+                errors.append(
+                    f"review ledger line {index}: superseding question is not open {question_id}")
+            if not str(event.get("actor", "")).strip() or not str(event.get("reason", "")).strip():
+                errors.append(f"review ledger line {index}: supersession actor and reason required")
+            if issue_id in run["superseded"]:
+                errors.append(f"review ledger line {index}: issue superseded twice {issue_id}")
+            run["superseded"].add(issue_id)
     return errors, warnings
 
 
@@ -3428,12 +3624,15 @@ def prior_review_issues(root: Path, config: dict[str, Any],
             str(item.get("issue_id")): item
             for item in (run.get("resolution") or {}).get("resolutions", [])
         }
+        superseded = run.get("superseded_issues", {})
         for issue in run.get("issues", []):
             linked = set(map(str, issue.get("segment_ids", [])))
             if not linked & segment_ids:
                 continue
-            resolution = resolutions.get(str(issue.get("issue_id")), {})
-            result.append({
+            issue_id = str(issue.get("issue_id"))
+            resolution = resolutions.get(issue_id, {})
+            supersession = superseded.get(issue_id)
+            item = {
                 "issue_id": issue.get("issue_id"),
                 "severity": issue.get("severity"),
                 "category": issue.get("category"),
@@ -3441,7 +3640,15 @@ def prior_review_issues(root: Path, config: dict[str, Any],
                 "problem": issue.get("problem"),
                 "disposition": resolution.get("disposition"),
                 "reason": resolution.get("reason"),
-            })
+                "state": "superseded" if supersession else "active",
+            }
+            if supersession:
+                item.update({
+                    "superseded_by_question": supersession.get("question_id"),
+                    "supersession_reason": supersession.get("reason"),
+                    "superseded_by_actor": supersession.get("actor"),
+                })
+            result.append(item)
     return result
 
 
@@ -3528,7 +3735,7 @@ def render_required_knowledge(root: Path, config: dict[str, Any],
     for item in reviews:
         safe_item = dict(item)
         if russian_only:
-            for field in ("problem", "reason"):
+            for field in ("problem", "reason", "supersession_reason"):
                 safe_item[field] = CJK_RE.sub("", str(safe_item.get(field, ""))).strip()
         parts.append("- " + json.dumps(safe_item, ensure_ascii=False))
     if not reviews:
@@ -3675,10 +3882,12 @@ def work_next(root: Path, config: dict[str, Any], scene_id: str,
         "\n## Как сдать\n\n"
         "1. Напиши патч `build/patch-" + scene_id + ".jsonl`, по строке на сегмент:\n"
         '   `{"id": "...", "translation": "...", "status": "draft", "flags": []}`\n'
-        "2. Проверь себя: `python tools/vnctl.py work check build/patch-"
-        + scene_id + ".jsonl`\n"
+        "2. Проверь себя: `python tools/vnctl.py work check " + scene_id
+        + " build/patch-" + scene_id + ".jsonl --start " + str(first + 1)
+        + " --count " + str(len(batch)) + "`\n"
         "3. Применяй: `python tools/vnctl.py apply-translation " + scene_id
-        + " build/patch-" + scene_id + ".jsonl`\n")
+        + " build/patch-" + scene_id + ".jsonl --start " + str(first + 1)
+        + " --count " + str(len(batch)) + "`\n")
     return "\n".join(parts)
 
 
@@ -3749,7 +3958,63 @@ def lines_query(root: Path, config: dict[str, Any], speaker: str | None,
     return 0
 
 
-def work_check(root: Path, config: dict[str, Any], patch_path: Path) -> int:
+def translation_batch_ids(root: Path, config: dict[str, Any], scene_id: str,
+                          start: int = 1, count: int | None = None) -> list[str]:
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    seg_file = seg_dir / f"{scene_id}.jsonl"
+    if not seg_file.exists():
+        raise ValueError(f"unknown scene: {scene_id}")
+    if start < 1:
+        raise ValueError("translation batch start must be at least 1")
+    if count is not None and count < 1:
+        raise ValueError("translation batch count must be at least 1")
+
+    segments = read_jsonl(seg_file)
+    first = start - 1
+    if first >= len(segments):
+        raise ValueError(
+            f"translation batch starts after scene end: {start} > {len(segments)}")
+    batch = segments[first:] if count is None else segments[first:first + count]
+    if count is not None and len(batch) != count:
+        raise ValueError(
+            f"translation batch exceeds scene: requested {count}, found {len(batch)}")
+    return [str(row["id"]) for row in batch]
+
+
+def translation_patch_errors(patch: list[dict[str, Any]], expected_ids: list[str]) -> list[str]:
+    errors: list[str] = []
+    seen: set[str] = set()
+    actual: list[str] = []
+    expected = set(expected_ids)
+    for index, raw in enumerate(patch, start=1):
+        entry = {k: v for k, v in raw.items() if not k.startswith("__")}
+        sid = str(entry.get("id", ""))
+        if not sid:
+            errors.append(f"patch line {index}: missing id")
+            continue
+        if sid in seen:
+            errors.append(f"patch line {index}: duplicate id {sid!r}")
+            continue
+        seen.add(sid)
+        actual.append(sid)
+        if not str(entry.get("translation", "")).strip():
+            errors.append(f"patch line {index}: id {sid!r} has empty translation")
+
+    missing = [sid for sid in expected_ids if sid not in seen]
+    unexpected = [sid for sid in actual if sid not in expected]
+    if missing:
+        errors.append(
+            f"patch is incomplete: missing {len(missing)} expected ids: "
+            + ", ".join(missing[:20]))
+    if unexpected:
+        errors.append(
+            f"patch contains {len(unexpected)} ids outside the expected batch: "
+            + ", ".join(unexpected[:20]))
+    return errors
+
+
+def work_check(root: Path, config: dict[str, Any], scene_id: str,
+               patch_path: Path, start: int = 1, count: int | None = None) -> int:
     """Прогнать правила по патчу, ничего не записывая.
 
     Существует затем, чтобы агент узнавал о нарушении от инструмента до сдачи,
@@ -3760,6 +4025,19 @@ def work_check(root: Path, config: dict[str, Any], patch_path: Path) -> int:
         eprint(f"ERROR: patch not found: {patch_file}")
         return 1
 
+    patch = read_jsonl(patch_file)
+    try:
+        expected_ids = translation_batch_ids(root, config, scene_id, start, count)
+    except ValueError as exc:
+        eprint(f"ERROR: {exc}")
+        return 1
+    batch_errors = translation_patch_errors(patch, expected_ids)
+    if batch_errors:
+        for message in batch_errors[:20]:
+            eprint(f"ERROR: {message}")
+        eprint(f"ERROR: patch rejected, {len(batch_errors)} batch problems")
+        return 1
+
     db = db_path(root, config)
     con = sqlite3.connect(db) if db.exists() else None
     if con:
@@ -3767,12 +4045,10 @@ def work_check(root: Path, config: dict[str, Any], patch_path: Path) -> int:
 
     problems = 0
     checked = 0
-    for raw in read_jsonl(patch_file):
+    for raw in patch:
         entry = {k: v for k, v in raw.items() if not k.startswith("__")}
         sid = str(entry.get("id", ""))
         text = str(entry.get("translation", ""))
-        if not text.strip():
-            continue
         checked += 1
         speaker = None
         english = japanese = ""
@@ -4035,7 +4311,9 @@ APPLY_ALLOWED_FIELDS = {"translation", "status", "flags", "translator_note_safe"
 APPLY_CONFIDENCE = {"high", "medium", "low"}
 
 
-def apply_translation(root: Path, config: dict[str, Any], scene_id: str, patch_path: Path) -> int:
+def apply_translation(root: Path, config: dict[str, Any], scene_id: str,
+                      patch_path: Path, start: int = 1,
+                      count: int | None = None) -> int:
     """Apply a translation patch to one scene's segments.
 
     Worker agents must not rewrite canonical segment files directly: the
@@ -4057,6 +4335,18 @@ def apply_translation(root: Path, config: dict[str, Any], scene_id: str, patch_p
     segments = read_jsonl(seg_file)
     patch = read_jsonl(patch_file)
     by_id = {str(row["id"]): row for row in segments}
+
+    try:
+        expected_ids = translation_batch_ids(root, config, scene_id, start, count)
+    except ValueError as exc:
+        eprint(f"ERROR: {exc}")
+        return 1
+    batch_errors = translation_patch_errors(patch, expected_ids)
+    if batch_errors:
+        for message in batch_errors[:20]:
+            eprint(f"ERROR: {message}")
+        eprint(f"ERROR: patch rejected, {len(batch_errors)} batch problems; file not written")
+        return 1
 
     qa = read_yaml(root / "config/qa-rules.yaml", {}) or {}
     allowed_statuses = set(qa.get("allowed_statuses", sorted(ALLOWED_STATUSES)))
@@ -4260,7 +4550,10 @@ def main() -> int:
     p_wnext.add_argument("-o", "--output", type=Path)
     work_sub.add_parser("queue")
     p_wcheck = work_sub.add_parser("check")
+    p_wcheck.add_argument("scene_id")
     p_wcheck.add_argument("patch", type=Path)
+    p_wcheck.add_argument("--start", type=int, default=1)
+    p_wcheck.add_argument("--count", type=int)
     p_review = sub.add_parser("review")
     review_sub = p_review.add_subparsers(dest="review_command", required=True)
     review_sub.add_parser("status")
@@ -4285,6 +4578,11 @@ def main() -> int:
     p_rclose.add_argument("review_id")
     p_rclose.add_argument("verdict", type=Path)
     p_rclose.add_argument("--reviewer", required=True)
+    p_rsupersede = review_sub.add_parser("supersede")
+    p_rsupersede.add_argument("issue_id")
+    p_rsupersede.add_argument("--by-question", dest="question_id", required=True)
+    p_rsupersede.add_argument("--actor", required=True)
+    p_rsupersede.add_argument("--reason", required=True)
     p_style = sub.add_parser("style")
     style_sub = p_style.add_subparsers(dest="style_command", required=True)
     style_sub.add_parser("status")
@@ -4332,6 +4630,8 @@ def main() -> int:
     p_apply = sub.add_parser("apply-translation")
     p_apply.add_argument("scene_id")
     p_apply.add_argument("patch", type=Path)
+    p_apply.add_argument("--start", type=int, default=1)
+    p_apply.add_argument("--count", type=int)
 
     args = parser.parse_args()
     root = args.root.resolve()
@@ -4381,7 +4681,8 @@ def main() -> int:
                 else:
                     print(content)
                 return 0
-            return work_check(root, config, args.patch)
+            return work_check(
+                root, config, args.scene_id, args.patch, args.start, args.count)
         if args.command == "review":
             if args.review_command == "status":
                 return review_status(root, config)
@@ -4393,6 +4694,9 @@ def main() -> int:
             if args.review_command == "close":
                 return review_close(
                     root, config, args.review_id, args.verdict, args.reviewer)
+            if args.review_command == "supersede":
+                return review_issue_supersede(
+                    root, config, args.issue_id, args.question_id, args.actor, args.reason)
             if args.review_command == "package":
                 content = review_package(root, config, args.scene_id)
             elif args.review_command == "fix":
@@ -4466,7 +4770,8 @@ def main() -> int:
                 return 0
             return style_accept_audit(root, config, args.run_id, args.report, args.auditor)
         if args.command == "apply-translation":
-            return apply_translation(root, config, args.scene_id, args.patch)
+            return apply_translation(
+                root, config, args.scene_id, args.patch, args.start, args.count)
         if args.command == "context":
             content = build_context(root, config, args.scene_id, purpose=args.purpose)
             if args.output:

@@ -10,6 +10,7 @@ PAK на месте запрещена.
 
     python game-tools/build_luca_release.py
     python game-tools/build_luca_release.py --status reviewed playable
+    python game-tools/build_luca_release.py --reviewed-route BLK0002
 """
 
 from __future__ import annotations
@@ -134,9 +135,29 @@ def promote_built_segments(seg_dir: Path, source_ids: set[str]) -> int:
     return promoted
 
 
-def load_translations(seg_dir: Path, statuses: set[str]) -> dict[str, dict]:
+def load_scene_routes(config: dict) -> dict[str, str]:
+    scenes = read_jsonl(ROOT / config.get("paths", {}).get(
+        "scenes", "translation/scenes.jsonl"))
+    return {str(row["scene_id"]): str(row.get("route", "")) for row in scenes}
+
+
+def load_translations(seg_dir: Path, statuses: set[str],
+                      route_by_scene: dict[str, str] | None = None,
+                      reviewed_routes: set[str] | None = None
+                      ) -> tuple[dict[str, dict], int, int]:
+    if reviewed_routes is not None:
+        if route_by_scene is None:
+            raise ValueError("route_by_scene is required with reviewed_routes")
+        unknown = reviewed_routes - set(route_by_scene.values())
+        if unknown:
+            raise SystemExit(
+                "ОШИБКА: неизвестный route для --reviewed-route: "
+                + ", ".join(sorted(unknown)))
+
     out: dict[str, dict] = {}
     skipped_status = 0
+    skipped_reviewed_by_route = 0
+    included_reviewed_routes: set[str] = set()
     for path in sorted(seg_dir.glob("*.jsonl")):
         for line in io.open(path, encoding="utf-8"):
             row = json.loads(line)
@@ -146,13 +167,30 @@ def load_translations(seg_dir: Path, statuses: set[str]) -> dict[str, dict]:
             if row["status"] not in statuses:
                 skipped_status += 1
                 continue
+            if row["status"] == "reviewed" and reviewed_routes is not None:
+                scene_id = str(row["scene_id"])
+                route = route_by_scene.get(scene_id, "")
+                if not route:
+                    raise SystemExit(
+                        f"ОШИБКА: у reviewed-сегмента {row['id']} нет route в scenes.jsonl")
+                if route not in reviewed_routes:
+                    skipped_reviewed_by_route += 1
+                    continue
+                included_reviewed_routes.add(route)
             out[row["source_id"]] = {
                 "text": row["translation"],
                 "speaker": row.get("speaker"),
                 "segment_id": row["id"],
                 "scene_id": row["scene_id"],
+                "status": row["status"],
             }
-    return out, skipped_status
+    if reviewed_routes is not None:
+        empty_routes = reviewed_routes - included_reviewed_routes
+        if empty_routes:
+            raise SystemExit(
+                "ОШИБКА: --reviewed-route не включает reviewed-строк: "
+                + ", ".join(sorted(empty_routes)))
+    return out, skipped_status, skipped_reviewed_by_route
 
 
 def load_speaker_labels(path: Path) -> dict[str, str]:
@@ -181,16 +219,24 @@ def slot_text(original: str, translation: str, speaker: str | None,
     return f"@{label}@{translation}"
 
 
-def main() -> int:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=ROOT / "config" / "project.yaml")
     parser.add_argument("--source-set", default="steam_luca")
     parser.add_argument("--output", type=Path,
                         default=ROOT / "build" / "steam" / "SCRIPT.russian.PAK")
     parser.add_argument("--status", nargs="+", default=list(DEFAULT_STATUSES))
+    parser.add_argument(
+        "--reviewed-route", nargs="+", metavar="ROUTE",
+        help=("включать status=reviewed только из указанных route; "
+              "остальные выбранные статусы остаются глобальными"))
     parser.add_argument("--receipt", type=Path,
                         default=ROOT / "build" / "steam" / "release-receipt.json")
-    args = parser.parse_args()
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
 
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
     source_config = config["source_sets"][args.source_set]
@@ -202,7 +248,11 @@ def main() -> int:
         raise SystemExit(f"ОШИБКА: хэш pristine-архива не совпал: {actual_hash}")
 
     seg_dir = ROOT / config.get("paths", {}).get("segments", "translation/segments")
-    translations, skipped_status = load_translations(seg_dir, set(args.status))
+    reviewed_routes = (set(args.reviewed_route)
+                       if args.reviewed_route is not None else None)
+    route_by_scene = load_scene_routes(config) if reviewed_routes is not None else None
+    translations, skipped_status, skipped_reviewed_by_route = load_translations(
+        seg_dir, set(args.status), route_by_scene, reviewed_routes)
     labels = load_speaker_labels(ROOT / "translation" / "speakers.jsonl")
     if not translations:
         raise SystemExit("ОШИБКА: нечего собирать, подходящих сегментов нет")
@@ -217,6 +267,7 @@ def main() -> int:
 
     edits: dict[tuple[int, int], bytes] = {}
     expected: list[tuple[int, int, str]] = []
+    written_reviewed_source_ids: set[str] = set()
     grew = 0
     for entry in pak.entries[:metadata_index]:
         data = pak.read_entry(entry)
@@ -240,6 +291,8 @@ def main() -> int:
                 + replacement
                 + record.params[value.end_offset:]
             )
+            if item["status"] == "reviewed":
+                written_reviewed_source_ids.add(source_id)
             expected.append((entry.index, record.offset, text))
 
     missing = len(translations) - len(edits)
@@ -267,12 +320,15 @@ def main() -> int:
         readback += 1
 
     output_hash = digest_file(args.output)
-    promoted = promote_built_segments(seg_dir, set(translations))
+    promoted = promote_built_segments(seg_dir, written_reviewed_source_ids)
     receipt = {
         "schema_version": 1,
         "output": str(args.output.relative_to(ROOT)),
         "output_sha256": output_hash,
         "statuses": sorted(args.status),
+        "reviewed_routes": (sorted(reviewed_routes)
+                            if reviewed_routes is not None else None),
+        "skipped_reviewed_by_route": skipped_reviewed_by_route,
         "segments_written": len(edits),
         "readback": readback,
         "style_runs": style_runs,
@@ -303,6 +359,10 @@ def main() -> int:
     print(f"output sha256: {output_hash}")
     print(f"output size: {args.output.stat().st_size}")
     print(f"статусы в сборке: {', '.join(sorted(args.status))}")
+    reviewed_scope = (", ".join(sorted(reviewed_routes))
+                      if reviewed_routes is not None else "all")
+    print(f"reviewed_routes: {reviewed_scope}")
+    print(f"reviewed пропущено по route: {skipped_reviewed_by_route}")
     print(f"сегментов записано: {len(edits)} (пропущено по статусу: {skipped_status})")
     print(f"строк длиннее исходной: {grew}")
     print(f"слот: {build_slot} ({source_config['slots'][build_slot]['language']})")

@@ -223,6 +223,130 @@ def test_review_ledger_validation_accepts_complete_state(tmp_path):
     assert warnings == []
 
 
+def test_accepted_review_issue_can_be_superseded_by_open_question(tmp_path):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    review_id = "REV-SCN0001-01"
+    issue_id = f"{review_id}-I001"
+    scene_path = tmp_path / "translation/segments/SCN0001.jsonl"
+    questions_path = tmp_path / "translation/open-questions.jsonl"
+    scene_before = scene_path.read_bytes()
+    questions_before = questions_path.read_bytes()
+    base_hash = vnctl.scene_review_hash(vnctl.read_jsonl(scene_path))
+    vnctl.append_review_event(tmp_path, config, {
+        "schema_version": 1, "event": "review_imported",
+        "review_id": review_id, "scene_id": "SCN0001",
+        "issues": [{
+            "issue_id": issue_id, "severity": "minor", "category": "terminology",
+            "segment_ids": ["SEG1"], "problem": "Историческая форма.",
+            "suggested_changes": [],
+        }],
+    })
+    vnctl.append_review_event(tmp_path, config, {
+        "schema_version": 1, "event": "review_resolved",
+        "review_id": review_id, "scene_id": "SCN0001",
+        "result_sha256": base_hash,
+        "resolutions": [{
+            "issue_id": issue_id, "disposition": "applied",
+            "reason": "Старое решение.", "changes": [],
+        }],
+    })
+    vnctl.append_review_event(tmp_path, config, {
+        "schema_version": 1, "event": "review_accepted",
+        "review_id": review_id, "scene_id": "SCN0001", "scene_sha256": base_hash,
+    })
+
+    assert vnctl.review_issue_supersede(
+        tmp_path, config, issue_id, "OQ-1", "vn-auditor",
+        "Активный вопрос задаёт более новый рабочий вариант.") == 0
+    assert scene_path.read_bytes() == scene_before
+    assert questions_path.read_bytes() == questions_before
+    run = vnctl.review_runs(vnctl.load_review_events(tmp_path, config))[review_id]
+    assert run["accepted"]
+    assert run["superseded_issues"][issue_id]["question_id"] == "OQ-1"
+    projected = vnctl.prior_review_issues(tmp_path, config, {"SEG1"})
+    assert projected[0]["state"] == "superseded"
+    assert projected[0]["superseded_by_question"] == "OQ-1"
+    errors, warnings = vnctl.validate_review_ledger(tmp_path, config)
+    assert errors == []
+    assert warnings == []
+    with pytest.raises(ValueError, match="already superseded"):
+        vnctl.review_issue_supersede(
+            tmp_path, config, issue_id, "OQ-1", "vn-auditor", "Повтор.")
+
+
+def test_translation_patch_must_cover_expected_batch_before_write(tmp_path):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    assert vnctl.index_project(tmp_path, config) == 0
+
+    scene_path = tmp_path / "translation/segments/SCN0001.jsonl"
+    before = scene_path.read_bytes()
+    incomplete = tmp_path / "build/incomplete-translation.jsonl"
+    write_jsonl(incomplete, [{
+        "id": "SEG1", "translation": "Бэнто.", "status": "draft", "flags": [],
+    }])
+
+    assert vnctl.work_check(
+        tmp_path, config, "SCN0001", incomplete, start=1, count=2) == 1
+    assert vnctl.apply_translation(
+        tmp_path, config, "SCN0001", incomplete, start=1, count=2) == 1
+    assert scene_path.read_bytes() == before
+
+    complete = tmp_path / "build/complete-translation.jsonl"
+    write_jsonl(complete, [
+        {"id": "SEG1", "translation": "Бэнто.", "status": "draft", "flags": []},
+        {"id": "SEG2", "translation": "$S(044,1)Фраза.$S",
+         "status": "draft", "flags": []},
+    ])
+    assert vnctl.work_check(
+        tmp_path, config, "SCN0001", complete, start=1, count=2) == 0
+    assert vnctl.apply_translation(
+        tmp_path, config, "SCN0001", complete, start=1, count=2) == 0
+    assert [row["translation"] for row in vnctl.read_jsonl(scene_path)] == [
+        "Бэнто.", "$S(044,1)Фраза.$S",
+    ]
+
+
+def test_glossary_link_carries_cross_scene_question(tmp_path):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    (tmp_path / "docs/glossary.yaml").write_text(
+        "- id: GLO-REMOTE\n"
+        "  type: realia\n"
+        "  source: 別名\n"
+        "  preferred_ru: Рабочая форма\n"
+        "  status: provisional\n"
+        "  open_questions:\n"
+        "  - OQ-REMOTE\n",
+        encoding="utf-8",
+    )
+    write_jsonl(tmp_path / "translation/open-questions.jsonl", [{
+        "id": "OQ-REMOTE", "date": "2026-08-02", "kind": "terminology",
+        "scene_id": "SCN9999", "segment_ids": ["OTHER"],
+        "question": "Как передать термин?", "provisional": "Рабочая форма",
+        "status": "open",
+    }])
+
+    glossary = vnctl.glossary_for_scene(tmp_path, config, "Здесь встречается 別名")
+    related = vnctl.related_questions(
+        tmp_path, config, {"SCN0001"}, {"SEG1"}, glossary)
+
+    assert [row["id"] for row in related] == ["OQ-REMOTE"]
+
+
+def test_project_oneesan_question_has_structural_glossary_link():
+    vnctl = load_vnctl()
+    root = Path(__file__).parents[2]
+    config = vnctl.load_config(root)
+
+    glossary = vnctl.glossary_for_scene(root, config, "おねーさん")
+    related = vnctl.related_questions(
+        root, config, {"SCN0045"}, set(), glossary)
+
+    assert "OQ-SCN0027-02" in {row["id"] for row in related}
+
+
 def test_review_ledger_serializes_concurrent_events(tmp_path):
     vnctl = load_vnctl()
     config = make_project(tmp_path)
