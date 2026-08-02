@@ -1,0 +1,42 @@
+project:
+  title: New VN Translation
+  source_languages:
+    - source
+    - reference
+  target_language: target
+  adapter: mock-v1
+  pristine_sha256: null
+
+paths:
+  source_records: source/records.jsonl
+  scenes: translation/scenes.jsonl
+  segments: translation/segments
+  open_questions: translation/open-questions.jsonl
+  review_ledger: translation/review-ledger.jsonl
+  private_constraints: private/constraints.jsonl
+  database: database/knowledge.db
+  roundtrip_receipt: build/roundtrip-receipt.json
+
+qa:
+  statuses:
+    - todo
+    - draft
+    - reviewed
+    - playable
+    - lqa
+    - approved
+  flags:
+    - needs_source_check
+    - needs_term_decision
+    - needs_voice_review
+    - needs_humor_review
+  question_kinds:
+    - terminology
+    - realia
+    - ambiguity
+    - voice
+    - policy
+  protected_patterns:
+    - '\{[A-Za-z0-9_.-]+\}'
+    - '\$\([0-9]+\)'
+    - '%[A-Za-z0-9_.-]+%'

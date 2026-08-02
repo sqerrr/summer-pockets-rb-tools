@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "share": "disabled",
+  "autoupdate": "notify",
+  "skills": {
+    "paths": [".opencode/skills"]
+  },
+  "permission": {
+    "webfetch": "deny",
+    "websearch": "deny",
+    "external_directory": {
+      "*": "ask"
+    }
+  }
+}

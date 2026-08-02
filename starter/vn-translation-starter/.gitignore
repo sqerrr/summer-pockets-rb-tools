@@ -1,0 +1,49 @@
+# Local source material and extracted catalogs
+/source/raw/
+/source/parsed/
+/source/records.jsonl
+
+# Private spoiler-bearing knowledge
+/private/*.jsonl
+!/private/.gitkeep
+
+# Generated packages, reports, indexes, and receipts
+/build/*
+!/build/.gitkeep
+/database/*.db
+
+# Game and media files should never be committed
+*.pak
+*.pck
+*.arc
+*.xp3
+*.exe
+*.dll
+*.ttf
+*.otf
+*.png
+*.jpg
+*.jpeg
+*.ogg
+*.wav
+*.mp4
+
+# Local configuration and Python state
+.env
+.env.*
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+/.opencode/node_modules/
+/.opencode/package.json
+/.opencode/package-lock.json
+/.opencode/bun.lock
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
