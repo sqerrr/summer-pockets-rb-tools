@@ -2508,8 +2508,8 @@ def validate_style_revision(root: Path, config: dict[str, Any], run_id: str,
         new_flags = list(entry.get("flags", old_flags) or [])
         if not set(old_flags) <= set(new_flags):
             errors.append(f"line {index}: style revision may not remove flags from {sid}")
-        if set(new_flags) - set(old_flags) - {"needs_source_check"}:
-            errors.append(f"line {index}: style revision may add only needs_source_check to {sid}")
+        # A source-aware review may require any configured follow-up flag.
+        # Russian-only style patches remain limited to needs_source_check.
         if set(new_flags) - allowed_flags:
             errors.append(f"line {index}: unknown flags for {sid}")
         if after == before and new_flags == old_flags:

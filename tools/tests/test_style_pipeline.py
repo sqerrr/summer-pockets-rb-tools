@@ -76,7 +76,7 @@ def make_project(tmp_path: Path):
     }])
     write_jsonl(tmp_path / "source/parsed/records.jsonl", records)
     (tmp_path / "config/qa-rules.yaml").write_text(
-        "allowed_flags:\n- needs_source_check\n", encoding="utf-8")
+        "allowed_flags:\n- needs_source_check\n- needs_term_decision\n", encoding="utf-8")
     config = {
         "paths": {
             "segments": "translation/segments",
@@ -439,14 +439,16 @@ def test_style_pipeline_is_windowed_russian_only_and_never_creates_lqa(tmp_path)
             "allowed_ids": ["SEG0"],
         }},
         {"id": "SEG0", "before": "Новая фраза.",
-         "translation": "Исправленная фраза.",
-         "reason": "Уточнено после source-aware проверки."},
+          "translation": "Исправленная фраза.",
+          "reason": "Уточнено после source-aware проверки.",
+          "flags": ["needs_term_decision"]},
     ])
     assert vnctl.style_revise(
         tmp_path, config, run_id, "W001", revision, revise_report,
         "vn-stylist") == 0
     revised = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")[0]
     assert revised["translation"] == "Исправленная фраза."
+    assert revised["flags"] == ["needs_term_decision"]
 
     review_package = vnctl.style_review_package(tmp_path, config, run_id, "W001")
     assert "原文0" in review_package
