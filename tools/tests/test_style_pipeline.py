@@ -355,6 +355,22 @@ def test_exact_source_sibling_preflight_is_read_only(tmp_path):
     assert {path.relative_to(tmp_path): path.read_bytes() for path in after_paths} == before
 
 
+def test_style_slice_hash_ignores_context_status_changes():
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_style_context_status")
+    rows = [
+        {"id": "EDIT", "translation": "Правка.", "status": "reviewed", "flags": []},
+        {"id": "CONTEXT", "translation": "Контекст.", "status": "draft", "flags": []},
+    ]
+    base = vnctl.style_slice_hash(rows, status_ids={"EDIT"})
+
+    rows[1]["status"] = "reviewed"
+    assert vnctl.style_slice_hash(rows, status_ids={"EDIT"}) == base
+
+    rows[0]["status"] = "playable"
+    assert vnctl.style_slice_hash(rows, status_ids={"EDIT"}) != base
+
+
 def test_style_pipeline_is_windowed_russian_only_and_never_creates_lqa(tmp_path):
     root = Path(__file__).parents[2]
     vnctl = load_module(root / "tools/vnctl.py", "vnctl_style_test")
@@ -384,13 +400,13 @@ def test_style_pipeline_is_windowed_russian_only_and_never_creates_lqa(tmp_path)
 
     run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
     route_rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
-    package_rows, _ = vnctl.style_window_rows(route_rows, run["windows"][0])
+    package_rows, editable = vnctl.style_window_rows(route_rows, run["windows"][0])
     patch1 = tmp_path / "build/style-1.jsonl"
     write_jsonl(patch1, [
         {"__style_window__": {
             "run_id": run_id,
             "window_id": "W001",
-            "base_sha256": vnctl.style_slice_hash(package_rows),
+            "base_sha256": vnctl.style_package_hash(package_rows, editable),
         }},
         {"id": "SEG0", "before": "Фраза 0.",
          "translation": "Новая фраза.", "reason": "Естественнее."},
@@ -480,12 +496,12 @@ def test_style_pipeline_is_windowed_russian_only_and_never_creates_lqa(tmp_path)
     package2 = vnctl.style_package(tmp_path, config, run_id)
     run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
     route_rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
-    package_rows, _ = vnctl.style_window_rows(route_rows, run["windows"][1])
+    package_rows, editable = vnctl.style_window_rows(route_rows, run["windows"][1])
     patch2 = tmp_path / "build/style-2.jsonl"
     write_jsonl(patch2, [{"__style_window__": {
         "run_id": run_id,
         "window_id": "W002",
-        "base_sha256": vnctl.style_slice_hash(package_rows),
+        "base_sha256": vnctl.style_package_hash(package_rows, editable),
     }}])
     assert "W002" in package2
     assert vnctl.style_apply(tmp_path, config, run_id, "W002", patch2) == 0
@@ -523,12 +539,12 @@ def test_release_preflight_rejects_block_without_current_audit(tmp_path):
         for window in run["windows"]:
             window_id = window["window_id"]
             route_rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
-            package_rows, _ = vnctl.style_window_rows(route_rows, window)
+            package_rows, editable = vnctl.style_window_rows(route_rows, window)
             patch = tmp_path / f"build/{window_id}.jsonl"
             write_jsonl(patch, [{"__style_window__": {
                 "run_id": run_id,
                 "window_id": window_id,
-                "base_sha256": vnctl.style_slice_hash(package_rows),
+                "base_sha256": vnctl.style_package_hash(package_rows, editable),
             }}])
             vnctl.style_apply(tmp_path, config, run_id, window_id, patch)
             report = tmp_path / f"build/{window_id}.md"
@@ -784,11 +800,11 @@ def test_style_audit_marks_review_issue_superseded_by_open_question(tmp_path):
     run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
     for window in run["windows"]:
         route_rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
-        package_rows, _ = vnctl.style_window_rows(route_rows, window)
+        package_rows, editable = vnctl.style_window_rows(route_rows, window)
         patch = tmp_path / f"build/{window['window_id']}.jsonl"
         write_jsonl(patch, [{"__style_window__": {
             "run_id": run_id, "window_id": window["window_id"],
-            "base_sha256": vnctl.style_slice_hash(package_rows),
+            "base_sha256": vnctl.style_package_hash(package_rows, editable),
         }}])
         assert vnctl.style_apply(
             tmp_path, config, run_id, window["window_id"], patch) == 0

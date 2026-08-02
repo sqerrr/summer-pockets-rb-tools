@@ -1878,14 +1878,26 @@ def style_text_hash(rows: list[dict[str, Any]]) -> str:
     return sha256_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
 
 
-def style_slice_hash(rows: list[dict[str, Any]]) -> str:
+def style_slice_hash(rows: list[dict[str, Any]], *,
+                     status_ids: set[str] | None = None) -> str:
+    protected_status_ids = (
+        {str(row["id"]) for row in rows} if status_ids is None else status_ids)
     payload = [{
         "id": row["id"],
         "translation": row.get("translation", ""),
-        "status": row.get("status"),
+        "status": row.get("status") if str(row["id"]) in protected_status_ids else None,
         "flags": row.get("flags", []),
     } for row in rows]
     return sha256_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+
+
+def style_package_hash(rows: list[dict[str, Any]],
+                       editable: list[dict[str, Any]]) -> str:
+    status_ids = {
+        str(row["id"]) for row in editable
+        if not CJK_RE.search(str(row.get("translation", "")))
+    }
+    return style_slice_hash(rows, status_ids=status_ids)
 
 
 def plan_style_windows(rows: list[dict[str, Any]], minimum: int, maximum: int,
@@ -2176,7 +2188,7 @@ def style_package(root: Path, config: dict[str, Any], run_id: str,
     source_text = "\n".join(source_texts.values())
     glossary = glossary_for_scene(root, config, source_text)
 
-    base_sha = style_slice_hash(package_rows)
+    base_sha = style_package_hash(package_rows, editable)
     parts = [
         f"# Русская вычитка {run_id} / {window['window_id']}",
         "",
@@ -2267,7 +2279,7 @@ def validate_style_patch(root: Path, config: dict[str, Any], run_id: str,
     errors: list[str] = []
     if header.get("run_id") != run_id or header.get("window_id") != window_id:
         errors.append("patch header does not match requested run/window")
-    current_hash = style_slice_hash(package_rows)
+    current_hash = style_package_hash(package_rows, editable)
     if header.get("base_sha256") != current_hash:
         errors.append(
             f"stale style package: header={header.get('base_sha256')} current={current_hash}")
