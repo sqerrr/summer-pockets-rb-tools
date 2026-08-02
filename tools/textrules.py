@@ -88,7 +88,10 @@ def check_line(text: str, *, is_dialogue: bool) -> list[Finding]:
                                f"пропущена ё: {bare} -> {correct}"))
 
     for word in REDUCTIONS:
-        if re.search(rf"\b{re.escape(word)}\b", lowered):
+        # A hyphen is a word boundary to \b, but `тя` is also part of the
+        # approved suffix `-тян` and phonetic stretches such as `тя-а-ан`.
+        pattern = rf"(?<![\w-]){re.escape(word)}(?![\w-])" if word == "тя" else rf"\b{re.escape(word)}\b"
+        if re.search(pattern, lowered):
             out.append(Finding("reduction", "DEC-0027",
                                f"фонетическая редукция: {word}"))
 

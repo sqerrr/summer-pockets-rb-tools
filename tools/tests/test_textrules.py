@@ -25,7 +25,13 @@ def test_missing_yo_caught():
 
 def test_reduction_caught():
     assert "reduction" in rules("Щас разберёмся.")
+    assert "reduction" in rules("Я тя люблю.")
     assert rules("Сейчас разберёмся.") == set()
+
+
+def test_tya_reduction_does_not_block_suffix_or_stretch():
+    assert rules("Они-тян!") == set()
+    assert rules("Они-тя-а-ан!") == set()
 
 
 def test_three_dots_caught():
