@@ -62,7 +62,7 @@
 {"id": "SPK-0062", "source": "ツバメ", "kind": "person", "lines": 33, "preferred_ru": "Цубамэ", "status": "provisional", "romaji": "Tsubame"}
 {"id": "SPK-0063", "source": "女性", "kind": "role", "lines": 32, "preferred_ru": "Женщина", "status": "provisional"}
 {"id": "SPK-0064", "source": "頑強なおじーちゃん", "kind": "role", "lines": 30, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
-{"id": "SPK-0065", "source": "ひとりぼっちの漁師", "kind": "role", "lines": 28, "preferred_ru": null, "status": "provisional"}
+{"id": "SPK-0065", "source": "ひとりぼっちの漁師", "kind": "role", "lines": 28, "preferred_ru": "Одинокий рыбак", "status": "provisional", "open_questions": ["OQ-SCN0047-03"]}
 {"id": "SPK-0066", "source": "屋台のおっさん", "kind": "role", "lines": 28, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0067", "source": "漁師B", "kind": "role", "lines": 27, "preferred_ru": null, "status": "provisional"}
 {"id": "SPK-0068", "source": "強面の老人", "kind": "role", "lines": 27, "preferred_ru": null, "status": "provisional"}
@@ -132,7 +132,7 @@
 {"id": "SPK-0132", "source": "瞳", "kind": "person", "lines": 5, "preferred_ru": "Хитоми", "status": "provisional", "romaji": "Hitomi"}
 {"id": "SPK-0133", "source": "亀", "kind": "role", "lines": 5, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0134", "source": "水泳部主将", "kind": "role", "lines": 5, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
-{"id": "SPK-0135", "source": "野良猫", "kind": "role", "lines": 4, "preferred_ru": "Бродячая кошка", "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
+{"id": "SPK-0135", "source": "野良猫", "kind": "role", "lines": 4, "preferred_ru": "Бродячий кот", "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0136", "source": "アナウンサー", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}
 {"id": "SPK-0137", "source": "玄武？", "kind": "person", "lines": 4, "preferred_ru": "Гэнбу?", "status": "provisional", "romaji": "Genbu?"}
 {"id": "SPK-0138", "source": "鳥", "kind": "role", "lines": 4, "preferred_ru": null, "status": "provisional", "note": "английское поле не является чтением имени: это перевод роли"}

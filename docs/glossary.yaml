@@ -496,3 +496,250 @@
   - SEG_S0004_R001894_G00
   note: Форма выведена по DEC-0035 (ち -> ти) и совпала с заголовком карточки персонажа. Долгота в
     「りょういち」 не отражается.
+- id: GLO-0030
+  type: realia
+  source: スイカバー
+  sources:
+    ja: スイカバー
+    en: watermelon pop
+    zh-Hans: 西瓜棒
+  preferred_ru: Арбуз-бар
+  status: provisional
+  first_seen: SCN0033
+  open_questions:
+  - OQ-SCN0033-01
+  segment_ids:
+  - SEG_S0043_R000130_G00
+  - SEG_S0043_R000142_G00
+  - SEG_S0043_R000151_G00
+  - SEG_S0043_R000168_G00
+  - SEG_S0043_R000184_G00
+  - SEG_S0043_R000198_G00
+  - SEG_S0043_R000240_G00
+  - SEG_S0045_R000059_G00
+  - SEG_S0045_R000063_G00
+  - SEG_S0045_R000072_G00
+  note: Рабочая форма сохраняет узнаваемое название и разложение スイカ / バー в шутке. Глобально не утверждена.
+- id: GLO-0031
+  type: realia
+  source: メロンバー
+  sources:
+    ja: メロンバー
+    en: melon pop
+    zh-Hans: 蜜瓜棒
+  preferred_ru: Дыня-бар
+  status: provisional
+  first_seen: SCN0033
+  open_questions:
+  - OQ-SCN0033-01
+  segment_ids:
+  - SEG_S0043_R000209_G00
+  - SEG_S0043_R000211_G00
+  - SEG_S0043_R000243_G00
+  - SEG_S0043_R000247_G00
+  - SEG_S0043_R000262_G00
+  - SEG_S0043_R000301_G00
+  - SEG_S0045_R000064_G00
+  note: Парная рабочая форма к GLO-0030; окончательный выбор остаётся в OQ-SCN0033-01.
+- id: GLO-0032
+  type: address_form
+  source: おねーさん
+  sources:
+    ja: おねーさん / お姉さん
+    en: older sister / mother (context-dependent official rendering)
+    zh-Hans: 姐姐
+  preferred_ru: онэ-сан
+  status: provisional
+  first_seen: SCN0006
+  open_questions:
+  - OQ-SCN0027-02
+  segment_ids:
+  - SEG_S0004_R000838_G00
+  - SEG_S0029_R000095_G00
+  - SEG_S0035_R000160_G00
+  - SEG_S0058_R001679_G00
+  note: >-
+    Рабочая форма только для речи Кёко о собственной старшей сестре по DEC-0034.
+    Не подставлять механически в именные обращения вида 「蒼おねーさん」 и в общее
+    обращение к молодой женщине; окончательное решение остаётся в OQ-SCN0027-02.
+- id: GLO-0033
+  type: term
+  source: れいげんいやちこなれ
+  sources:
+    ja: れいげんいやちこなれ
+    en: Spirits' blessings be upon us all
+    zh-Hans: 灵验灼然
+  preferred_ru: Духовная сила, проявись!
+  status: proposed
+  first_seen: SCN0031
+  open_questions:
+  - OQ-SCN0031-01
+  segment_ids:
+  - SEG_S0041_R000095_G00
+  - SEG_S0041_R000100_G00
+  - SEG_S0041_R000114_G00
+  - SEG_S0041_R000127_G00
+  - SEG_S0041_R000128_G00
+  - SEG_S0041_R000131_G00
+  - SEG_S0041_R000132_G00
+  - SEG_S0408_R000829_G00
+  note: >-
+    Повторяющаяся формула: 8 записей в 2 сценах по индексу. Сохранять один
+    словесный каркас при смене пунктуации и разметки; намеренно ошибочная форма
+    вынесена отдельно в GLO-0034.
+- id: GLO-0034
+  type: term
+  source: れいげんいやしこまる
+  sources:
+    ja: れいげんいやしこまる
+    en: Spirits' blessings for everyone
+    zh-Hans: 灵验做样
+  preferred_ru: Духовная сила, провались.
+  status: proposed
+  first_seen: SCN0031
+  open_questions:
+  - OQ-SCN0031-01
+  segment_ids:
+  - SEG_S0041_R000118_G00
+  note: >-
+    Намеренно ошибочный повтор GLO-0033. Русская форма должна оставаться близкой
+    к правильной и отличаться тем же комическим сбоем во всех повторениях.
+- id: GLO-0035
+  type: realia
+  source: 刺身
+  reading: さしみ
+  sources:
+    ja: 刺身
+    en: sashimi
+    zh-Hans: 刺身 / 生鱼片
+  preferred_ru: сасими
+  status: proposed
+  first_seen: SCN0018
+  open_questions:
+  - OQ-SCN0034-01
+  segment_ids:
+  - SEG_S0013_R000077_G00
+  - SEG_S0044_R000241_G00
+  note: >-
+    18 записей в 6 сценах. Транскрипция сохраняет название блюда и созвучие с
+    ささみ; описательное «сырая рыба» этот повтор разрушает.
+- id: GLO-0036
+  type: term
+  source: おなじみ定食
+  sources:
+    ja: おなじみ定食
+    en: the regulars' set
+    zh-Hans: 熟客套餐
+  preferred_ru: Обед для своих
+  status: proposed
+  first_seen: SCN0036
+  open_questions:
+  - OQ-SCN0036-01
+  segment_ids:
+  - SEG_S0046_R000097_G00
+  - SEG_S0046_R000098_G00
+  - SEG_S0046_R000125_G00
+  - SEG_S0396_R000212_G00
+  note: >-
+    4 записи в 2 сценах. Это цельное название пункта меню; не смешивать с общим
+    定食 — «обед» из GLO-0021.
+- id: GLO-0037
+  type: person_name
+  source: 木戸
+  reading: きど
+  sources:
+    ja: 木戸
+    en: Kido
+    zh-Hans: 木户
+  preferred_ru: Кидо
+  status: proposed
+  first_seen: SCN0006
+  open_questions:
+  - OQ-0031
+  segment_ids:
+  - SEG_S0004_R000804_G00
+  - SEG_S0007_R000936_G00
+  - SEG_S0007_R002236_G00
+  - SEG_S0045_R000091_G00
+  note: >-
+    Фамилия встречается в 4 записях и 4 сценах. Родовое обращение переводится
+    отдельно; сама фамилия остаётся «Кидо».
+- id: GLO-0038
+  type: person_name
+  source: 神田
+  reading: かんだ
+  sources:
+    ja: 神田
+    en: Kanda
+    zh-Hans: 神田
+  preferred_ru: Канда
+  status: proposed
+  first_seen: SCN0039
+  open_questions:
+  - OQ-SCN0039-01
+  segment_ids:
+  - SEG_S0051_R000348_G00
+  - SEG_S0051_R000468_G00
+  note: Фамилия повторяется дважды в одной сцене; форма следует DEC-0035.
+- id: GLO-0039
+  type: person_name
+  source: 鳴瀬
+  reading: なるせ
+  sources:
+    ja: 鳴瀬
+    en: Naruse
+    zh-Hans: 鸣濑
+  preferred_ru: Нарусэ
+  status: proposed
+  first_seen: SCN0013
+  open_questions:
+  - OQ-SCN0013-01
+  - OQ-SCN0039-07
+  segment_ids:
+  - SEG_S0007_R003177_G00
+  - SEG_S0050_R000406_G00
+  - SEG_S0051_R000381_G00
+  - SEG_S0051_R000433_G00
+  note: >-
+    Фамильный компонент встречается в 119 записях и 46 сценах. В составе
+    鳴瀬神社 используется структура «святилище Нарусэ»; 神社 не транслитерируется.
+- id: GLO-0040
+  type: realia
+  source: 巫女
+  reading: みこ
+  sources:
+    ja: 巫女
+    en: shrine maiden
+    zh-Hans: 巫女
+  preferred_ru: мико
+  status: proposed
+  first_seen: SCN0039
+  open_questions:
+  - OQ-SCN0039-08
+  segment_ids:
+  - SEG_S0051_R000497_G00
+  - SEG_S0052_R000014_G00
+  - SEG_S0052_R000228_G00
+  note: >-
+    Узнаваемая японская реалия: 39 записей в 20 сценах. Краткая форма сохраняет
+    термин; при первом употреблении в новом контексте пояснение решается локально.
+- id: GLO-0041
+  type: term
+  source: ヤバネロ
+  sources:
+    ja: ヤバネロ
+    en: Mortalnero
+    zh-Hans: 要命椒
+  preferred_ru: Адбанеро
+  status: proposed
+  first_seen: SCN0041
+  open_questions:
+  - OQ-SCN0041-01
+  segment_ids:
+  - SEG_S0052_R000638_G00
+  - SEG_S0052_R000639_G00
+  - SEG_S0054_R000062_G00
+  - SEG_S0054_R000063_G00
+  note: >-
+    Пародийное название повторяется 4 раза. Форма должна одновременно сохранять
+    сходство с названием перца и прозрачный оттенок опасности.
