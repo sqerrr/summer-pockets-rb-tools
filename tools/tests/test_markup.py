@@ -53,6 +53,13 @@ def test_branch_separator_count_must_match():
     assert "markup" in rules(ja, "А$dБ$dВ$dГ$dД")
 
 
+def test_control_token_sequence_must_match():
+    ja = "選択肢A$d$w選択肢B"
+    assert rules(ja, "Вариант А$d$wВариант Б") == set()
+    assert "markup" in rules(ja, "Вариант А$dВариант Б")
+    assert "markup" in rules(ja, "Вариант А$w$dВариант Б")
+
+
 def test_speed_and_song_codes_must_survive_exactly():
     assert rules("$S(044,1)歌♪", "$S(044,1)Песня♪") == set()
     assert "markup" in rules("$S(044,1)歌♪", "Песня♪")

@@ -139,9 +139,9 @@ def check_line(text: str, *, is_dialogue: bool) -> list[Finding]:
 RUBY = re.compile(r"\$\[([^\]]*?)\$/[^\]]*?\$\]")
 VARIABLE = re.compile(r"\$\([0-9]+\)")
 COLOUR = re.compile(r"\$C\[[0-9a-fA-F]*\]")
-# Разделитель веток выбора: 1002 вхождения в 217 записях. Потеря одного
-# разделителя склеивает два варианта в один, и блок выбора ломается молча.
-BRANCH = re.compile(r"\$d")
+# Управляющие токены веток и ожидания должны сохранять не только количество,
+# но и порядок: перестановка `$d` и `$w` меняет исполнение строки.
+CONTROL = re.compile(r"\$[dw]")
 # Управление скоростью/пением встречается в двух физических формах:
 # `$S(044,1)…$S` и `$S056…$S000`. Потеря кода не портит JSONL, но меняет
 # подачу в игре, поэтому сравниваются сами токены и их параметры.
@@ -176,12 +176,13 @@ def check_markup(source_ja: str, ru: str) -> list[Finding]:
         out.append(Finding("markup", "FND-0050",
                            "число цветовых кодов не совпадает с исходником"))
 
-    src_branches = len(BRANCH.findall(source_ja))
-    ru_branches = len(BRANCH.findall(ru))
-    if src_branches != ru_branches:
+    src_controls = CONTROL.findall(source_ja)
+    ru_controls = CONTROL.findall(ru)
+    if src_controls != ru_controls:
         out.append(Finding("markup", "FND-0050",
-                           f"разделителей веток выбора {ru_branches}, "
-                           f"в исходнике {src_branches}: блок выбора сломан"))
+                           f"управляющие токены не совпадают: "
+                           f"в исходнике {src_controls or 'нет'}, "
+                           f"в переводе {ru_controls or 'нет'}"))
 
     src_speed = SPEED.findall(source_ja)
     ru_speed = SPEED.findall(ru)

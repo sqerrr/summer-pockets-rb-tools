@@ -1549,7 +1549,7 @@ def voice_contract(doc: str, *, russian_only: bool = False) -> str:
 
 
 MARKUP_TOKEN = re.compile(
-    r"\$\[[^\]]*?\$/[^\]]*?\$\]|\$\([0-9]+\)|\$C\[[0-9a-fA-F]*\]|\$d|"
+    r"\$\[[^\]]*?\$/[^\]]*?\$\]|\$\([0-9]+\)|\$C\[[0-9a-fA-F]*\]|\$[dw]|"
     r"\$S(?:\([^)]*\)|[0-9]+)?"
 )
 

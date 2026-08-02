@@ -413,3 +413,8 @@ def test_review_close_rolls_back_and_recovers_interrupted_ledger_write(tmp_path,
         tmp_path, config, review_id, verdict, "vn-reviewer") == 0
     assert vnctl.review_runs(vnctl.load_review_events(
         tmp_path, config))[review_id]["accepted"]
+
+
+def test_markup_contract_preserves_wait_token_in_order():
+    vnctl = load_vnctl()
+    assert vnctl.markup_contract("選択肢A$d$w選択肢B")["preserve_exact"] == ["$d", "$w"]
