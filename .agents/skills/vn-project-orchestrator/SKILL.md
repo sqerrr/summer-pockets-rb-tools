@@ -22,38 +22,44 @@ is a tax rather than a guard.
 Two prohibitions remain, both in `AGENTS.md`: no release build without a
 verified round-trip, and no `approved` without the user saying so.
 
-## Several scenes, separate checkpoints
+## Several files, one agent context
 
 ```bash
-python tools/vnctl.py work next -o build/work.md
+python tools/vnctl.py work next SCN0043 SCN0044 --output-dir build
 ```
 
-Picks adjacent ready scenes up to the configured total segment budget, and
-places their shared rules, glossary and voices into one translator
-context. Every scene still stays whole and has its own patch, check and apply
-command. This amortizes the constant prompt without coupling scene writes or
-making one failed patch invalidate the rest.
+The multi-output mode invokes the existing one-scene renderer once per selected
+scene and prints several ordinary work-file paths. Pass those paths to one
+translator call. Batching belongs to dispatch, not to the package format: every
+scene keeps its original package, patch, check and apply command, while the
+agent reads project documents only once.
 
 Then:
 
-1. Dispatch `vn-translator` with the package. It writes, checks and applies one
-   independent patch per scene before moving to the next scene in the package.
-2. Build `vnctl review package`, then dispatch `vn-reviewer` with that package —
-   never with the translator's notes. Import its machine JSONL with
-   `vnctl review import`. Several compact scene packages may share one reviewer
-   call, but each still writes and imports its own JSONL.
+1. Dispatch `vn-translator` with a short ordered list of ordinary work-file
+   paths. It fully writes, checks and applies one independent patch before
+   opening the next work file.
+2. Generate separate files with
+   `vnctl review package SCENE... --output-dir build`, then dispatch
+   `vn-reviewer` with the printed paths — never with the translator's notes.
+   Import each machine JSONL with its own `vnctl review import`. Do not concatenate
+   packages and do not create a wrapper manifest; the reviewer closes one file
+   before reading the next.
 3. Dispatch `vn-stylist` on `vnctl review fix`. It is the only post-review
    editor: the first fix receives the complete scene context and resolves every
    imported issue through `vnctl review resolve`. Later resolution rounds receive
    only remaining issue IDs. Closed issues are not sent again after a revise
-   verdict. Several independent fix packages may share one stylist call when
-   their combined input fits comfortably.
-4. Dispatch a source-aware reviewer on `vnctl review recheck`: the first recheck
-   sees the complete scene, while later cycles see only reopened issues. Then pass
-   either accept or revise to `vnctl review close`. A revise verdict persists only
-   its open issue IDs; the next fix and recheck are focused deltas. Only an accepted
-   close grants `reviewed`. Several focused rechecks may share one reviewer call
-   while retaining separate verdict files.
+   verdict. Generate several ordinary files with
+   `vnctl review fix REVIEW... --output-dir build`; their printed paths may share
+   one stylist call when the combined input fits comfortably.
+4. Dispatch a source-aware reviewer on `vnctl review recheck` exactly once per
+   run. Accept verdicts close normally. A revise verdict must give final text for
+   every reopened issue; `vn-stylist` applies that focused delta, then
+   `vnctl review finalize` closes it without another reviewer. A tooling or policy
+   conflict goes through `vnctl review block` to `review wait`, never into a
+   fix/recheck loop. Generate several ordinary files with
+   `vnctl review recheck REVIEW... --output-dir build`; their printed paths may
+   share one reviewer call while retaining separate verdict files.
 5. Run `validate`, `index`, `work queue` and `stats`. Always report translated
    segments as `translated/total`, percentage and status counts after the whole
    parallel wave, never from a worker's stale partial snapshot.
@@ -72,6 +78,17 @@ slots among initial review, recheck, review fix, and narrow route style. Keep ro
 available for the next editing stage. Reassign slots to the current bottleneck
 when a buffer leaves that range; never keep producing drafts while downstream
 queues are already overflowing.
+
+Review ordering is local to a review run, not global by scene ID. Use the
+separate `review initial`, `review fix`, `review recheck`, `review finalize`, and `review wait`
+queue buckets. A user-blocked run stays in `review wait` while independent
+ready work from the other buckets continues.
+
+Enforce the measured dispatch budgets from `config/project.yaml`: 900 pending
+segments for translation, 600 scene segments for initial review, 80 open issues
+for review fix, and 80 resolutions for recheck. Issue/resolution count is the
+primary sizing signal for fix and recheck. Multiple files over budget require an
+explicit `--allow-oversize`; a single whole scene or run is never split.
 
 The user does not read every line or arbitrate local edits. The orchestrator
 asks only project-wide conflicts, grouped into short interactive questions;

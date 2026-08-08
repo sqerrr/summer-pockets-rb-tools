@@ -211,6 +211,9 @@ def test_review_pipeline_tracks_every_issue_and_only_close_grants_reviewed(tmp_p
     assert "Перепроверка применённых замечаний" in recheck
     assert "## Глобальная спецификация" in recheck
     assert "$S(044,1)原文$S" in recheck
+    assert "Бэнто." in recheck
+    assert vnctl.indexed_scene_review_hash(
+        tmp_path, config, "SCN0001") == current_hash
     assert vnctl.review_close(
         tmp_path, config, review_id, verdict, "vn-reviewer") == 0
     assert {row["status"] for row in vnctl.read_jsonl(
@@ -229,7 +232,46 @@ def test_review_ledger_validation_accepts_complete_state(tmp_path):
     assert warnings == []
 
 
-def test_revise_verdict_reopens_only_reported_issue(tmp_path):
+def test_untouched_imported_review_can_be_invalidated(tmp_path, capsys):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    assert vnctl.index_project(tmp_path, config) == 0
+    review_id = "REV-SCN0001-01"
+    base_hash = vnctl.scene_review_hash(vnctl.read_jsonl(
+        tmp_path / "translation/segments/SCN0001.jsonl"))
+    report = tmp_path / "build/review.jsonl"
+    write_jsonl(report, [
+        {"__review__": {"review_id": review_id, "scene_id": "SCN0001",
+                         "base_sha256": base_hash}},
+        {"issue_id": f"{review_id}-I001", "severity": "major",
+         "category": "accuracy", "segment_ids": ["SEG1"],
+         "problem": "Неверный смысл.", "suggested_changes": []},
+    ])
+    assert vnctl.review_import(
+        tmp_path, config, "SCN0001", report, "vn-reviewer") == 0
+    assert vnctl.review_invalidate(
+        tmp_path, config, review_id, "orchestrator",
+        "Reviewer contract was incomplete.") == 0
+
+    events = vnctl.load_review_events(tmp_path, config)
+    run = vnctl.review_runs(events)[review_id]
+    assert events[-1]["event"] == "review_invalidated"
+    assert run["invalidated"]["reason"] == "Reviewer contract was incomplete."
+    assert vnctl.latest_review_for_scene(tmp_path, config, "SCN0001") is None
+    assert vnctl.next_review_id(tmp_path, config, "SCN0001") == "REV-SCN0001-02"
+    with pytest.raises(ValueError, match="invalidated"):
+        vnctl.review_resolution_package(tmp_path, config, review_id)
+    with pytest.raises(ValueError, match="already invalidated"):
+        vnctl.review_invalidate(
+            tmp_path, config, review_id, "orchestrator", "Again.")
+    errors, warnings = vnctl.validate_review_ledger(tmp_path, config)
+    assert errors == []
+    assert warnings == []
+    assert vnctl.work_queue(tmp_path, config) == 0
+    assert "review initial SCN0001 (2)" in capsys.readouterr().out
+
+
+def test_revise_verdict_has_one_recheck_then_finalize_or_wait(tmp_path, capsys):
     vnctl = load_vnctl()
     config = make_project(tmp_path)
     config["workflow"]["review_issue_context_segments"] = 0
@@ -294,16 +336,36 @@ def test_revise_verdict_reopens_only_reported_issue(tmp_path):
     }])
     assert vnctl.review_resolve(
         tmp_path, config, review_id, delta, "vn-stylist") == 0
-    recheck = vnctl.review_recheck_package(tmp_path, config, review_id)
-    assert f"{review_id}-I001" in recheck
-    assert f"{review_id}-I002" not in recheck
-    assert "## Глобальная спецификация" not in recheck
+    with pytest.raises(ValueError, match="single recheck"):
+        vnctl.review_recheck_package(tmp_path, config, review_id)
+
+    assert vnctl.review_block(
+        tmp_path, config, review_id, [f"{review_id}-I001"],
+        "orchestrator", "Final text conflicts with a validator.") == 0
+    blocked = vnctl.review_runs(vnctl.load_review_events(tmp_path, config))[review_id]
+    assert vnctl.review_open_issue_ids(blocked) == {f"{review_id}-I001"}
+    with pytest.raises(ValueError, match="blocked"):
+        vnctl.review_finalize(tmp_path, config, review_id, "orchestrator-finalize")
+    assert vnctl.work_queue(tmp_path, config) == 0
+    assert "review wait  SCN0001" in capsys.readouterr().out
+
+    settled_after_block = tmp_path / "build/settled-after-block.jsonl"
+    write_jsonl(settled_after_block, [{
+        "issue_id": f"{review_id}-I001", "disposition": "rejected",
+        "reason": "Конфликт разрешён инструментально.", "changes": [],
+    }])
+    assert vnctl.review_resolve(
+        tmp_path, config, review_id, settled_after_block, "orchestrator") == 0
+    assert vnctl.review_finalize(
+        tmp_path, config, review_id, "orchestrator-finalize") == 0
+    assert {row["status"] for row in vnctl.read_jsonl(
+        tmp_path / "translation/segments/SCN0001.jsonl")} == {"reviewed"}
     errors, warnings = vnctl.validate_review_ledger(tmp_path, config)
     assert errors == []
     assert warnings == []
 
 
-def test_multi_scene_work_package_shares_context_and_keeps_patches_separate(tmp_path):
+def test_scene_work_packages_remain_independent_for_shared_agent_call(tmp_path):
     vnctl = load_vnctl()
     config = make_project(tmp_path)
     scene_one = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")
@@ -320,30 +382,127 @@ def test_multi_scene_work_package_shares_context_and_keeps_patches_separate(tmp_
     ])
     assert vnctl.index_project(tmp_path, config) == 0
 
-    assert vnctl.next_unfinished_scenes(tmp_path, config, 3, 500) == [
-        "SCN0001", "SCN0002"]
-    package = vnctl.work_batch(tmp_path, config, ["SCN0001", "SCN0002"])
-    assert package.count("[DEC-1] Сохранять бэнто.") == 1
-    assert "# Сцена SCN0001" in package
-    assert "# Сцена SCN0002" in package
-    assert "build/patch-SCN0001.jsonl" in package
-    assert "build/patch-SCN0002.jsonl" in package
-    assert package.count("python tools/vnctl.py work check") == 2
+    first = vnctl.work_next(tmp_path, config, "SCN0001", 0, None)
+    second = vnctl.work_next(tmp_path, config, "SCN0002", 0, None)
+    assert "# Порция: SCN0001" in first
+    assert "build/patch-SCN0001.jsonl" in first
+    assert "build/patch-SCN0002.jsonl" not in first
+    assert "# Порция: SCN0002" in second
+    assert "build/patch-SCN0002.jsonl" in second
+    assert "build/patch-SCN0001.jsonl" not in second
 
 
-def test_combined_packages_keep_independent_outputs():
+def test_review_packages_remain_independent_for_shared_agent_call(tmp_path):
     vnctl = load_vnctl()
-    package = vnctl.combined_packages(
-        "Пакет проверок", ["REV-1", "REV-2"],
-        ["write first.jsonl", "write second.jsonl"],
-        shared_context="shared specification",
+    config = make_project(tmp_path)
+    scene_one = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")
+    write_jsonl(tmp_path / "translation/segments/SCN0002.jsonl", [{
+        **scene_one[0], "id": "SEG3", "scene_id": "SCN0002", "order": 1,
+    }])
+    write_jsonl(tmp_path / "translation/scenes.jsonl", [
+        {"scene_id": "SCN0001", "file_id": "S1", "route": "BLK0002"},
+        {"scene_id": "SCN0002", "file_id": "S1", "route": "BLK0002"},
+    ])
+    assert vnctl.index_project(tmp_path, config) == 0
+
+    first = vnctl.review_package(tmp_path, config, "SCN0001")
+    second = vnctl.review_package(tmp_path, config, "SCN0002")
+    assert "# Контекст сцены SCN0001" in first
+    assert "# Контекст сцены SCN0002" not in first
+    assert "# Контекст сцены SCN0002" in second
+    assert "# Контекст сцены SCN0001" not in second
+    assert "build/review-REV-SCN0001-01.jsonl" in first
+    assert "build/review-REV-SCN0002-01.jsonl" in second
+
+
+def test_cli_multi_output_writes_separate_files_without_wrapper(tmp_path, monkeypatch):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    config["workflow"].update({
+        "translation_dispatch_max_segments": 2,
+        "review_initial_dispatch_max_segments": 2,
+    })
+    (tmp_path / "config/project.yaml").write_text(
+        vnctl.yaml.safe_dump(config, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
     )
-    assert "Элементов: 2" in package
-    assert "# Элемент 1: REV-1" in package
-    assert "# Элемент 2: REV-2" in package
-    assert "write first.jsonl" in package
-    assert "write second.jsonl" in package
-    assert package.count("shared specification") == 1
+    scene_one = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")
+    write_jsonl(tmp_path / "translation/segments/SCN0002.jsonl", [{
+        **scene_one[0], "id": "SEG3", "scene_id": "SCN0002", "order": 1,
+    }])
+    write_jsonl(tmp_path / "translation/scenes.jsonl", [
+        {"scene_id": "SCN0001", "file_id": "S1", "route": "BLK0002"},
+        {"scene_id": "SCN0002", "file_id": "S1", "route": "BLK0002"},
+    ])
+    assert vnctl.index_project(tmp_path, config) == 0
+
+    monkeypatch.setattr(sys, "argv", [
+        "vnctl.py", "--root", str(tmp_path), "review", "package",
+        "SCN0001", "SCN0002", "--output-dir", "build/reviews",
+    ])
+    assert vnctl.main() == 2
+    monkeypatch.setattr(sys, "argv", [
+        "vnctl.py", "--root", str(tmp_path), "review", "package",
+        "SCN0001", "SCN0002", "--output-dir", "build/reviews",
+        "--allow-oversize",
+    ])
+    assert vnctl.main() == 0
+    review_files = sorted(
+        path.name for path in (tmp_path / "build/reviews").iterdir())
+    assert review_files == [
+        "review-package-SCN0001.md", "review-package-SCN0002.md"]
+
+    for scene_id in ("SCN0001", "SCN0002"):
+        rows = vnctl.read_jsonl(
+            tmp_path / f"translation/segments/{scene_id}.jsonl")
+        for row in rows:
+            row["translation"] = ""
+            row["status"] = "todo"
+        write_jsonl(tmp_path / f"translation/segments/{scene_id}.jsonl", rows)
+    assert vnctl.index_project(tmp_path, config) == 0
+
+    monkeypatch.setattr(sys, "argv", [
+        "vnctl.py", "--root", str(tmp_path), "work", "next",
+        "SCN0001", "SCN0002", "--output-dir", "build/work",
+    ])
+    assert vnctl.main() == 2
+    monkeypatch.setattr(sys, "argv", [
+        "vnctl.py", "--root", str(tmp_path), "work", "next",
+        "SCN0001", "SCN0002", "--output-dir", "build/work",
+        "--allow-oversize",
+    ])
+    assert vnctl.main() == 0
+    work_files = sorted(path.name for path in (tmp_path / "build/work").iterdir())
+    assert work_files == ["work-SCN0001.md", "work-SCN0002.md"]
+
+
+def test_dispatch_review_budget_counts_issues_and_resolutions():
+    vnctl = load_vnctl()
+    runs = {
+        "REV-1": {
+            "issues": [{"issue_id": "I1"}, {"issue_id": "I2"}],
+            "resolution": None,
+        },
+        "REV-2": {
+            "issues": [{"issue_id": "I3"}],
+            "resolution": None,
+        },
+    }
+    assert vnctl.review_dispatch_workload(runs, ["REV-1", "REV-2"], "fix") == 3
+    with pytest.raises(ValueError, match="configured limit is 2"):
+        vnctl.enforce_dispatch_budget("review fix", 2, 3, 2, "issues", False)
+
+    for review_id, run in runs.items():
+        resolutions = [{"issue_id": issue["issue_id"], "disposition": "applied"}
+                       for issue in run["issues"]]
+        run.update({
+            "resolution": {"resolutions": resolutions},
+            "effective_resolutions": {
+                row["issue_id"]: row for row in resolutions
+            },
+        })
+    assert vnctl.review_dispatch_workload(
+        runs, ["REV-1", "REV-2"], "recheck") == 3
 
 
 def test_question_source_terms_select_reusable_provisional(tmp_path):
@@ -362,30 +521,6 @@ def test_question_source_terms_select_reusable_provisional(tmp_path):
     assert vnctl.related_questions(
         tmp_path, config, {"SCN0001"}, {"SEG1"}, [], "別の食べ物") == []
     assert vnctl.questions(tmp_path, config) == 0
-
-
-def test_multi_scene_work_package_rejects_segment_oversize_without_explicit_pilot(tmp_path):
-    vnctl = load_vnctl()
-    config = make_project(tmp_path)
-    config["workflow"]["translation_batch_max_segments"] = 2
-    scene_one = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")
-    for row in scene_one:
-        row["translation"] = ""
-        row["status"] = "todo"
-    write_jsonl(tmp_path / "translation/segments/SCN0001.jsonl", scene_one)
-    write_jsonl(tmp_path / "translation/segments/SCN0002.jsonl", [{
-        **scene_one[0], "id": "SEG3", "scene_id": "SCN0002", "order": 1,
-    }])
-    write_jsonl(tmp_path / "translation/scenes.jsonl", [
-        {"scene_id": "SCN0001", "file_id": "S1", "route": "BLK0002"},
-        {"scene_id": "SCN0002", "file_id": "S1", "route": "BLK0002"},
-    ])
-    assert vnctl.index_project(tmp_path, config) == 0
-    with pytest.raises(ValueError, match="limit is 2"):
-        vnctl.work_batch(tmp_path, config, ["SCN0001", "SCN0002"])
-    package = vnctl.work_batch(
-        tmp_path, config, ["SCN0001", "SCN0002"], allow_oversize=True)
-    assert "Всего сцен: 2; сегментов к переводу: 3" in package
 
 
 def test_accepted_review_issue_can_be_superseded_by_open_question(tmp_path):

@@ -120,8 +120,11 @@ workflow:
   context_previous_segments: 20
   context_next_segments: 10
   review_issue_context_segments: 5
-  translation_batch_scenes: 12
-  translation_batch_max_segments: 500
+  agent_context_window_tokens: 370000
+  translation_dispatch_max_segments: 900
+  review_initial_dispatch_max_segments: 600
+  review_fix_dispatch_max_issues: 80
+  review_recheck_dispatch_max_issues: 80
   internal_examples_limit: 20
   external_reference_limit: 3
   max_scene_segments: 400

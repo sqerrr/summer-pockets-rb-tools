@@ -871,3 +871,36 @@ def test_project_agents_use_gpt_and_have_required_execution_permissions():
     stylist = agents["vn-stylist.md"]
     assert "  read:\n    '*': deny\n    build/**: allow" in stylist
     assert "  edit:\n    '*': deny\n    build/**: allow" in stylist
+
+
+def test_translation_agents_keep_mandatory_read_sets():
+    root = Path(__file__).parents[2]
+    agent_dir = root / ".opencode/agent"
+    translators = [
+        (agent_dir / name).read_text(encoding="utf-8")
+        for name in ("vn-translator.md", "vn-translator-alt.md")
+    ]
+    for text in translators:
+        for required in (
+                "`AGENTS.md`", "python tools/vnctl.py brief",
+                "`docs/translation-spec.md`", "`docs/style-profile.yaml`",
+                "`docs/glossary.yaml`", "`docs/characters/`", "рабочие пакеты"):
+            assert required in text
+        assert "не заменяет документы выше" in text
+
+    reviewers = [
+        (agent_dir / name).read_text(encoding="utf-8")
+        for name in ("vn-reviewer.md", "vn-reviewer-alt.md")
+    ]
+    for text in reviewers:
+        assert "steps: 120" in text
+        assert "Не\nзагружай все выданные packages заранее" in text
+        assert "один package-файл" in text
+        assert "## Прочитать перед работой" in text
+        for required in (
+                "`docs/translation-spec.md`", "`docs/style-profile.yaml`",
+                "`config/qa-rules.yaml`", "пакет контекста"):
+            assert required in text
+        assert "перечитывай отдельные `translation/segments/*.jsonl`" in text
+        assert "Пакет не заменяет три документа выше" in text
+        assert "Не перечитывай полную" not in text
