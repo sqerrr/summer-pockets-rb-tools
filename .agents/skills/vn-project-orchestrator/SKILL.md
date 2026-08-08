@@ -86,9 +86,11 @@ ready work from the other buckets continues.
 
 Enforce the measured dispatch budgets from `config/project.yaml`: 900 pending
 segments for translation, 600 scene segments for initial review, 80 open issues
-for review fix, and 80 resolutions for recheck. Issue/resolution count is the
-primary sizing signal for fix and recheck. Multiple files over budget require an
-explicit `--allow-oversize`; a single whole scene or run is never split.
+for review fix, and 50 resolutions for recheck, plus the configured file-count
+caps. Issue/resolution count is the primary sizing signal for fix and recheck,
+but repeated scene-specific context makes file count independently relevant.
+Multiple files over budget require `--allow-oversize`; a single whole scene or
+run is never split.
 
 The user does not read every line or arbitrate local edits. The orchestrator
 asks only project-wide conflicts, grouped into short interactive questions;

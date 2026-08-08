@@ -122,9 +122,13 @@ workflow:
   review_issue_context_segments: 5
   agent_context_window_tokens: 370000
   translation_dispatch_max_segments: 900
+  translation_dispatch_max_files: 4
   review_initial_dispatch_max_segments: 600
+  review_initial_dispatch_max_files: 4
   review_fix_dispatch_max_issues: 80
-  review_recheck_dispatch_max_issues: 80
+  review_fix_dispatch_max_files: 10
+  review_recheck_dispatch_max_issues: 50
+  review_recheck_dispatch_max_files: 6
   internal_examples_limit: 20
   external_reference_limit: 3
   max_scene_segments: 400

@@ -263,9 +263,10 @@ python tools/vnctl.py work next SCN0043 SCN0044 --output-dir build
 читает и закрывает полученные файлы последовательно.
 
 Проверяемые dispatch-бюджеты лежат в `config/project.yaml`: 900 сегментов на
-перевод, 600 на initial review, 80 issues на review fix и 80 resolutions на
-recheck. Для fix/recheck считать нужно прежде всего issues/resolutions, а не
-размер сцены. Превышение несколькими файлами требует `--allow-oversize`.
+перевод, 600 на initial review, 80 issues на review fix и 50 resolutions на
+recheck; отдельно ограничено число файлов. Для fix/recheck считать нужно прежде
+всего issues/resolutions, а не размер сцены. Превышение требует
+`--allow-oversize`.
 
 После каждого параллельного блока оркестратор запускает `validate`, `index`,
 `work queue` и `stats` и сообщает переведено/всего, процент и статусы. Счётчик

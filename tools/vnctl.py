@@ -5224,6 +5224,10 @@ def main() -> int:
                 if len(scene_ids) > 1 and (args.size > 0 or args.start is not None):
                     raise ValueError("--size and --start require one scene")
                 enforce_dispatch_budget(
+                    "translation", len(scene_ids), len(scene_ids),
+                    dispatch_limit(config, "translation_dispatch_max_files", 4),
+                    "files", args.allow_oversize)
+                enforce_dispatch_budget(
                     "translation", len(scene_ids),
                     work_dispatch_segments(root, config, scene_ids),
                     dispatch_limit(config, "translation_dispatch_max_segments", 900),
@@ -5281,6 +5285,10 @@ def main() -> int:
                         "segments", "translation/segments") / f"{scene_id}.jsonl"))
                     for scene_id in args.scene_ids)
                 enforce_dispatch_budget(
+                    "initial review", len(args.scene_ids), len(args.scene_ids),
+                    dispatch_limit(config, "review_initial_dispatch_max_files", 4),
+                    "files", args.allow_oversize)
+                enforce_dispatch_budget(
                     "initial review", len(args.scene_ids), workload,
                     dispatch_limit(config, "review_initial_dispatch_max_segments", 600),
                     "segments", args.allow_oversize)
@@ -5292,6 +5300,10 @@ def main() -> int:
             elif args.review_command == "fix":
                 workload = review_dispatch_workload(
                     review_runs(load_review_events(root, config)), args.review_ids, "fix")
+                enforce_dispatch_budget(
+                    "review fix", len(args.review_ids), len(args.review_ids),
+                    dispatch_limit(config, "review_fix_dispatch_max_files", 10),
+                    "files", args.allow_oversize)
                 enforce_dispatch_budget(
                     "review fix", len(args.review_ids), workload,
                     dispatch_limit(config, "review_fix_dispatch_max_issues", 80),
@@ -5306,8 +5318,12 @@ def main() -> int:
                     review_runs(load_review_events(root, config)),
                     args.review_ids, "recheck")
                 enforce_dispatch_budget(
+                    "review recheck", len(args.review_ids), len(args.review_ids),
+                    dispatch_limit(config, "review_recheck_dispatch_max_files", 6),
+                    "files", args.allow_oversize)
+                enforce_dispatch_budget(
                     "review recheck", len(args.review_ids), workload,
-                    dispatch_limit(config, "review_recheck_dispatch_max_issues", 80),
+                    dispatch_limit(config, "review_recheck_dispatch_max_issues", 50),
                     "resolutions", args.allow_oversize)
                 packages = [
                     (f"review-recheck-{review_id}.md",
