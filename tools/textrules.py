@@ -139,6 +139,7 @@ def check_line(text: str, *, is_dialogue: bool) -> list[Finding]:
 RUBY = re.compile(r"\$\[([^\]]*?)\$/[^\]]*?\$\]")
 VARIABLE = re.compile(r"\$\([0-9]+\)")
 COLOUR = re.compile(r"\$C\[[0-9a-fA-F]*\]")
+EMPHASIS_MARKER = re.compile(r"\$\[\$b|\$\]")
 # Управляющие токены веток и ожидания должны сохранять не только количество,
 # но и порядок: перестановка `$d` и `$w` меняет исполнение строки.
 CONTROL = re.compile(r"\$[dw]")
@@ -191,6 +192,14 @@ def check_markup(source_ja: str, ru: str) -> list[Finding]:
                            f"коды скорости/пения не совпадают: "
                            f"в исходнике {src_speed or 'нет'}, "
                            f"в переводе {ru_speed or 'нет'}"))
+
+    src_emphasis = EMPHASIS_MARKER.findall(strip_ruby(source_ja))
+    ru_emphasis = EMPHASIS_MARKER.findall(strip_ruby(ru))
+    if src_emphasis != ru_emphasis:
+        out.append(Finding("markup", "FND-0050",
+                           f"маркеры выделения не совпадают: "
+                           f"в исходнике {src_emphasis or 'нет'}, "
+                           f"в переводе {ru_emphasis or 'нет'}"))
 
     if RUBY.search(ru):
         out.append(Finding("markup", "FND-0050",

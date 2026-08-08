@@ -16,6 +16,7 @@ CATALOG = "source/parsed/steam-luca/source-records.jsonl"
 
 PATTERNS = {
     "ruby $[kanji$/kana$]": re.compile(r"\$\[[^\]]*\$/[^\]]*\$\]"),
+    "выделение $[$b...$]": re.compile(r"\$\[\$b[^\]]*?\$\]"),
     "цвет $C[...]": re.compile(r"\$C\[[0-9a-fA-F]*\]"),
     "переменная $(N)": re.compile(r"\$\([0-9]+\)"),
     "прочее $X[...]": re.compile(r"\$[A-Za-z]\[[^\]]*\]"),

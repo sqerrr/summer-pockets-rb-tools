@@ -22,45 +22,50 @@ is a tax rather than a guard.
 Two prohibitions remain, both in `AGENTS.md`: no release build without a
 verified round-trip, and no `approved` without the user saying so.
 
-## One scene, one pass
+## Several scenes, separate checkpoints
 
 ```bash
 python tools/vnctl.py work next -o build/work.md
 ```
 
-Picks the next scene with untranslated segments and takes it whole. Whole,
-because the process requires reading a scene before translating its first line —
-a partial batch hides how the scene ends and what device holds it together. It
-is also cheaper: the constant part of the package does not scale with the number
-of lines, so a full scene costs about a third per line of what a thirty-line
-batch costs.
+Picks up to three adjacent ready scenes, capped by the configured total segment
+budget, and places their shared rules, glossary and voices into one translator
+context. Every scene still stays whole and has its own patch, check and apply
+command. This amortizes the constant prompt without coupling scene writes or
+making one failed patch invalidate the rest.
 
 Then:
 
-1. Dispatch `vn-translator` with the package. It writes a patch, checks itself
-   with `work check`, and applies it with `apply-translation`.
+1. Dispatch `vn-translator` with the package. It writes, checks and applies one
+   independent patch per scene before moving to the next scene in the package.
 2. Build `vnctl review package`, then dispatch `vn-reviewer` with that package —
    never with the translator's notes. Import its machine JSONL with
-   `vnctl review import`.
+   `vnctl review import`. Several compact scene packages may share one reviewer
+   call, but each still writes and imports its own JSONL.
 3. Dispatch `vn-stylist` on `vnctl review fix`. It is the only post-review
-   editor: it resolves every issue and applies the result through
-   `vnctl review resolve`. Several scenes may run in parallel.
-4. Dispatch a source-aware reviewer on `vnctl review recheck`, then close the
-   accepted current hash with `vnctl review close`. Only this command grants
-   `reviewed`.
+   editor: it resolves every issue present in the current delta package and
+   applies the result through `vnctl review resolve`. Closed issues are not sent
+   again after a revise verdict. Several independent fix packages may share one
+   stylist call when their combined input fits comfortably.
+4. Dispatch a source-aware reviewer on `vnctl review recheck`, then pass either
+   accept or revise to `vnctl review close`. A revise verdict persists only its
+   open issue IDs; the next fix and recheck are focused deltas. Only an accepted
+   close grants `reviewed`. Several focused rechecks may share one reviewer call
+   while retaining separate verdict files.
 5. Run `validate`, `index`, `work queue` and `stats`. Always report translated
    segments as `translated/total`, percentage and status counts after the whole
    parallel wave, never from a worker's stale partial snapshot.
 
 After a wave is verified, immediately launch the next ready parallel wave. Do
 not wait for a separate user confirmation between batches. Continue until the
-user explicitly stops the run, no ready work remains, or the session context is
-nearly exhausted; at the context boundary, checkpoint and report the exact next
-commands instead of silently stopping.
+user explicitly stops the run or no ready work remains. Context size is not a
+stop condition: compress completed phases with DCP `compress` and continue.
+Create a handoff only when the user asks for one or work is actually interrupted
+outside the conversation, not as preventive context-boundary ceremony.
 
-Treat the pipeline as buffered production, not equal status counts. For an
-eight-worker wave, start from 3 translation slots, 3 reviewer slots (initial
-review or recheck), and 2 stylist slots (review fix or route style). Keep roughly
+Treat the pipeline as buffered production, not equal status counts. For a
+twelve-worker wave, start from 3 translation slots and distribute the remaining
+slots among initial review, recheck, review fix, and narrow route style. Keep roughly
 6–12 complete draft scenes available for review and 2–6 reviewed/resolved scenes
 available for the next editing stage. Reassign slots to the current bottleneck
 when a buffer leaves that range; never keep producing drafts while downstream

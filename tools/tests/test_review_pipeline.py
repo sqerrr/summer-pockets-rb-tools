@@ -138,6 +138,8 @@ def test_review_pipeline_tracks_every_issue_and_only_close_grants_reviewed(tmp_p
     assert "[assumed]" in package
     assert "needs_term_decision" in package
     assert "$S(044,1)" in package
+    assert "## Глобальная спецификация" not in package
+    assert "## Текущий прогресс" not in package
 
     review_id = "REV-SCN0001-01"
     base_hash = vnctl.scene_review_hash(vnctl.read_jsonl(
@@ -164,7 +166,7 @@ def test_review_pipeline_tracks_every_issue_and_only_close_grants_reviewed(tmp_p
         "changes": [{"id": "SEG1", "before": "Обед с собой.",
                      "translation": "Бэнто.", "flags": []}],
     }])
-    with pytest.raises(ValueError, match="every issue needs a disposition"):
+    with pytest.raises(ValueError, match="every open issue needs a disposition"):
         vnctl.review_resolve(tmp_path, config, review_id, incomplete, "vn-stylist")
 
     fix_package = vnctl.review_resolution_package(tmp_path, config, review_id)
@@ -186,8 +188,8 @@ def test_review_pipeline_tracks_every_issue_and_only_close_grants_reviewed(tmp_p
     assert {row["status"] for row in vnctl.read_jsonl(
         tmp_path / "translation/segments/SCN0001.jsonl")} == {"draft"}
 
-    recheck = vnctl.review_recheck_package(tmp_path, config, review_id)
-    assert "Перепроверка применённых замечаний" in recheck
+    with pytest.raises(ValueError, match="awaiting resolution"):
+        vnctl.review_recheck_package(tmp_path, config, review_id)
     current_hash = vnctl.scene_review_hash(vnctl.read_jsonl(
         tmp_path / "translation/segments/SCN0001.jsonl"))
     verdict = tmp_path / "build/verdict.jsonl"
@@ -197,14 +199,14 @@ def test_review_pipeline_tracks_every_issue_and_only_close_grants_reviewed(tmp_p
         vnctl.review_close(tmp_path, config, review_id, verdict, "vn-reviewer")
 
     settled = tmp_path / "build/settled.jsonl"
-    write_jsonl(settled, [
-        {"issue_id": f"{review_id}-I001", "disposition": "applied",
-         "reason": "Уже применено в текущем тексте.", "changes": []},
-        {"issue_id": f"{review_id}-I002", "disposition": "rejected",
-         "reason": "Пользователь оставил текущий регистр.", "changes": []},
-    ])
+    write_jsonl(settled, [{
+        "issue_id": f"{review_id}-I002", "disposition": "rejected",
+        "reason": "Пользователь оставил текущий регистр.", "changes": [],
+    }])
     assert vnctl.review_resolve(
         tmp_path, config, review_id, settled, "vn-stylist") == 0
+    recheck = vnctl.review_recheck_package(tmp_path, config, review_id)
+    assert "Перепроверка применённых замечаний" in recheck
     assert vnctl.review_close(
         tmp_path, config, review_id, verdict, "vn-reviewer") == 0
     assert {row["status"] for row in vnctl.read_jsonl(
@@ -221,6 +223,119 @@ def test_review_ledger_validation_accepts_complete_state(tmp_path):
     errors, warnings = vnctl.validate_review_ledger(tmp_path, config)
     assert errors == []
     assert warnings == []
+
+
+def test_revise_verdict_reopens_only_reported_issue(tmp_path):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    config["workflow"]["review_issue_context_segments"] = 0
+    assert vnctl.index_project(tmp_path, config) == 0
+    review_id = "REV-SCN0001-01"
+    base_hash = vnctl.scene_review_hash(vnctl.read_jsonl(
+        tmp_path / "translation/segments/SCN0001.jsonl"))
+    report = tmp_path / "build/review.jsonl"
+    write_jsonl(report, [
+        {"__review__": {"review_id": review_id, "scene_id": "SCN0001",
+                         "base_sha256": base_hash}},
+        {"issue_id": f"{review_id}-I001", "severity": "minor",
+         "category": "language", "segment_ids": ["SEG1"],
+         "problem": "Первая проблема.", "suggested_changes": []},
+        {"issue_id": f"{review_id}-I002", "severity": "minor",
+         "category": "language", "segment_ids": ["SEG2"],
+         "problem": "Вторая проблема.", "suggested_changes": []},
+    ])
+    assert vnctl.review_import(
+        tmp_path, config, "SCN0001", report, "vn-reviewer") == 0
+    initial = tmp_path / "build/resolutions.jsonl"
+    write_jsonl(initial, [
+        {"issue_id": f"{review_id}-I001", "disposition": "applied",
+         "reason": "Принято.", "changes": []},
+        {"issue_id": f"{review_id}-I002", "disposition": "applied",
+         "reason": "Принято.", "changes": []},
+    ])
+    assert vnctl.review_resolve(
+        tmp_path, config, review_id, initial, "vn-stylist") == 0
+    verdict = tmp_path / "build/verdict-revise.jsonl"
+    write_jsonl(verdict, [{
+        "review_id": review_id, "scene_sha256": base_hash,
+        "verdict": "revise", "open_issue_ids": [f"{review_id}-I001"],
+    }])
+    assert vnctl.review_close(
+        tmp_path, config, review_id, verdict, "vn-reviewer") == 0
+    run = vnctl.review_runs(vnctl.load_review_events(tmp_path, config))[review_id]
+    assert vnctl.review_open_issue_ids(run) == {f"{review_id}-I001"}
+
+    delta_package = vnctl.review_resolution_package(tmp_path, config, review_id)
+    assert f"{review_id}-I001" in delta_package
+    assert f"{review_id}-I002" not in delta_package
+    assert "弁当" in delta_package
+    assert "$S(044,1)原文$S" not in delta_package
+
+    repeated_full = tmp_path / "build/repeated-full.jsonl"
+    write_jsonl(repeated_full, [
+        {"issue_id": f"{review_id}-I001", "disposition": "applied",
+         "reason": "Исправлено.", "changes": []},
+        {"issue_id": f"{review_id}-I002", "disposition": "applied",
+         "reason": "Лишний повтор.", "changes": []},
+    ])
+    with pytest.raises(ValueError, match="extra"):
+        vnctl.review_resolve(
+            tmp_path, config, review_id, repeated_full, "vn-stylist")
+
+    delta = tmp_path / "build/delta.jsonl"
+    write_jsonl(delta, [{
+        "issue_id": f"{review_id}-I001", "disposition": "applied",
+        "reason": "Исправлено.", "changes": [],
+    }])
+    assert vnctl.review_resolve(
+        tmp_path, config, review_id, delta, "vn-stylist") == 0
+    recheck = vnctl.review_recheck_package(tmp_path, config, review_id)
+    assert f"{review_id}-I001" in recheck
+    assert f"{review_id}-I002" not in recheck
+    errors, warnings = vnctl.validate_review_ledger(tmp_path, config)
+    assert errors == []
+    assert warnings == []
+
+
+def test_multi_scene_work_package_shares_context_and_keeps_patches_separate(tmp_path):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    scene_one = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")
+    for row in scene_one:
+        row["translation"] = ""
+        row["status"] = "todo"
+    write_jsonl(tmp_path / "translation/segments/SCN0001.jsonl", scene_one)
+    write_jsonl(tmp_path / "translation/segments/SCN0002.jsonl", [{
+        **scene_one[0], "id": "SEG3", "scene_id": "SCN0002", "order": 1,
+    }])
+    write_jsonl(tmp_path / "translation/scenes.jsonl", [
+        {"scene_id": "SCN0001", "file_id": "S1", "route": "BLK0002"},
+        {"scene_id": "SCN0002", "file_id": "S1", "route": "BLK0002"},
+    ])
+    assert vnctl.index_project(tmp_path, config) == 0
+
+    assert vnctl.next_unfinished_scenes(tmp_path, config, 3, 500) == [
+        "SCN0001", "SCN0002"]
+    package = vnctl.work_batch(tmp_path, config, ["SCN0001", "SCN0002"])
+    assert package.count("[DEC-1] Сохранять бэнто.") == 1
+    assert "# Сцена SCN0001" in package
+    assert "# Сцена SCN0002" in package
+    assert "build/patch-SCN0001.jsonl" in package
+    assert "build/patch-SCN0002.jsonl" in package
+    assert package.count("python tools/vnctl.py work check") == 2
+
+
+def test_combined_packages_keep_independent_outputs():
+    vnctl = load_vnctl()
+    package = vnctl.combined_packages(
+        "Пакет проверок", ["REV-1", "REV-2"],
+        ["write first.jsonl", "write second.jsonl"],
+    )
+    assert "Элементов: 2" in package
+    assert "# Элемент 1: REV-1" in package
+    assert "# Элемент 2: REV-2" in package
+    assert "write first.jsonl" in package
+    assert "write second.jsonl" in package
 
 
 def test_accepted_review_issue_can_be_superseded_by_open_question(tmp_path):
@@ -418,3 +533,10 @@ def test_review_close_rolls_back_and_recovers_interrupted_ledger_write(tmp_path,
 def test_markup_contract_preserves_wait_token_in_order():
     vnctl = load_vnctl()
     assert vnctl.markup_contract("選択肢A$d$w選択肢B")["preserve_exact"] == ["$d", "$w"]
+
+
+def test_markup_contract_preserves_emphasis_wrappers():
+    vnctl = load_vnctl()
+    contract = vnctl.markup_contract("知りませんか？　$[$bって$]")
+    assert contract["preserve_exact"] == ["$[$b", "$]"]
+    assert contract["remove_ruby_keep_base"] == []

@@ -1146,12 +1146,8 @@ def db_path(root: Path, config: dict[str, Any]) -> Path:
     return root / config.get("paths", {}).get("database", "database/knowledge.db")
 
 
-def index_project(root: Path, config: dict[str, Any]) -> int:
-    dest = db_path(root, config)
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    if dest.exists():
-        dest.unlink()
-    con = sqlite3.connect(dest)
+def populate_index_database(root: Path, config: dict[str, Any],
+                            con: sqlite3.Connection) -> int:
     con.row_factory = sqlite3.Row
     cur = con.cursor()
     cur.executescript(
@@ -1293,8 +1289,28 @@ def index_project(root: Path, config: dict[str, Any]) -> int:
         )
 
     con.commit()
-    con.close()
-    print(f"Indexed {len(segments)} segments into {dest}")
+    return len(segments)
+
+
+def build_index_database(root: Path, config: dict[str, Any], dest: Path) -> int:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(dest)
+    try:
+        return populate_index_database(root, config, con)
+    finally:
+        con.close()
+
+
+def index_project(root: Path, config: dict[str, Any]) -> int:
+    dest = db_path(root, config)
+    temp = dest.with_name(f"{dest.name}.{os.getpid()}.{time.time_ns()}.tmp")
+    try:
+        count = build_index_database(root, config, temp)
+        temp.replace(dest)
+    except Exception:
+        temp.unlink(missing_ok=True)
+        raise
+    print(f"Indexed {count} segments into {dest}")
     return 0
 
 
@@ -1549,16 +1565,16 @@ def voice_contract(doc: str, *, russian_only: bool = False) -> str:
 
 
 MARKUP_TOKEN = re.compile(
-    r"\$\[[^\]]*?\$/[^\]]*?\$\]|\$\([0-9]+\)|\$C\[[0-9a-fA-F]*\]|\$[dw]|"
+    r"\$\[\$b|\$\]|\$\([0-9]+\)|\$C\[[0-9a-fA-F]*\]|\$[dw]|"
     r"\$S(?:\([^)]*\)|[0-9]+)?"
 )
 
 
 def markup_contract(source: str) -> dict[str, Any]:
-    tokens = MARKUP_TOKEN.findall(source)
+    tokens = MARKUP_TOKEN.findall(strip_ruby(source))
     ruby_bases = [match.group(1) for match in RUBY.finditer(source)]
     return {
-        "preserve_exact": [token for token in tokens if not token.startswith("$[")],
+        "preserve_exact": tokens,
         "remove_ruby_keep_base": ruby_bases,
     }
 
@@ -1695,19 +1711,25 @@ def brief(root: Path, config: dict[str, Any]) -> int:
             print(f"  {row['id']} [{row.get('status')}/{row['kind']}] {row['title']}")
 
     print("\n" + "=" * 70)
-    print("ОТКРЫТЫЕ ВОПРОСЫ")
+    print("ОЧЕРЕДЬ ВОПРОСОВ")
     print("=" * 70)
     qpath = root / config.get("paths", {}).get(
         "questions", "translation/open-questions.jsonl")
     if qpath.exists():
         open_rows = [r for r in read_jsonl(qpath) if r.get("status") == "open"]
-        for row in open_rows:
+        counts = Counter(str(row.get("kind", "other")) for row in open_rows)
+        print(f"  открыто: {len(open_rows)} {dict(sorted(counts.items()))}")
+        policy_rows = [row for row in open_rows if row.get("kind") == "policy"]
+        for row in policy_rows:
             print(f"  {row['id']} [{row.get('kind')}] "
                   f"{' '.join(str(row.get('question','')).split())[:90]}")
             print(f"      рабочий вариант: "
                   f"{' '.join(str(row.get('provisional','')).split())[:80]}")
         if not open_rows:
             print("  нет")
+        elif not policy_rows:
+            print("  глобальных policy-вопросов нет")
+        print("  Сценовые вопросы подставляются только в связанные рабочие пакеты.")
 
     print("\nПодробности: docs/project/luca-format.md — как устроен формат;")
     print("docs/translation-spec.md — переводческая политика;")
@@ -1746,6 +1768,47 @@ def next_unfinished_scene(root: Path, config: dict[str, Any]) -> str | None:
         if buckets.get(key):
             return buckets[key][0]
     return None
+
+
+def next_unfinished_scenes(root: Path, config: dict[str, Any], limit: int,
+                           max_segments: int) -> list[str]:
+    if limit < 1:
+        raise ValueError("scene batch size must be at least 1")
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    deferred = set(config.get("workflow", {}).get("deferred_scenes") or [])
+    buckets: dict[tuple[bool, bool], list[tuple[str, str, int]]] = defaultdict(list)
+    for scene in load_scenes(root, config):
+        scene_id = str(scene["scene_id"])
+        path = seg_dir / f"{scene_id}.jsonl"
+        if not path.exists():
+            continue
+        rows = read_jsonl(path)
+        pending = [index for index, row in enumerate(rows)
+                   if not str(row.get("translation", "")).strip()]
+        if not pending:
+            continue
+        first = pending[0]
+        buckets[(scene_id in deferred, first == 0)].append(
+            (scene_id, str(scene.get("route", "")), len(rows) - first))
+    candidates: list[tuple[str, str, int]] = []
+    for key in ((False, False), (False, True), (True, False), (True, True)):
+        candidates.extend(buckets.get(key, []))
+    if not candidates:
+        return []
+    route = candidates[0][1]
+    selected: list[str] = []
+    total = 0
+    for scene_id, scene_route, count in candidates:
+        if scene_route != route:
+            continue
+        if selected and (len(selected) >= limit
+                         or (max_segments > 0 and total + count > max_segments)):
+            break
+        selected.append(scene_id)
+        total += count
+        if len(selected) >= limit:
+            break
+    return selected
 
 
 STAGE_ORDER = ("переводить", "ревью", "смешанная")
@@ -2011,16 +2074,22 @@ def work_queue(root: Path, config: dict[str, Any]) -> int:
                 note = "нет импортированного review-run"
             elif run.get("accepted"):
                 note = "принято, обновить статусы"
-            elif run.get("resolution"):
-                escalations = sum(1 for item in run["resolution"].get(
-                    "resolutions", []) if item.get("escalation"))
-                note = (f"ждёт решения пользователя: {escalations}"
-                        if escalations else "ждёт перепроверки")
             else:
-                counts = Counter(str(issue.get("severity")) for issue in run.get("issues", []))
-                note = "ждёт правок " + "/".join(
-                    f"{key}:{counts[key]}" for key in ("critical", "major", "minor", "preference")
-                    if counts[key])
+                open_ids = review_open_issue_ids(run)
+                escalations = sum(1 for item in effective_review_resolutions(run)
+                                  if item.get("escalation"))
+                if escalations:
+                    note = f"ждёт решения пользователя: {escalations}"
+                elif open_ids:
+                    note = f"ждёт дельтовых правок: {len(open_ids)}"
+                elif run.get("resolution"):
+                    note = "ждёт перепроверки"
+                else:
+                    counts = Counter(
+                        str(issue.get("severity")) for issue in run.get("issues", []))
+                    note = "ждёт правок " + "/".join(
+                        f"{key}:{counts[key]}" for key in
+                        ("critical", "major", "minor", "preference") if counts[key])
         buckets[stage].append((scene_id, len(rows), scene_id in deferred, note))
 
     for stage in STAGE_ORDER:
@@ -2421,7 +2490,7 @@ STYLE_SEGMENT_ID_RE = re.compile(r"\bSEG[A-Za-z0-9_]+\b")
 
 def style_revision_report(path: Path) -> tuple[str, set[str]]:
     text = path.read_text(encoding="utf-8-sig")
-    if not re.search(r"(?m)^VERDICT:\s*REVISE\s*$", text):
+    if report_verdict(path) != "REVISE":
         raise ValueError("Style revision requires a report with VERDICT: REVISE")
     return text, set(STYLE_SEGMENT_ID_RE.findall(text))
 
@@ -2718,8 +2787,16 @@ def style_revision_package(root: Path, config: dict[str, Any], run_id: str,
     return "\n".join(parts)
 
 
+def report_verdict(path: Path) -> str | None:
+    verdicts = re.findall(
+        r"(?m)^VERDICT:\s*(ACCEPT|REVISE)\s*$",
+        path.read_text(encoding="utf-8-sig"),
+    )
+    return verdicts[0] if len(verdicts) == 1 else None
+
+
 def report_accepts(path: Path) -> bool:
-    return bool(re.search(r"(?m)^VERDICT:\s*ACCEPT\s*$", path.read_text(encoding="utf-8-sig")))
+    return report_verdict(path) == "ACCEPT"
 
 
 def style_accept(root: Path, config: dict[str, Any], run_id: str,
@@ -2780,9 +2857,11 @@ def style_sibling_anchors(root: Path, config: dict[str, Any], run: dict[str, Any
         if not state.get("accepted"):
             continue
         superseded = state.get("superseded_issues", {})
+        effective = state.get("effective_resolutions", {})
         for resolution in event.get("resolutions", []) or []:
             issue_id = str(resolution.get("issue_id", ""))
-            if resolution.get("disposition") != "applied" or issue_id in superseded:
+            if (effective.get(issue_id, {}).get("disposition") != "applied"
+                    or issue_id in superseded):
                 continue
             for change in resolution.get("changes", []) or []:
                 sid = str(change.get("id", ""))
@@ -3036,11 +3115,12 @@ def validate_style_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str]
 
 
 REVIEW_EVENTS = {
-    "ledger_initialized", "review_imported", "review_resolved", "review_accepted",
-    "review_issue_superseded",
+    "ledger_initialized", "review_imported", "review_resolved", "review_rechecked",
+    "review_accepted", "review_issue_superseded",
 }
 REVIEW_SEVERITIES = {"critical", "major", "minor", "preference"}
 REVIEW_DISPOSITIONS = {"applied", "rejected"}
+REVIEW_VERDICTS = {"accept", "revise"}
 
 
 def review_ledger_path(root: Path, config: dict[str, Any]) -> Path:
@@ -3067,17 +3147,50 @@ def review_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
         kind = event.get("event")
         if kind == "review_imported":
             runs[review_id] = {
-                **event, "resolution": None, "accepted": None,
+                **event, "resolution": None, "resolution_events": [],
+                "effective_resolutions": {}, "recheck": None, "rechecks": [],
+                "accepted": None,
                 "superseded_issues": {},
             }
         elif review_id in runs and kind == "review_resolved":
-            runs[review_id]["resolution"] = event
+            run = runs[review_id]
+            run["resolution"] = event
+            run["resolution_events"].append(event)
+            for item in event.get("resolutions", []) or []:
+                run["effective_resolutions"][str(item.get("issue_id", ""))] = item
+            run["recheck"] = None
+        elif review_id in runs and kind == "review_rechecked":
+            runs[review_id]["recheck"] = event
+            runs[review_id]["rechecks"].append(event)
         elif review_id in runs and kind == "review_accepted":
             runs[review_id]["accepted"] = event
         elif review_id in runs and kind == "review_issue_superseded":
             issue_id = str(event.get("issue_id", ""))
             runs[review_id]["superseded_issues"][issue_id] = event
     return runs
+
+
+def effective_review_resolutions(run: dict[str, Any]) -> list[dict[str, Any]]:
+    effective = run.get("effective_resolutions", {})
+    return [effective[issue_id] for issue_id in (
+        str(issue.get("issue_id", "")) for issue in run.get("issues", [])
+    ) if issue_id in effective]
+
+
+def review_open_issue_ids(run: dict[str, Any]) -> set[str]:
+    if run.get("accepted"):
+        return set()
+    all_ids = {str(issue.get("issue_id", "")) for issue in run.get("issues", [])}
+    if not run.get("resolution"):
+        return all_ids
+    recheck = run.get("recheck")
+    if recheck and recheck.get("verdict") == "revise":
+        return set(map(str, recheck.get("open_issue_ids", []) or []))
+    return {
+        str(item.get("issue_id", ""))
+        for item in effective_review_resolutions(run)
+        if item.get("escalation")
+    }
 
 
 def scene_review_hash(rows: list[dict[str, Any]]) -> str:
@@ -3163,6 +3276,21 @@ def review_package(root: Path, config: dict[str, Any], scene_id: str) -> str:
     return "\n".join(parts)
 
 
+def combined_packages(title: str, labels: list[str], packages: list[str]) -> str:
+    if len(packages) != len(labels) or not packages:
+        raise ValueError("combined package requires matching labels and content")
+    if len(packages) == 1:
+        return packages[0]
+    parts = [
+        f"# {title}", "",
+        f"Элементов: {len(packages)}. Каждый элемент имеет отдельный выходной файл, "
+        "команду применения и checkpoint. Не смешивай ID между элементами.",
+    ]
+    for index, (label, package) in enumerate(zip(labels, packages), start=1):
+        parts.extend(["", "---", "", f"# Элемент {index}: {label}", "", package])
+    return "\n".join(parts)
+
+
 def review_import(root: Path, config: dict[str, Any], scene_id: str,
                   report_path: Path, reviewer: str) -> int:
     report = report_path if report_path.is_absolute() else root / report_path
@@ -3235,6 +3363,9 @@ def review_resolution_package(root: Path, config: dict[str, Any], review_id: str
         raise ValueError(f"Unknown review: {review_id}")
     if run.get("accepted"):
         raise ValueError(f"Review already accepted: {review_id}")
+    open_issue_ids = review_open_issue_ids(run)
+    if not open_issue_ids:
+        raise ValueError(f"Review has no issues awaiting resolution: {review_id}")
     scene_id = str(run["scene_id"])
     seg_file = root / config.get("paths", {}).get(
         "segments", "translation/segments") / f"{scene_id}.jsonl"
@@ -3243,9 +3374,15 @@ def review_resolution_package(root: Path, config: dict[str, Any], review_id: str
     if scene_review_hash(rows) != expected_hash:
         raise ValueError("canonical scene changed after review; create a new review")
     by_id = {str(row["id"]): row for row in rows}
-    context = build_context(root, config, scene_id, purpose="review-fix")
+    issues = [issue for issue in run.get("issues", [])
+              if str(issue.get("issue_id", "")) in open_issue_ids]
+    focus_ids = {
+        str(segment_id) for issue in issues for segment_id in issue.get("segment_ids", [])
+    }
+    context = build_context(
+        root, config, scene_id, purpose="review-fix", focus_segment_ids=focus_ids)
     templates = []
-    for issue in run.get("issues", []):
+    for issue in issues:
         changes = []
         for suggestion in issue.get("suggested_changes", []) or []:
             sid = str(suggestion.get("id"))
@@ -3264,7 +3401,7 @@ def review_resolution_package(root: Path, config: dict[str, Any], review_id: str
     parts = [
         f"# Применение замечаний ревью {review_id}", "", context, "",
         "## Замечания", "", "```json",
-        json.dumps(run.get("issues", []), ensure_ascii=False, indent=2),
+        json.dumps(issues, ensure_ascii=False, indent=2),
         "```", "",
         "Приоритет этого режима: точный и естественный русский. Не проводи новое "
         "ревью вместо рецензента, но и не вставляй его формулировку механически, "
@@ -3273,7 +3410,8 @@ def review_resolution_package(root: Path, config: dict[str, Any], review_id: str
         "реалии и родственные обращения не заменяй функциональным русским эквивалентом, "
         "если пакет закрепляет транслитерированную форму.", "",
         f"Запиши `build/resolutions-{review_id}.jsonl`: ровно одна строка на каждый "
-        "issue_id, без пропусков. Начальная заготовка:", "", "```jsonl",
+        "issue_id из этого дельтового пакета, без пропусков. Уже закрытые замечания "
+        "повторно не разрешай. Начальная заготовка:", "", "```jsonl",
     ]
     parts.extend(json.dumps(item, ensure_ascii=False) for item in templates)
     parts.extend([
@@ -3297,6 +3435,9 @@ def review_resolve(root: Path, config: dict[str, Any], review_id: str,
         raise ValueError(f"Unknown review: {review_id}")
     if run.get("accepted"):
         raise ValueError(f"Review already accepted: {review_id}")
+    expected_issue_ids = review_open_issue_ids(run)
+    if not expected_issue_ids:
+        raise ValueError(f"Review has no issues awaiting resolution: {review_id}")
     scene_id = str(run["scene_id"])
     seg_file = root / config.get("paths", {}).get(
         "segments", "translation/segments") / f"{scene_id}.jsonl"
@@ -3310,10 +3451,11 @@ def review_resolve(root: Path, config: dict[str, Any], review_id: str,
     by_resolution = {str(row.get("issue_id", "")): row for row in resolutions}
     if len(by_resolution) != len(resolutions):
         raise ValueError("duplicate issue_id in resolutions")
-    if set(by_resolution) != set(issues):
-        missing = sorted(set(issues) - set(by_resolution))
-        extra = sorted(set(by_resolution) - set(issues))
-        raise ValueError(f"every issue needs a disposition: missing={missing}, extra={extra}")
+    if set(by_resolution) != expected_issue_ids:
+        missing = sorted(expected_issue_ids - set(by_resolution))
+        extra = sorted(set(by_resolution) - expected_issue_ids)
+        raise ValueError(
+            f"every open issue needs a disposition: missing={missing}, extra={extra}")
     qa = read_yaml(root / "config/qa-rules.yaml", {}) or {}
     allowed_flags = set(qa.get("allowed_flags", []))
     by_id = {str(row["id"]): row for row in rows}
@@ -3405,15 +3547,33 @@ def review_recheck_package(root: Path, config: dict[str, Any], review_id: str) -
     run = review_runs(load_review_events(root, config)).get(review_id)
     if not run or not run.get("resolution"):
         raise ValueError(f"Review has no complete resolution: {review_id}")
+    open_issue_ids = review_open_issue_ids(run)
+    if open_issue_ids:
+        raise ValueError(
+            f"Review still has issues awaiting resolution: {', '.join(sorted(open_issue_ids))}")
     scene_id = str(run["scene_id"])
-    context = build_context(root, config, scene_id, purpose="review-recheck")
+    latest_recheck = (run.get("rechecks") or [])[-1] if run.get("rechecks") else None
+    checked_issue_ids = (
+        set(map(str, latest_recheck.get("open_issue_ids", []) or []))
+        if latest_recheck and latest_recheck.get("verdict") == "revise"
+        else {str(issue.get("issue_id", "")) for issue in run.get("issues", [])}
+    )
+    issues = [issue for issue in run.get("issues", [])
+              if str(issue.get("issue_id", "")) in checked_issue_ids]
+    resolutions = [item for item in effective_review_resolutions(run)
+                   if str(item.get("issue_id", "")) in checked_issue_ids]
+    focus_ids = {
+        str(segment_id) for issue in issues for segment_id in issue.get("segment_ids", [])
+    }
+    context = build_context(
+        root, config, scene_id, purpose="review-recheck", focus_segment_ids=focus_ids)
     result_hash = str(run["resolution"]["result_sha256"])
     parts = [
         f"# Перепроверка применённых замечаний {review_id}", "", context, "",
         "## Замечания и решения оркестратора", "", "```json",
         json.dumps({
-            "issues": run.get("issues", []),
-            "resolutions": run["resolution"].get("resolutions", []),
+            "issues": issues,
+            "resolutions": resolutions,
         }, ensure_ascii=False, indent=2),
         "```", "",
         "Проверь, что каждое applied действительно исправлено, каждый rejected "
@@ -3449,18 +3609,45 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
         "segments", "translation/segments") / f"{scene_id}.jsonl"
     rows = [clean_meta(row) for row in read_jsonl(seg_file)]
     current_hash = scene_review_hash(rows)
+    verdict_name = str(verdict.get("verdict", ""))
+    open_issue_ids = list(map(str, verdict.get("open_issue_ids", []) or []))
+    known_issue_ids = {
+        str(issue.get("issue_id", "")) for issue in run.get("issues", [])
+    }
     if (verdict.get("review_id") != review_id
             or verdict.get("scene_sha256") != current_hash
-            or verdict.get("verdict") != "accept"
-            or verdict.get("open_issue_ids") not in ([], None)):
-        raise ValueError("review verdict does not accept the current scene hash")
+            or verdict_name not in REVIEW_VERDICTS
+            or len(open_issue_ids) != len(set(open_issue_ids))
+            or set(open_issue_ids) - known_issue_ids
+            or (verdict_name == "accept" and open_issue_ids)
+            or (verdict_name == "revise" and not open_issue_ids)):
+        raise ValueError("invalid review verdict for the current scene hash")
     if current_hash != run["resolution"].get("result_sha256"):
         raise ValueError("scene changed after resolution")
-    escalations = [item.get("issue_id") for item in run["resolution"].get(
-        "resolutions", []) if item.get("escalation")]
+    escalations = [item.get("issue_id") for item in effective_review_resolutions(run)
+                   if item.get("escalation")]
     if escalations:
         raise ValueError(
             f"review has unresolved user escalations: {', '.join(map(str, escalations))}")
+    if verdict_name == "revise":
+        append_review_event(root, config, {
+            "schema_version": 1,
+            "event": "review_rechecked",
+            "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+            "review_id": review_id,
+            "scene_id": scene_id,
+            "scene_sha256": current_hash,
+            "verdict": "revise",
+            "open_issue_ids": open_issue_ids,
+            "reviewer": reviewer,
+            "verdict_sha256": sha256_file(verdict_file),
+        })
+        print(f"{review_id}: revise; {len(open_issue_ids)} issues reopened")
+        return 0
+    unresolved = review_open_issue_ids(run)
+    if unresolved:
+        raise ValueError(
+            f"review has unresolved recheck issues: {', '.join(sorted(unresolved))}")
     statuses = {str(row.get("status")) for row in rows}
     if statuses not in ({"draft"}, {"reviewed"}):
         raise ValueError(f"scene is not awaiting review close: {dict(Counter(statuses))}")
@@ -3544,11 +3731,13 @@ def review_status(root: Path, config: dict[str, Any]) -> int:
         return 0
     for run in runs.values():
         issues = run.get("issues", [])
+        open_ids = review_open_issue_ids(run)
         state = "accepted" if run.get("accepted") else (
-            "resolved" if run.get("resolution") else "open")
+            f"open:{len(open_ids)}" if open_ids else
+            "awaiting recheck" if run.get("resolution") else "open")
         counts = Counter(str(issue.get("severity")) for issue in issues)
-        escalations = sum(1 for item in (run.get("resolution") or {}).get(
-            "resolutions", []) if item.get("escalation"))
+        escalations = sum(1 for item in effective_review_resolutions(run)
+                          if item.get("escalation"))
         suffix = f", escalations={escalations}" if escalations else ""
         print(f"{run['review_id']}: {run['scene_id']}, {state}, {dict(counts)}{suffix}")
     return 0
@@ -3588,7 +3777,8 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
             if any(issue.get("severity") not in REVIEW_SEVERITIES for issue in issues):
                 errors.append(f"review ledger line {index}: invalid issue severity")
             runs[review_id] = {
-                "issues": set(issue_ids), "resolved": False, "accepted": False,
+                "issues": set(issue_ids), "expected": set(issue_ids),
+                "effective": {}, "resolved": False, "accepted": False,
                 "superseded": set(),
             }
             continue
@@ -3599,9 +3789,27 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
         if kind == "review_resolved":
             resolution_ids = {str(item.get("issue_id", ""))
                               for item in event.get("resolutions", []) or []}
-            if resolution_ids != run["issues"]:
+            if resolution_ids not in (run["expected"], run["issues"]):
                 errors.append(f"review ledger line {index}: incomplete issue dispositions")
-            run["resolved"] = True
+            for item in event.get("resolutions", []) or []:
+                run["effective"][str(item.get("issue_id", ""))] = item
+            escalations = {
+                issue_id for issue_id, item in run["effective"].items()
+                if item.get("escalation")
+            }
+            run["expected"] = escalations
+            run["resolved"] = not escalations
+        elif kind == "review_rechecked":
+            verdict = event.get("verdict")
+            open_ids = list(map(str, event.get("open_issue_ids", []) or []))
+            if not run["resolved"]:
+                errors.append(f"review ledger line {index}: rechecked before resolution")
+            if verdict != "revise" or not open_ids or len(open_ids) != len(set(open_ids)):
+                errors.append(f"review ledger line {index}: invalid revise verdict")
+            if set(open_ids) - run["issues"]:
+                errors.append(f"review ledger line {index}: revise references unknown issues")
+            run["expected"] = set(open_ids)
+            run["resolved"] = False
         elif kind == "review_accepted":
             if not run["resolved"]:
                 errors.append(f"review ledger line {index}: accepted before resolution")
@@ -3632,10 +3840,7 @@ def prior_review_issues(root: Path, config: dict[str, Any],
     for run in review_runs(load_review_events(root, config)).values():
         if not run.get("accepted"):
             continue
-        resolutions = {
-            str(item.get("issue_id")): item
-            for item in (run.get("resolution") or {}).get("resolutions", [])
-        }
+        resolutions = run.get("effective_resolutions", {})
         superseded = run.get("superseded_issues", {})
         for issue in run.get("issues", []):
             linked = set(map(str, issue.get("segment_ids", [])))
@@ -3786,7 +3991,9 @@ def render_required_knowledge(root: Path, config: dict[str, Any],
         latest = latest_review_for_scene(root, config, scene_id)
         review_state = "нет review-run"
         if latest:
+            open_ids = review_open_issue_ids(latest)
             review_state = "accepted" if latest.get("accepted") else (
+                f"open:{len(open_ids)}" if open_ids else
                 "resolved" if latest.get("resolution") else "open")
         parts.append(f"- {scene_id}: route={routes.get(scene_id, '')}, review={review_state}")
 
@@ -3900,6 +4107,109 @@ def work_next(root: Path, config: dict[str, Any], scene_id: str,
         "3. Применяй: `python tools/vnctl.py apply-translation " + scene_id
         + " build/patch-" + scene_id + ".jsonl --start " + str(first + 1)
         + " --count " + str(len(batch)) + "`\n")
+    return "\n".join(parts)
+
+
+def work_batch(root: Path, config: dict[str, Any], scene_ids: list[str]) -> str:
+    if len(scene_ids) < 2:
+        raise ValueError("multi-scene package requires at least two scenes")
+    if len(scene_ids) != len(set(scene_ids)):
+        raise ValueError("multi-scene package contains duplicate scene IDs")
+    db = db_path(root, config)
+    if not db.exists():
+        raise FileNotFoundError(f"Index not found: {db}. Run: python tools/vnctl.py index")
+    con = sqlite3.connect(db)
+    con.row_factory = sqlite3.Row
+    scene_data: list[dict[str, Any]] = []
+    all_items: list[dict[str, Any]] = []
+    source_parts: list[str] = []
+    try:
+        for scene_id in scene_ids:
+            rows = con.execute(
+                "SELECT * FROM segments WHERE scene_id=? ORDER BY ord", (scene_id,)
+            ).fetchall()
+            if not rows:
+                raise ValueError(f"Unknown or empty scene: {scene_id}")
+            pending = [index for index, row in enumerate(rows)
+                       if not str(row["translation"] or "").strip()]
+            if not pending:
+                raise ValueError(f"Scene is already translated: {scene_id}")
+            first = pending[0]
+            batch = rows[first:]
+            lead = rows[max(0, first - 5):first]
+            items: list[dict[str, Any]] = []
+            for row in batch:
+                item = dict(row)
+                item["sources"] = json.loads(row["sources_json"])
+                item["flags"] = json.loads(row["flags_json"] or "[]")
+                items.append(item)
+                source_parts.extend(item["sources"].values())
+                if item.get("speaker"):
+                    source_parts.append(str(item["speaker"]))
+            all_items.extend(items)
+            scene_data.append({
+                "scene_id": scene_id, "rows": rows, "first": first,
+                "batch": items, "lead": lead,
+            })
+    finally:
+        con.close()
+
+    glossary = glossary_for_scene(root, config, "\n".join(source_parts))
+    total_segments = sum(len(item["batch"]) for item in scene_data)
+    parts = [
+        f"# Пакет сцен: {', '.join(scene_ids)}",
+        "",
+        f"Всего сцен: {len(scene_ids)}; сегментов к переводу: {total_segments}.",
+        "Каждую сцену прочитай целиком и сдай отдельным патчем. Ошибка одной сцены "
+        "не должна мешать проверке и применению остальных.",
+        "",
+        render_required_knowledge(root, config, all_items, glossary, role="translator"),
+        "",
+        "## Прежде чем вводить новое слово",
+        "",
+        "Все сцены этого пакета видны одновременно. Термин, реалию, прозвище и "
+        "название постройки согласуй внутри пакета и проверь по уже переведённому:",
+        "",
+        "```bash",
+        "python tools/vnctl.py lines --contains СЛОВО --limit 20",
+        "```",
+    ]
+    for data in scene_data:
+        scene_id = str(data["scene_id"])
+        first = int(data["first"])
+        batch = data["batch"]
+        rows = data["rows"]
+        lead = data["lead"]
+        parts.extend([
+            "",
+            f"# Сцена {scene_id}: строки {first + 1}-{first + len(batch)} из {len(rows)}",
+        ])
+        if lead:
+            parts.extend(["", "## Предыдущие строки, для связности", "```jsonl"])
+            for row in lead:
+                parts.append(json.dumps({
+                    "speaker": row["speaker"],
+                    "ja": json.loads(row["sources_json"]).get("ja", ""),
+                    "ru": row["translation"] or "",
+                }, ensure_ascii=False))
+            parts.append("```")
+        parts.extend(["", f"## Переводить: {scene_id}", "```jsonl"])
+        for row in batch:
+            parts.append(json.dumps({
+                "id": row["id"],
+                "speaker": row["speaker"],
+                "sources": row["sources"],
+                "flags": row["flags"],
+                "markup": markup_contract(str(row["sources"].get("ja", ""))),
+            }, ensure_ascii=False))
+        parts.extend([
+            "```", "", f"## Как сдать {scene_id}", "",
+            f"1. Запиши `build/patch-{scene_id}.jsonl`.",
+            f"2. Проверь: `python tools/vnctl.py work check {scene_id} "
+            f"build/patch-{scene_id}.jsonl --start {first + 1} --count {len(batch)}`",
+            f"3. Примени: `python tools/vnctl.py apply-translation {scene_id} "
+            f"build/patch-{scene_id}.jsonl --start {first + 1} --count {len(batch)}`",
+        ])
     return "\n".join(parts)
 
 
@@ -4088,7 +4398,8 @@ def work_check(root: Path, config: dict[str, Any], scene_id: str,
 
 
 def build_context(root: Path, config: dict[str, Any], scene_id: str,
-                  purpose: str = "context") -> str:
+                  purpose: str = "context",
+                  focus_segment_ids: set[str] | None = None) -> str:
     db = db_path(root, config)
     if not db.exists():
         raise FileNotFoundError(f"Index not found: {db}. Run: python tools/vnctl.py index")
@@ -4105,14 +4416,14 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str,
     previous_scene_id = scene_entry.get("previous_scene")
     next_scene_id = scene_entry.get("next_scene")
 
-    if previous_scene_id:
+    if previous_scene_id and focus_segment_ids is None:
         previous = con.execute(
             "SELECT * FROM segments WHERE scene_id=? ORDER BY ord DESC LIMIT ?",
             (previous_scene_id, prev_n),
         ).fetchall()[::-1]
     else:
         previous = []
-    if next_scene_id:
+    if next_scene_id and focus_segment_ids is None:
         following = con.execute(
             "SELECT * FROM segments WHERE scene_id=? ORDER BY ord LIMIT ?",
             (next_scene_id, next_n),
@@ -4121,18 +4432,33 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str,
         following = []
     previous_summary = (
         con.execute("SELECT safe_summary FROM summaries WHERE scene_id=?", (previous_scene_id,)).fetchone()
-        if previous_scene_id else None
+        if previous_scene_id and focus_segment_ids is None else None
     )
+    context_rows = list(rows)
+    if focus_segment_ids is not None:
+        radius = int(config.get("workflow", {}).get("review_issue_context_segments", 5))
+        positions = {str(row["id"]): index for index, row in enumerate(rows)}
+        unknown = focus_segment_ids - set(positions)
+        if unknown:
+            con.close()
+            raise ValueError(
+                f"review focus references unknown segments: {', '.join(sorted(unknown))}")
+        selected: set[int] = set()
+        for segment_id in focus_segment_ids:
+            index = positions[segment_id]
+            selected.update(range(
+                max(0, index - radius), min(len(rows), index + radius + 1)))
+        context_rows = [rows[index] for index in sorted(selected)]
     con.close()
 
-    speakers = sorted({str(r["speaker"]) for r in rows if r["speaker"]})
+    speakers = sorted({str(r["speaker"]) for r in context_rows if r["speaker"]})
     # Имя говорящего лежит отдельным полем, но выводится на экран и переводится.
     # Без него отбор глоссария пропускал ярлыки говорящих целиком (FND-0042).
     source_text = "\n".join(
         ["\n".join(json.loads(r["sources_json"]).values()) or str(r["source"])
-         for r in rows] + speakers
+         for r in context_rows] + speakers
     )
-    seg_ids = {str(r["id"]) for r in rows}
+    seg_ids = {str(r["id"]) for r in context_rows}
     glossary = glossary_for_scene(root, config, source_text)
     constraints = safe_constraints(root, config, seg_ids)
     decisions = linked_decisions(db, seg_ids)
@@ -4144,70 +4470,69 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str,
     ))
     examples = approved_examples(db, speakers, scene_id, example_limit)
     current_items: list[dict[str, Any]] = []
-    for row in rows:
+    for row in context_rows:
         item = dict(row)
         item["sources"] = json.loads(row["sources_json"])
         item["flags"] = json.loads(row["flags_json"] or "[]")
         current_items.append(item)
 
-    spec = (root / "docs/translation-spec.md").read_text(encoding="utf-8-sig")
-    progress = read_yaml(root / "docs/progress.yaml", {}) or {}
+    include_full_reference = purpose in {"context", "knowledge"}
+    spec = ((root / "docs/translation-spec.md").read_text(encoding="utf-8-sig")
+            if include_full_reference else "")
+    progress = (read_yaml(root / "docs/progress.yaml", {}) or {}
+                if include_full_reference else {})
 
     parts: list[str] = []
     parts.append(f"# Контекст сцены {scene_id}\n")
     task_text = {
         "review": "Провести независимое двуязычное ревью текущего draft.",
-        "review-fix": "Применить и формально разрешить все замечания независимого ревью.",
-        "review-recheck": "Перепроверить применение всех замечаний ревью.",
+        "review-fix": "Применить и формально разрешить текущую дельту замечаний ревью.",
+        "review-recheck": "Перепроверить только текущую дельту применённых замечаний ревью.",
         "knowledge": "Извлечь минимальную дельту знаний из проверенной сцены.",
     }.get(purpose, "Перевести или проверить текущую сцену по правилам проекта.")
     parts.append(f"## Задача\n{task_text} Не выводить будущие сюжетные сведения.\n")
     parts.append(render_required_knowledge(
         root, config, current_items, glossary, role=purpose))
     parts.append("")
-    parts.append("## Текущий прогресс\n```yaml\n" + (yaml.safe_dump(progress, allow_unicode=True, sort_keys=False) if yaml else json.dumps(progress, ensure_ascii=False, indent=2)) + "```\n")
-    parts.append("## Глобальная спецификация\n" + spec + "\n")
-    parts.append("## Действующие утверждённые решения\n")
-    if global_rules:
-        parts.extend("- " + rule for rule in global_rules)
-        parts.append("")
-    else:
-        parts.append("Нет.\n")
     parts.append("## Участники\n" + (", ".join(speakers) if speakers else "Повествование / неизвестно") + "\n")
-
-    for speaker in speakers:
-        doc = character_doc(root, config, speaker)
-        if doc:
-            parts.append(f"## Карточка персонажа: {speaker}\n{doc}\n")
-
-    parts.append("## Релевантный глоссарий\n")
-    if glossary:
-        parts.append("```yaml\n" + (yaml.safe_dump(glossary, allow_unicode=True, sort_keys=False) if yaml else json.dumps(glossary, ensure_ascii=False, indent=2)) + "```\n")
-    else:
-        parts.append("Нет совпадений.\n")
-
-    parts.append("## Безопасные сюжетные ограничения\n")
-    if constraints:
-        for item in constraints:
-            parts.append(f"- {item['id']}: " + "; ".join(map(str, item.get("safe_rules", []))))
-        parts.append("")
-    else:
-        parts.append("Нет.\n")
-
-    parts.append("## Связанные с сегментами утверждённые решения\n")
-    if decisions:
-        parts.append("```json\n" + json.dumps(decisions, ensure_ascii=False, indent=2) + "\n```\n")
-    else:
-        parts.append("Нет.\n")
-
-    parts.append("## Утверждённые внутренние примеры письменной речи\n")
-    if examples:
-        parts.append("```jsonl")
-        for item in examples:
-            parts.append(json.dumps(item, ensure_ascii=False))
-        parts.append("```\n")
-    else:
-        parts.append("Пока нет.\n")
+    if include_full_reference:
+        parts.append("## Текущий прогресс\n```yaml\n" + (yaml.safe_dump(progress, allow_unicode=True, sort_keys=False) if yaml else json.dumps(progress, ensure_ascii=False, indent=2)) + "```\n")
+        parts.append("## Глобальная спецификация\n" + spec + "\n")
+        parts.append("## Действующие утверждённые решения\n")
+        if global_rules:
+            parts.extend("- " + rule for rule in global_rules)
+            parts.append("")
+        else:
+            parts.append("Нет.\n")
+        for speaker in speakers:
+            doc = character_doc(root, config, speaker)
+            if doc:
+                parts.append(f"## Карточка персонажа: {speaker}\n{doc}\n")
+        parts.append("## Релевантный глоссарий\n")
+        if glossary:
+            parts.append("```yaml\n" + (yaml.safe_dump(glossary, allow_unicode=True, sort_keys=False) if yaml else json.dumps(glossary, ensure_ascii=False, indent=2)) + "```\n")
+        else:
+            parts.append("Нет совпадений.\n")
+        parts.append("## Безопасные сюжетные ограничения\n")
+        if constraints:
+            for item in constraints:
+                parts.append(f"- {item['id']}: " + "; ".join(map(str, item.get("safe_rules", []))))
+            parts.append("")
+        else:
+            parts.append("Нет.\n")
+        parts.append("## Связанные с сегментами утверждённые решения\n")
+        if decisions:
+            parts.append("```json\n" + json.dumps(decisions, ensure_ascii=False, indent=2) + "\n```\n")
+        else:
+            parts.append("Нет.\n")
+        parts.append("## Утверждённые внутренние примеры письменной речи\n")
+        if examples:
+            parts.append("```jsonl")
+            for item in examples:
+                parts.append(json.dumps(item, ensure_ascii=False))
+            parts.append("```\n")
+        else:
+            parts.append("Пока нет.\n")
 
     parts.append("## Безопасное резюме предыдущей сцены\n")
     if previous_summary and previous_summary["safe_summary"]:
@@ -4229,9 +4554,13 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str,
             parts.append(json.dumps(item, ensure_ascii=False))
         parts.append("```\n")
 
-    render_segments("Предыдущие сегменты", previous)
-    render_segments("Текущая сцена", rows)
-    render_segments("Следующие сегменты", following)
+    if focus_segment_ids is None:
+        render_segments("Предыдущие сегменты", previous)
+    render_segments(
+        "Текущая сцена" if focus_segment_ids is None else "Контекст затронутых строк",
+        context_rows)
+    if focus_segment_ids is None:
+        render_segments("Следующие сегменты", following)
 
     output = "\n".join(parts)
     if "private_reason" in output:
@@ -4556,7 +4885,9 @@ def main() -> int:
     p_work = sub.add_parser("work")
     work_sub = p_work.add_subparsers(dest="work_command", required=True)
     p_wnext = work_sub.add_parser("next")
-    p_wnext.add_argument("scene_id", nargs="?")
+    p_wnext.add_argument("scene_ids", nargs="*")
+    p_wnext.add_argument("--scenes", type=int)
+    p_wnext.add_argument("--max-segments", type=int)
     p_wnext.add_argument("--size", type=int, default=0)
     p_wnext.add_argument("--start", type=int, default=None)
     p_wnext.add_argument("-o", "--output", type=Path)
@@ -4570,21 +4901,21 @@ def main() -> int:
     review_sub = p_review.add_subparsers(dest="review_command", required=True)
     review_sub.add_parser("status")
     p_rpackage = review_sub.add_parser("package")
-    p_rpackage.add_argument("scene_id")
+    p_rpackage.add_argument("scene_ids", nargs="+")
     p_rpackage.add_argument("-o", "--output", type=Path)
     p_rimport = review_sub.add_parser("import")
     p_rimport.add_argument("scene_id")
     p_rimport.add_argument("report", type=Path)
     p_rimport.add_argument("--reviewer", required=True)
     p_rfix = review_sub.add_parser("fix")
-    p_rfix.add_argument("review_id")
+    p_rfix.add_argument("review_ids", nargs="+")
     p_rfix.add_argument("-o", "--output", type=Path)
     p_rresolve = review_sub.add_parser("resolve")
     p_rresolve.add_argument("review_id")
     p_rresolve.add_argument("resolutions", type=Path)
     p_rresolve.add_argument("--actor", required=True)
     p_rrecheck = review_sub.add_parser("recheck")
-    p_rrecheck.add_argument("review_id")
+    p_rrecheck.add_argument("review_ids", nargs="+")
     p_rrecheck.add_argument("-o", "--output", type=Path)
     p_rclose = review_sub.add_parser("close")
     p_rclose.add_argument("review_id")
@@ -4680,11 +5011,27 @@ def main() -> int:
             if args.work_command == "queue":
                 return work_queue(root, config)
             if args.work_command == "next":
-                scene_id = args.scene_id or next_unfinished_scene(root, config)
-                if not scene_id:
+                if args.scene_ids and args.scenes is not None:
+                    raise ValueError("--scenes is only valid for automatic scene selection")
+                scene_ids = list(dict.fromkeys(args.scene_ids))
+                if len(scene_ids) != len(args.scene_ids):
+                    raise ValueError("duplicate scene IDs in work package")
+                if not scene_ids:
+                    workflow = config.get("workflow", {})
+                    scene_limit = (args.scenes if args.scenes is not None else
+                                   int(workflow.get("translation_batch_scenes", 3)))
+                    segment_limit = (args.max_segments if args.max_segments is not None else
+                                     int(workflow.get(
+                                         "translation_batch_max_segments", 500)))
+                    scene_ids = next_unfinished_scenes(
+                        root, config, scene_limit, segment_limit)
+                if not scene_ids:
                     print("Непереведённых сцен не осталось.")
                     return 0
-                content = work_next(root, config, scene_id, args.size, args.start)
+                if len(scene_ids) > 1 and (args.size > 0 or args.start is not None):
+                    raise ValueError("--size and --start are not supported for multi-scene packages")
+                content = (work_next(root, config, scene_ids[0], args.size, args.start)
+                           if len(scene_ids) == 1 else work_batch(root, config, scene_ids))
                 if args.output:
                     out = args.output if args.output.is_absolute() else root / args.output
                     out.parent.mkdir(parents=True, exist_ok=True)
@@ -4710,11 +5057,26 @@ def main() -> int:
                 return review_issue_supersede(
                     root, config, args.issue_id, args.question_id, args.actor, args.reason)
             if args.review_command == "package":
-                content = review_package(root, config, args.scene_id)
+                content = combined_packages(
+                    "Пакет независимых двуязычных ревью",
+                    args.scene_ids,
+                    [review_package(root, config, scene_id)
+                     for scene_id in args.scene_ids],
+                )
             elif args.review_command == "fix":
-                content = review_resolution_package(root, config, args.review_id)
+                content = combined_packages(
+                    "Пакет применения замечаний",
+                    args.review_ids,
+                    [review_resolution_package(root, config, review_id)
+                     for review_id in args.review_ids],
+                )
             else:
-                content = review_recheck_package(root, config, args.review_id)
+                content = combined_packages(
+                    "Пакет source-aware перепроверок",
+                    args.review_ids,
+                    [review_recheck_package(root, config, review_id)
+                     for review_id in args.review_ids],
+                )
             if args.output:
                 out = args.output if args.output.is_absolute() else root / args.output
                 out.parent.mkdir(parents=True, exist_ok=True)

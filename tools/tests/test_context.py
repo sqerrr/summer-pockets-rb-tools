@@ -4,6 +4,8 @@ import sqlite3
 import sys
 from pathlib import Path
 
+import pytest
+
 
 def load_vnctl():
     path = Path(__file__).parents[1] / "vnctl.py"
@@ -60,3 +62,20 @@ def test_cli_reconfigures_stdio_to_utf8(monkeypatch):
 
     assert stdout.calls == [{"encoding": "utf-8", "errors": "strict"}]
     assert stderr.calls == [{"encoding": "utf-8", "errors": "strict"}]
+
+
+def test_index_failure_preserves_existing_database(tmp_path, monkeypatch):
+    vnctl = load_vnctl()
+    database = tmp_path / "knowledge.db"
+    database.write_bytes(b"existing index")
+    config = {"paths": {"database": "knowledge.db"}}
+
+    def fail_load_segments(*_args):
+        raise ValueError("broken source")
+
+    monkeypatch.setattr(vnctl, "load_segments", fail_load_segments)
+    with pytest.raises(ValueError, match="broken source"):
+        vnctl.index_project(tmp_path, config)
+
+    assert database.read_bytes() == b"existing index"
+    assert list(tmp_path.glob("knowledge.db.*.tmp")) == []

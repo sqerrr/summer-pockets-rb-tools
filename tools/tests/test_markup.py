@@ -68,6 +68,13 @@ def test_speed_and_song_codes_must_survive_exactly():
     assert rules("$S056歌$S000", "$S056Песня$S000") == set()
 
 
+def test_emphasis_span_keeps_wrappers_but_translates_content():
+    ja = "知りませんか？　$[$bって$]"
+    assert rules(ja, "Не видели? $[$bВот так.$]") == set()
+    assert "markup" in rules(ja, "Не видели? Вот так.")
+    assert "markup" in rules(ja, "$[$bНе видели? Вот так.")
+
+
 def test_plain_text_untouched():
     assert rules("潮風が顔に吹き付ける。", "Морской ветер бьёт в лицо.") == set()
 

@@ -10,7 +10,9 @@
         "ledger_initialized",
         "review_imported",
         "review_resolved",
-        "review_accepted"
+        "review_rechecked",
+        "review_accepted",
+        "review_issue_superseded"
       ]
     },
     "review_id": {"type": "string", "pattern": "^REV-SCN[0-9]{4}-[0-9]{2}$"},

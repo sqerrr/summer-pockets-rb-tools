@@ -23,6 +23,23 @@ def write_jsonl(path: Path, rows: list[dict]):
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
+def test_report_verdict_requires_one_unambiguous_marker(tmp_path):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_style_verdict_test")
+    report = tmp_path / "report.md"
+
+    report.write_text("# Review\nVERDICT: ACCEPT\n", encoding="utf-8")
+    assert vnctl.report_verdict(report) == "ACCEPT"
+    assert vnctl.report_accepts(report)
+
+    report.write_text("VERDICT: ACCEPT\nVERDICT: REVISE\n", encoding="utf-8")
+    assert vnctl.report_verdict(report) is None
+    assert not vnctl.report_accepts(report)
+
+    report.write_text("> VERDICT: ACCEPT\n", encoding="utf-8")
+    assert vnctl.report_verdict(report) is None
+
+
 def make_project(tmp_path: Path):
     (tmp_path / "translation/segments").mkdir(parents=True)
     (tmp_path / "config").mkdir()
