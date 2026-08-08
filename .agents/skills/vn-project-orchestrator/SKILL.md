@@ -28,8 +28,8 @@ verified round-trip, and no `approved` without the user saying so.
 python tools/vnctl.py work next -o build/work.md
 ```
 
-Picks up to three adjacent ready scenes, capped by the configured total segment
-budget, and places their shared rules, glossary and voices into one translator
+Picks adjacent ready scenes up to the configured total segment budget, and
+places their shared rules, glossary and voices into one translator
 context. Every scene still stays whole and has its own patch, check and apply
 command. This amortizes the constant prompt without coupling scene writes or
 making one failed patch invalidate the rest.
@@ -43,13 +43,15 @@ Then:
    `vnctl review import`. Several compact scene packages may share one reviewer
    call, but each still writes and imports its own JSONL.
 3. Dispatch `vn-stylist` on `vnctl review fix`. It is the only post-review
-   editor: it resolves every issue present in the current delta package and
-   applies the result through `vnctl review resolve`. Closed issues are not sent
-   again after a revise verdict. Several independent fix packages may share one
-   stylist call when their combined input fits comfortably.
-4. Dispatch a source-aware reviewer on `vnctl review recheck`, then pass either
-   accept or revise to `vnctl review close`. A revise verdict persists only its
-   open issue IDs; the next fix and recheck are focused deltas. Only an accepted
+   editor: the first fix receives the complete scene context and resolves every
+   imported issue through `vnctl review resolve`. Later resolution rounds receive
+   only remaining issue IDs. Closed issues are not sent again after a revise
+   verdict. Several independent fix packages may share one stylist call when
+   their combined input fits comfortably.
+4. Dispatch a source-aware reviewer on `vnctl review recheck`: the first recheck
+   sees the complete scene, while later cycles see only reopened issues. Then pass
+   either accept or revise to `vnctl review close`. A revise verdict persists only
+   its open issue IDs; the next fix and recheck are focused deltas. Only an accepted
    close grants `reviewed`. Several focused rechecks may share one reviewer call
    while retaining separate verdict files.
 5. Run `validate`, `index`, `work queue` and `stats`. Always report translated

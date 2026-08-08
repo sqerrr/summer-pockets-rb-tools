@@ -1474,7 +1474,7 @@ def glossary_note(item: dict[str, Any]) -> str:
 
 def related_questions(root: Path, config: dict[str, Any], scene_ids: set[str],
                       segment_ids: set[str], glossary: list[dict[str, Any]] | None = None,
-                      *, open_only: bool = True) -> list[dict[str, Any]]:
+                      source_text: str = "", *, open_only: bool = True) -> list[dict[str, Any]]:
     linked_question_ids = {
         str(question_id)
         for item in (glossary or [])
@@ -1488,9 +1488,14 @@ def related_questions(root: Path, config: dict[str, Any], scene_ids: set[str],
         if open_only and row.get("status") != "open":
             continue
         linked_segments = set(map(str, row.get("segment_ids", [])))
+        raw_source_terms = row.get("source_terms")
+        source_terms = ([str(term) for term in raw_source_terms if str(term)]
+                        if isinstance(raw_source_terms, list) else [])
         if (str(row.get("scene_id", "")) in scene_ids
                 or bool(linked_segments & segment_ids)
-                or str(row.get("id", "")) in linked_question_ids):
+                or str(row.get("id", "")) in linked_question_ids
+                or row.get("kind") == "policy"
+                or any(term in source_text for term in source_terms)):
             result.append(row)
     return result
 
@@ -3217,7 +3222,8 @@ def latest_review_for_scene(root: Path, config: dict[str, Any],
     return items[-1] if items else None
 
 
-def review_package(root: Path, config: dict[str, Any], scene_id: str) -> str:
+def review_package(root: Path, config: dict[str, Any], scene_id: str, *,
+                   include_global_reference: bool = True) -> str:
     seg_file = root / config.get("paths", {}).get(
         "segments", "translation/segments") / f"{scene_id}.jsonl"
     rows = [clean_meta(row) for row in read_jsonl(seg_file)]
@@ -3243,7 +3249,9 @@ def review_package(root: Path, config: dict[str, Any], scene_id: str) -> str:
     } for row in indexed]
     if scene_review_hash(indexed_rows) != base_hash:
         raise ValueError("knowledge index is stale; run python tools/vnctl.py index")
-    context = build_context(root, config, scene_id, purpose="review")
+    context = build_context(
+        root, config, scene_id, purpose="review",
+        include_global_reference=include_global_reference)
     parts = [
         f"# Двуязычное ревью {review_id}", "",
         context, "",
@@ -3276,7 +3284,8 @@ def review_package(root: Path, config: dict[str, Any], scene_id: str) -> str:
     return "\n".join(parts)
 
 
-def combined_packages(title: str, labels: list[str], packages: list[str]) -> str:
+def combined_packages(title: str, labels: list[str], packages: list[str], *,
+                      shared_context: str = "") -> str:
     if len(packages) != len(labels) or not packages:
         raise ValueError("combined package requires matching labels and content")
     if len(packages) == 1:
@@ -3286,6 +3295,8 @@ def combined_packages(title: str, labels: list[str], packages: list[str]) -> str
         f"Элементов: {len(packages)}. Каждый элемент имеет отдельный выходной файл, "
         "команду применения и checkpoint. Не смешивай ID между элементами.",
     ]
+    if shared_context:
+        parts.extend(["", "# Общий контекст пакета", "", shared_context])
     for index, (label, package) in enumerate(zip(labels, packages), start=1):
         parts.extend(["", "---", "", f"# Элемент {index}: {label}", "", package])
     return "\n".join(parts)
@@ -3357,7 +3368,8 @@ def review_import(root: Path, config: dict[str, Any], scene_id: str,
     return 0
 
 
-def review_resolution_package(root: Path, config: dict[str, Any], review_id: str) -> str:
+def review_resolution_package(root: Path, config: dict[str, Any], review_id: str, *,
+                              include_global_reference: bool = True) -> str:
     run = review_runs(load_review_events(root, config)).get(review_id)
     if not run:
         raise ValueError(f"Unknown review: {review_id}")
@@ -3379,8 +3391,11 @@ def review_resolution_package(root: Path, config: dict[str, Any], review_id: str
     focus_ids = {
         str(segment_id) for issue in issues for segment_id in issue.get("segment_ids", [])
     }
+    repeated_resolution = bool(run.get("resolution_events"))
     context = build_context(
-        root, config, scene_id, purpose="review-fix", focus_segment_ids=focus_ids)
+        root, config, scene_id, purpose="review-fix",
+        focus_segment_ids=focus_ids if repeated_resolution else None,
+        include_global_reference=include_global_reference)
     templates = []
     for issue in issues:
         changes = []
@@ -3543,7 +3558,8 @@ def review_resolve(root: Path, config: dict[str, Any], review_id: str,
     return 0
 
 
-def review_recheck_package(root: Path, config: dict[str, Any], review_id: str) -> str:
+def review_recheck_package(root: Path, config: dict[str, Any], review_id: str, *,
+                           include_global_reference: bool = True) -> str:
     run = review_runs(load_review_events(root, config)).get(review_id)
     if not run or not run.get("resolution"):
         raise ValueError(f"Review has no complete resolution: {review_id}")
@@ -3565,8 +3581,11 @@ def review_recheck_package(root: Path, config: dict[str, Any], review_id: str) -
     focus_ids = {
         str(segment_id) for issue in issues for segment_id in issue.get("segment_ids", [])
     }
+    repeated_recheck = bool(latest_recheck and latest_recheck.get("verdict") == "revise")
     context = build_context(
-        root, config, scene_id, purpose="review-recheck", focus_segment_ids=focus_ids)
+        root, config, scene_id, purpose="review-recheck",
+        focus_segment_ids=focus_ids if repeated_recheck else None,
+        include_global_reference=include_global_reference)
     result_hash = str(run["resolution"]["result_sha256"])
     parts = [
         f"# Перепроверка применённых замечаний {review_id}", "", context, "",
@@ -3874,7 +3893,12 @@ def render_required_knowledge(root: Path, config: dict[str, Any],
                               *, role: str, russian_only: bool = False) -> str:
     scene_ids = {str(row.get("scene_id", "")) for row in rows}
     segment_ids = {str(row.get("id", "")) for row in rows}
-    questions_rows = related_questions(root, config, scene_ids, segment_ids, glossary)
+    source_text = "\n".join(
+        str((row.get("sources") or {}).get("ja", row.get("source", "")))
+        for row in rows
+    )
+    questions_rows = related_questions(
+        root, config, scene_ids, segment_ids, glossary, source_text)
     findings_rows = active_findings_for_package(
         root, config, role=role, russian_only=russian_only)
     reviews = prior_review_issues(root, config, segment_ids)
@@ -3939,6 +3963,8 @@ def render_required_knowledge(root: Path, config: dict[str, Any],
         else:
             safe = {key: item.get(key) for key in (
                 "id", "kind", "scene_id", "segment_ids", "question", "provisional")}
+            if item.get("source_terms"):
+                safe["source_terms"] = item.get("source_terms")
         parts.append("- " + json.dumps(safe, ensure_ascii=False))
     if not questions_rows:
         parts.append("Нет.")
@@ -4110,11 +4136,13 @@ def work_next(root: Path, config: dict[str, Any], scene_id: str,
     return "\n".join(parts)
 
 
-def work_batch(root: Path, config: dict[str, Any], scene_ids: list[str]) -> str:
+def work_batch(root: Path, config: dict[str, Any], scene_ids: list[str], *,
+               allow_oversize: bool = False) -> str:
     if len(scene_ids) < 2:
         raise ValueError("multi-scene package requires at least two scenes")
     if len(scene_ids) != len(set(scene_ids)):
         raise ValueError("multi-scene package contains duplicate scene IDs")
+    workflow = config.get("workflow", {})
     db = db_path(root, config)
     if not db.exists():
         raise FileNotFoundError(f"Index not found: {db}. Run: python tools/vnctl.py index")
@@ -4156,6 +4184,11 @@ def work_batch(root: Path, config: dict[str, Any], scene_ids: list[str]) -> str:
 
     glossary = glossary_for_scene(root, config, "\n".join(source_parts))
     total_segments = sum(len(item["batch"]) for item in scene_data)
+    segment_limit = int(workflow.get("translation_batch_max_segments", 500))
+    if not allow_oversize and segment_limit > 0 and total_segments > segment_limit:
+        raise ValueError(
+            f"translation batch has {total_segments} segments; limit is {segment_limit}. "
+            "Use --allow-oversize only for an explicit pilot")
     parts = [
         f"# Пакет сцен: {', '.join(scene_ids)}",
         "",
@@ -4397,9 +4430,25 @@ def work_check(root: Path, config: dict[str, Any], scene_id: str,
     return 0 if problems == 0 else 1
 
 
+def render_global_reference(root: Path, config: dict[str, Any]) -> str:
+    progress = read_yaml(root / "docs/progress.yaml", {}) or {}
+    spec = (root / "docs/translation-spec.md").read_text(encoding="utf-8-sig")
+    rules = rules_checklist(root, config)
+    parts = [
+        "## Текущий прогресс", "```yaml",
+        yaml.safe_dump(progress, allow_unicode=True, sort_keys=False)
+        if yaml else json.dumps(progress, ensure_ascii=False, indent=2),
+        "```", "", "## Глобальная спецификация", spec, "",
+        "## Действующие утверждённые решения",
+    ]
+    parts.extend(["- " + rule for rule in rules] or ["Нет."])
+    return "\n".join(parts)
+
+
 def build_context(root: Path, config: dict[str, Any], scene_id: str,
                   purpose: str = "context",
-                  focus_segment_ids: set[str] | None = None) -> str:
+                  focus_segment_ids: set[str] | None = None,
+                  include_global_reference: bool = True) -> str:
     db = db_path(root, config)
     if not db.exists():
         raise FileNotFoundError(f"Index not found: {db}. Run: python tools/vnctl.py index")
@@ -4462,7 +4511,6 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str,
     glossary = glossary_for_scene(root, config, source_text)
     constraints = safe_constraints(root, config, seg_ids)
     decisions = linked_decisions(db, seg_ids)
-    global_rules = rules_checklist(root, config)
     workflow = config.get("workflow", {})
     example_limit = int(workflow.get(
         "internal_examples_limit",
@@ -4476,11 +4524,7 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str,
         item["flags"] = json.loads(row["flags_json"] or "[]")
         current_items.append(item)
 
-    include_full_reference = purpose in {"context", "knowledge"}
-    spec = ((root / "docs/translation-spec.md").read_text(encoding="utf-8-sig")
-            if include_full_reference else "")
-    progress = (read_yaml(root / "docs/progress.yaml", {}) or {}
-                if include_full_reference else {})
+    include_full_reference = focus_segment_ids is None
 
     parts: list[str] = []
     parts.append(f"# Контекст сцены {scene_id}\n")
@@ -4496,14 +4540,8 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str,
     parts.append("")
     parts.append("## Участники\n" + (", ".join(speakers) if speakers else "Повествование / неизвестно") + "\n")
     if include_full_reference:
-        parts.append("## Текущий прогресс\n```yaml\n" + (yaml.safe_dump(progress, allow_unicode=True, sort_keys=False) if yaml else json.dumps(progress, ensure_ascii=False, indent=2)) + "```\n")
-        parts.append("## Глобальная спецификация\n" + spec + "\n")
-        parts.append("## Действующие утверждённые решения\n")
-        if global_rules:
-            parts.extend("- " + rule for rule in global_rules)
-            parts.append("")
-        else:
-            parts.append("Нет.\n")
+        if include_global_reference:
+            parts.append(render_global_reference(root, config) + "\n")
         for speaker in speakers:
             doc = character_doc(root, config, speaker)
             if doc:
@@ -4614,6 +4652,15 @@ def questions(root: Path, config: dict[str, Any]) -> int:
         # The whole point of the queue: an open question still has a working answer.
         if row.get("status") == "open" and not row.get("provisional"):
             errors.append(f"{tag}: open question without a provisional answer")
+        source_terms = row.get("source_terms")
+        if source_terms is not None:
+            if (not isinstance(source_terms, list)
+                    or not source_terms
+                    or any(not isinstance(term, str) or not term.strip()
+                           for term in source_terms)
+                    or len(source_terms) != len(set(source_terms))):
+                errors.append(
+                    f"{tag}: source_terms must be a non-empty list of unique strings")
         # ...and the answer has to actually stand in the text. Checking only that
         # the field exists lets a question promise a solution that was never
         # written, which is exactly what the queue was meant to prevent.
@@ -4888,6 +4935,7 @@ def main() -> int:
     p_wnext.add_argument("scene_ids", nargs="*")
     p_wnext.add_argument("--scenes", type=int)
     p_wnext.add_argument("--max-segments", type=int)
+    p_wnext.add_argument("--allow-oversize", action="store_true")
     p_wnext.add_argument("--size", type=int, default=0)
     p_wnext.add_argument("--start", type=int, default=None)
     p_wnext.add_argument("-o", "--output", type=Path)
@@ -5031,7 +5079,9 @@ def main() -> int:
                 if len(scene_ids) > 1 and (args.size > 0 or args.start is not None):
                     raise ValueError("--size and --start are not supported for multi-scene packages")
                 content = (work_next(root, config, scene_ids[0], args.size, args.start)
-                           if len(scene_ids) == 1 else work_batch(root, config, scene_ids))
+                           if len(scene_ids) == 1 else work_batch(
+                               root, config, scene_ids,
+                               allow_oversize=args.allow_oversize))
                 if args.output:
                     out = args.output if args.output.is_absolute() else root / args.output
                     out.parent.mkdir(parents=True, exist_ok=True)
@@ -5057,25 +5107,47 @@ def main() -> int:
                 return review_issue_supersede(
                     root, config, args.issue_id, args.question_id, args.actor, args.reason)
             if args.review_command == "package":
+                shared = (render_global_reference(root, config)
+                          if len(args.scene_ids) > 1 else "")
                 content = combined_packages(
                     "Пакет независимых двуязычных ревью",
                     args.scene_ids,
-                    [review_package(root, config, scene_id)
+                    [review_package(
+                        root, config, scene_id,
+                        include_global_reference=not bool(shared))
                      for scene_id in args.scene_ids],
+                    shared_context=shared,
                 )
             elif args.review_command == "fix":
+                runs = review_runs(load_review_events(root, config))
+                shared = (render_global_reference(root, config)
+                          if len(args.review_ids) > 1 and any(
+                              review_id in runs
+                              and not runs[review_id].get("resolution_events")
+                              for review_id in args.review_ids) else "")
                 content = combined_packages(
                     "Пакет применения замечаний",
                     args.review_ids,
-                    [review_resolution_package(root, config, review_id)
+                    [review_resolution_package(
+                        root, config, review_id,
+                        include_global_reference=not bool(shared))
                      for review_id in args.review_ids],
+                    shared_context=shared,
                 )
             else:
+                runs = review_runs(load_review_events(root, config))
+                shared = (render_global_reference(root, config)
+                          if len(args.review_ids) > 1 and any(
+                              review_id in runs and not runs[review_id].get("rechecks")
+                              for review_id in args.review_ids) else "")
                 content = combined_packages(
                     "Пакет source-aware перепроверок",
                     args.review_ids,
-                    [review_recheck_package(root, config, review_id)
+                    [review_recheck_package(
+                        root, config, review_id,
+                        include_global_reference=not bool(shared))
                      for review_id in args.review_ids],
+                    shared_context=shared,
                 )
             if args.output:
                 out = args.output if args.output.is_absolute() else root / args.output

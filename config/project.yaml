@@ -120,7 +120,7 @@ workflow:
   context_previous_segments: 20
   context_next_segments: 10
   review_issue_context_segments: 5
-  translation_batch_scenes: 3
+  translation_batch_scenes: 12
   translation_batch_max_segments: 500
   internal_examples_limit: 20
   external_reference_limit: 3

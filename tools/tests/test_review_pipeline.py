@@ -138,8 +138,8 @@ def test_review_pipeline_tracks_every_issue_and_only_close_grants_reviewed(tmp_p
     assert "[assumed]" in package
     assert "needs_term_decision" in package
     assert "$S(044,1)" in package
-    assert "## Глобальная спецификация" not in package
-    assert "## Текущий прогресс" not in package
+    assert "## Глобальная спецификация" in package
+    assert "## Текущий прогресс" in package
 
     review_id = "REV-SCN0001-01"
     base_hash = vnctl.scene_review_hash(vnctl.read_jsonl(
@@ -172,6 +172,8 @@ def test_review_pipeline_tracks_every_issue_and_only_close_grants_reviewed(tmp_p
     fix_package = vnctl.review_resolution_package(tmp_path, config, review_id)
     assert "Применение замечаний ревью" in fix_package
     assert "vn-stylist" in fix_package
+    assert "## Глобальная спецификация" in fix_package
+    assert "$S(044,1)原文$S" in fix_package
     resolutions = tmp_path / "build/resolutions.jsonl"
     write_jsonl(resolutions, [
         {"issue_id": f"{review_id}-I001", "disposition": "applied",
@@ -207,6 +209,8 @@ def test_review_pipeline_tracks_every_issue_and_only_close_grants_reviewed(tmp_p
         tmp_path, config, review_id, settled, "vn-stylist") == 0
     recheck = vnctl.review_recheck_package(tmp_path, config, review_id)
     assert "Перепроверка применённых замечаний" in recheck
+    assert "## Глобальная спецификация" in recheck
+    assert "$S(044,1)原文$S" in recheck
     assert vnctl.review_close(
         tmp_path, config, review_id, verdict, "vn-reviewer") == 0
     assert {row["status"] for row in vnctl.read_jsonl(
@@ -270,6 +274,7 @@ def test_revise_verdict_reopens_only_reported_issue(tmp_path):
     assert f"{review_id}-I002" not in delta_package
     assert "弁当" in delta_package
     assert "$S(044,1)原文$S" not in delta_package
+    assert "## Глобальная спецификация" not in delta_package
 
     repeated_full = tmp_path / "build/repeated-full.jsonl"
     write_jsonl(repeated_full, [
@@ -292,6 +297,7 @@ def test_revise_verdict_reopens_only_reported_issue(tmp_path):
     recheck = vnctl.review_recheck_package(tmp_path, config, review_id)
     assert f"{review_id}-I001" in recheck
     assert f"{review_id}-I002" not in recheck
+    assert "## Глобальная спецификация" not in recheck
     errors, warnings = vnctl.validate_review_ledger(tmp_path, config)
     assert errors == []
     assert warnings == []
@@ -330,12 +336,56 @@ def test_combined_packages_keep_independent_outputs():
     package = vnctl.combined_packages(
         "Пакет проверок", ["REV-1", "REV-2"],
         ["write first.jsonl", "write second.jsonl"],
+        shared_context="shared specification",
     )
     assert "Элементов: 2" in package
     assert "# Элемент 1: REV-1" in package
     assert "# Элемент 2: REV-2" in package
     assert "write first.jsonl" in package
     assert "write second.jsonl" in package
+    assert package.count("shared specification") == 1
+
+
+def test_question_source_terms_select_reusable_provisional(tmp_path):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    write_jsonl(tmp_path / "translation/open-questions.jsonl", [{
+        "id": "OQ-OLD", "date": "2026-08-01", "kind": "terminology",
+        "scene_id": "SCN9999", "segment_ids": [],
+        "source_terms": ["弁当"], "question": "Как передавать 弁当?",
+        "provisional": "бэнто", "status": "open",
+    }])
+
+    selected = vnctl.related_questions(
+        tmp_path, config, {"SCN0001"}, {"SEG1"}, [], "今日は弁当を食べる")
+    assert [row["id"] for row in selected] == ["OQ-OLD"]
+    assert vnctl.related_questions(
+        tmp_path, config, {"SCN0001"}, {"SEG1"}, [], "別の食べ物") == []
+    assert vnctl.questions(tmp_path, config) == 0
+
+
+def test_multi_scene_work_package_rejects_segment_oversize_without_explicit_pilot(tmp_path):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    config["workflow"]["translation_batch_max_segments"] = 2
+    scene_one = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")
+    for row in scene_one:
+        row["translation"] = ""
+        row["status"] = "todo"
+    write_jsonl(tmp_path / "translation/segments/SCN0001.jsonl", scene_one)
+    write_jsonl(tmp_path / "translation/segments/SCN0002.jsonl", [{
+        **scene_one[0], "id": "SEG3", "scene_id": "SCN0002", "order": 1,
+    }])
+    write_jsonl(tmp_path / "translation/scenes.jsonl", [
+        {"scene_id": "SCN0001", "file_id": "S1", "route": "BLK0002"},
+        {"scene_id": "SCN0002", "file_id": "S1", "route": "BLK0002"},
+    ])
+    assert vnctl.index_project(tmp_path, config) == 0
+    with pytest.raises(ValueError, match="limit is 2"):
+        vnctl.work_batch(tmp_path, config, ["SCN0001", "SCN0002"])
+    package = vnctl.work_batch(
+        tmp_path, config, ["SCN0001", "SCN0002"], allow_oversize=True)
+    assert "Всего сцен: 2; сегментов к переводу: 3" in package
 
 
 def test_accepted_review_issue_can_be_superseded_by_open_question(tmp_path):
@@ -460,6 +510,18 @@ def test_project_oneesan_question_has_structural_glossary_link():
         root, config, {"SCN0045"}, set(), glossary)
 
     assert "OQ-SCN0027-02" in {row["id"] for row in related}
+
+
+def test_project_kakigori_question_has_structural_glossary_link():
+    vnctl = load_vnctl()
+    root = Path(__file__).parents[2]
+    config = vnctl.load_config(root)
+
+    glossary = vnctl.glossary_for_scene(root, config, "かき氷")
+    related = vnctl.related_questions(
+        root, config, {"SCN0252"}, set(), glossary)
+
+    assert "OQ-SCN0015-01" in {row["id"] for row in related}
 
 
 def test_review_ledger_serializes_concurrent_events(tmp_path):
