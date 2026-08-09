@@ -84,8 +84,8 @@ separate `review initial`, `review fix`, `review recheck`, `review finalize`, an
 queue buckets. A user-blocked run stays in `review wait` while independent
 ready work from the other buckets continues.
 
-Enforce the measured dispatch budgets from `config/project.yaml`: 900 pending
-segments for translation, 600 scene segments for initial review, 80 open issues
+Enforce the measured dispatch budgets from `config/project.yaml`: 1125 pending
+segments for translation, 750 scene segments for initial review, 80 open issues
 for review fix, and 50 resolutions for recheck, plus the configured file-count
 caps. Issue/resolution count is the primary sizing signal for fix and recheck,
 but repeated scene-specific context makes file count independently relevant.
