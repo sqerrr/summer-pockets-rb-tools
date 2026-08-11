@@ -18,6 +18,7 @@ LEGAL = [
     "Он нем от удивления.",
     "Зачем ты это сделал?",
     "Он узнает об этом завтра.",
+    "Одна из лучших черт характера.",
 ]
 MUST_CATCH = [
     ("Он еще не пришел.", "еще и пришел"),
@@ -46,3 +47,8 @@ for text, what in MUST_CATCH:
     print(f"  {mark} {text:<26} ({what})")
 
 print("\nитог:", "OK" if bad == 0 else f"ПРОБЛЕМ: {bad}")
+
+
+def test_legal_yo_homographs_are_not_flagged():
+    for text in LEGAL:
+        assert not [f for f in check_line(text, is_dialogue=False) if f.rule == "yo"]

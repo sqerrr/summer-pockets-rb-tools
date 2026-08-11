@@ -414,6 +414,8 @@ def test_review_packages_remain_independent_for_shared_agent_call(tmp_path):
     assert "# Контекст сцены SCN0001" not in second
     assert "build/review-REV-SCN0001-01.jsonl" in first
     assert "build/review-REV-SCN0002-01.jsonl" in second
+    assert "только для segment_id сцены SCN0001" in first
+    assert "только для segment_id сцены SCN0002" in second
 
 
 def test_cli_multi_output_writes_separate_files_without_wrapper(tmp_path, monkeypatch):

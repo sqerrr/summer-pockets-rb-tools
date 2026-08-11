@@ -3297,6 +3297,9 @@ def review_package(root: Path, config: dict[str, Any], scene_id: str) -> str:
         "Пользователь этот текст не читает. Ты находишь проблемы, а оркестратор "
         "применяет или явно отклоняет каждую из них. Источник истины — JSONL, "
         "не свободный Markdown.", "",
+        f"Замечания и suggested_changes разрешены только для segment_id сцены {scene_id}. "
+        "Строки других сцен могут присутствовать ниже только как контекст; не выпускай "
+        "по ним issues в этом review-файле.", "",
         f"Запиши `build/review-{review_id}.jsonl`. Первая строка:", "",
         "```json",
         json.dumps({"__review__": {
