@@ -4521,6 +4521,9 @@ def work_check(root: Path, config: dict[str, Any], scene_id: str,
     if con:
         con.row_factory = sqlite3.Row
 
+    qa = read_yaml(root / "config/qa-rules.yaml", {}) or {}
+    protected = [re.compile(p) for p in qa.get("protected_patterns", [])]
+
     problems = 0
     checked = 0
     for raw in patch:
@@ -4546,6 +4549,16 @@ def work_check(root: Path, config: dict[str, Any], scene_id: str,
         for f in findings:
             problems += 1
             print(f"{sid}  {f.severity:8} {f.decision}  {f.message}")
+        # Имя говорящего живёт в отдельном поле, а не в тексте. Без этой
+        # проверки патч с придуманным @Имя@ проходил work check и всплывал
+        # только в validate — уже после применения.
+        for pattern in protected:
+            src_tokens = pattern.findall(strip_ruby(japanese))
+            dst_tokens = pattern.findall(strip_ruby(text))
+            if src_tokens != dst_tokens:
+                problems += 1
+                print(f"{sid}  error    protected-token  {pattern.pattern}: "
+                      f"источник={src_tokens!r} перевод={dst_tokens!r}")
     if con:
         con.close()
 
@@ -5323,7 +5336,7 @@ def main() -> int:
                     "files", args.allow_oversize)
                 enforce_dispatch_budget(
                     "review recheck", len(args.review_ids), workload,
-                    dispatch_limit(config, "review_recheck_dispatch_max_issues", 50),
+                    dispatch_limit(config, "review_recheck_dispatch_max_issues", 63),
                     "resolutions", args.allow_oversize)
                 packages = [
                     (f"review-recheck-{review_id}.md",

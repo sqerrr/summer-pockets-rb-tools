@@ -86,7 +86,7 @@ ready work from the other buckets continues.
 
 Enforce the measured dispatch budgets from `config/project.yaml`: 1125 pending
 segments for translation, 750 scene segments for initial review, 80 open issues
-for review fix, and 50 resolutions for recheck, plus the configured file-count
+for review fix, and 63 resolutions for recheck, plus the configured file-count
 caps. Issue/resolution count is the primary sizing signal for fix and recheck,
 but repeated scene-specific context makes file count independently relevant.
 Multiple files over budget require `--allow-oversize`; a single whole scene or

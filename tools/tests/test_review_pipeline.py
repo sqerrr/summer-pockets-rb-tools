@@ -35,7 +35,8 @@ def make_project(tmp_path: Path):
     (tmp_path / "docs/scene-summaries.jsonl").write_text("", encoding="utf-8")
     (tmp_path / "config/qa-rules.yaml").write_text(
         "allowed_statuses:\n- todo\n- draft\n- reviewed\n"
-        "allowed_flags:\n- needs_source_check\n- needs_term_decision\n",
+        "allowed_flags:\n- needs_source_check\n- needs_term_decision\n"
+        "protected_patterns:\n- '@[^@]+@'\n",
         encoding="utf-8",
     )
     (tmp_path / "docs/glossary.yaml").write_text(
@@ -606,6 +607,30 @@ def test_translation_patch_must_cover_expected_batch_before_write(tmp_path):
     assert [row["translation"] for row in vnctl.read_jsonl(scene_path)] == [
         "Бэнто.", "$S(044,1)Фраза.$S",
     ]
+
+
+def test_work_check_rejects_speaker_token_absent_from_source(tmp_path):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    assert vnctl.index_project(tmp_path, config) == 0
+
+    invented = tmp_path / "build/invented-speaker.jsonl"
+    write_jsonl(invented, [
+        {"id": "SEG1", "translation": "@Мики@Бэнто.", "status": "draft", "flags": []},
+        {"id": "SEG2", "translation": "$S(044,1)Фраза.$S",
+         "status": "draft", "flags": []},
+    ])
+    assert vnctl.work_check(
+        tmp_path, config, "SCN0001", invented, start=1, count=2) == 1
+
+    clean = tmp_path / "build/clean-speaker.jsonl"
+    write_jsonl(clean, [
+        {"id": "SEG1", "translation": "Бэнто.", "status": "draft", "flags": []},
+        {"id": "SEG2", "translation": "$S(044,1)Фраза.$S",
+         "status": "draft", "flags": []},
+    ])
+    assert vnctl.work_check(
+        tmp_path, config, "SCN0001", clean, start=1, count=2) == 0
 
 
 def test_glossary_link_carries_cross_scene_question(tmp_path):
