@@ -1021,6 +1021,26 @@ def clean_meta(row: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in row.items() if not k.startswith("__")}
 
 
+def segment_rule_exceptions(root: Path) -> dict[str, set[str]]:
+    """Approved per-segment exceptions to otherwise global text rules."""
+    exceptions: dict[str, set[str]] = defaultdict(set)
+    for row in read_jsonl(root / "docs" / "decisions.jsonl"):
+        if row.get("status") != "approved" or row.get("scope") != "segment":
+            continue
+        decision_id = str(row.get("exception_to", "")).strip()
+        if not decision_id:
+            continue
+        for segment_id in row.get("segment_ids", []) or []:
+            exceptions[str(segment_id)].add(decision_id)
+    return exceptions
+
+
+def allowed_line_findings(root: Path, segment_id: str,
+                          findings: list[Finding]) -> list[Finding]:
+    allowed = segment_rule_exceptions(root).get(segment_id, set())
+    return [finding for finding in findings if finding.decision not in allowed]
+
+
 def validate(root: Path, config: dict[str, Any]) -> int:
     qa = read_yaml(root / "config/qa-rules.yaml", {}) or {}
     required = set(qa.get("required_segment_fields", DEFAULT_REQUIRED))
@@ -1064,7 +1084,9 @@ def validate(root: Path, config: dict[str, Any]) -> int:
         # пустой сегмент ещё не является нарушением чего-либо.
         translation = str(row.get("translation", ""))
         if translation.strip():
-            checks = check_line(translation, is_dialogue=bool(row.get("speaker")))
+            checks = allowed_line_findings(
+                root, str(row["id"]),
+                check_line(translation, is_dialogue=bool(row.get("speaker"))))
             sources = row.get("sources") or {}
             # Построчная проверка имён снята: она срабатывала на отсутствие
             # имени в переводе, а замена имени местоимением - обычный перевод,
@@ -2419,7 +2441,8 @@ def validate_style_patch(root: Path, config: dict[str, Any], run_id: str,
             errors.append(f"line {index}: unknown flags for {sid}")
         if after == before and new_flags == old_flags:
             errors.append(f"line {index}: no-op entry for {sid}")
-        findings = check_line(after, is_dialogue=bool(current.get("speaker")))
+        findings = allowed_line_findings(
+            root, sid, check_line(after, is_dialogue=bool(current.get("speaker"))))
         findings += check_markup(source_texts[sid], after)
         for finding in findings:
             errors.append(f"line {index}: {sid} {finding.decision} {finding.message}")
@@ -2603,7 +2626,8 @@ def validate_style_revision(root: Path, config: dict[str, Any], run_id: str,
             errors.append(f"line {index}: unknown flags for {sid}")
         if after == before and new_flags == old_flags:
             errors.append(f"line {index}: no-op entry for {sid}")
-        findings = check_line(after, is_dialogue=bool(current.get("speaker")))
+        findings = allowed_line_findings(
+            root, sid, check_line(after, is_dialogue=bool(current.get("speaker"))))
         findings += check_markup(source_texts[sid], after)
         for finding in findings:
             errors.append(f"line {index}: {sid} {finding.decision} {finding.message}")
@@ -3538,7 +3562,8 @@ def review_resolve(root: Path, config: dict[str, Any], review_id: str,
             if sid in changed and changed[sid] != candidate:
                 raise ValueError(f"conflicting resolutions for {sid}")
             source = source_text_by_segment(root, config, [current])[sid]
-            findings = check_line(after, is_dialogue=bool(current.get("speaker")))
+            findings = allowed_line_findings(
+                root, sid, check_line(after, is_dialogue=bool(current.get("speaker"))))
             findings += check_markup(source, after)
             if findings:
                 detail = "; ".join(f"{item.decision}: {item.message}" for item in findings)
@@ -3653,7 +3678,8 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
     run = review_runs(load_review_events(root, config)).get(review_id)
     if run and run.get("invalidated"):
         raise ValueError(f"Review is invalidated: {review_id}")
-    if not run or not run.get("resolution"):
+    zero_issue_initial = bool(run is not None and not run.get("issues"))
+    if not run or (not run.get("resolution") and not zero_issue_initial):
         raise ValueError(f"Review has no complete resolution: {review_id}")
     if run.get("accepted"):
         raise ValueError(f"Review already accepted: {review_id}")
@@ -3680,7 +3706,9 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
             or (verdict_name == "accept" and open_issue_ids)
             or (verdict_name == "revise" and not open_issue_ids)):
         raise ValueError("invalid review verdict for the current scene hash")
-    if current_hash != run["resolution"].get("result_sha256"):
+    expected_hash = (run["base_sha256"] if zero_issue_initial
+                     else run["resolution"].get("result_sha256"))
+    if current_hash != expected_hash:
         raise ValueError("scene changed after resolution")
     escalations = [item.get("issue_id") for item in effective_review_resolutions(run)
                    if item.get("escalation")]
@@ -3946,7 +3974,7 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
                 errors.append(f"review ledger line {index}: invalid issue severity")
             runs[review_id] = {
                 "issues": set(issue_ids), "expected": set(issue_ids),
-                "effective": {}, "resolved": False, "accepted": False,
+                "effective": {}, "resolved": not issue_ids, "accepted": False,
                 "superseded": set(), "invalidated": False,
                 "rechecks": 0, "blocked": False,
             }
@@ -4544,7 +4572,8 @@ def work_check(root: Path, config: dict[str, Any], scene_id: str,
                 sources = json.loads(row["sources_json"])
                 english = sources.get("en", "")
                 japanese = sources.get("ja", "")
-        findings = check_line(text, is_dialogue=bool(speaker))
+        findings = allowed_line_findings(
+            root, sid, check_line(text, is_dialogue=bool(speaker)))
         findings += check_length(text, english)
         # Без этого самопроверка молчит о сломанной разметке, и агент сдаёт
         # патч, не узнав о ней. Пропуск найден независимо двумя рецензентами.

@@ -754,6 +754,52 @@ def test_review_close_rolls_back_and_recovers_interrupted_ledger_write(tmp_path,
         tmp_path, config))[review_id]["accepted"]
 
 
+def test_segment_decision_allows_only_named_rule_exception(tmp_path):
+    vnctl = load_vnctl()
+    make_project(tmp_path)
+    write_jsonl(tmp_path / "docs/decisions.jsonl", [{
+        "id": "DEC-X", "type": "punctuation", "scope": "segment",
+        "segment_ids": ["SEG1"], "decision": "Разрешить исключение.",
+        "reason_safe": "Точный эмоциональный рисунок.", "status": "approved",
+        "supersedes": None, "decided_by": "user", "date": "2026-08-12",
+        "exception_to": "DEC-0029",
+    }])
+
+    findings = vnctl.check_line("…?!", is_dialogue=True)
+    assert [item.decision for item in findings] == ["DEC-0029"]
+    assert vnctl.allowed_line_findings(tmp_path, "SEG1", findings) == []
+    assert vnctl.allowed_line_findings(tmp_path, "SEG2", findings) == findings
+
+
+def test_zero_issue_initial_review_closes_without_fake_resolution(tmp_path):
+    vnctl = load_vnctl()
+    config = make_project(tmp_path)
+    assert vnctl.index_project(tmp_path, config) == 0
+    review_id = "REV-SCN0001-01"
+    base_hash = vnctl.scene_review_hash(vnctl.read_jsonl(
+        tmp_path / "translation/segments/SCN0001.jsonl"))
+    report = tmp_path / "build/review-empty.jsonl"
+    write_jsonl(report, [{
+        "__review__": {"review_id": review_id, "scene_id": "SCN0001",
+                       "base_sha256": base_hash},
+    }])
+    assert vnctl.review_import(
+        tmp_path, config, "SCN0001", report, "vn-reviewer") == 0
+    verdict = tmp_path / "build/verdict-empty.jsonl"
+    write_jsonl(verdict, [{
+        "review_id": review_id, "scene_sha256": base_hash,
+        "verdict": "accept", "open_issue_ids": [],
+    }])
+    assert vnctl.review_close(
+        tmp_path, config, review_id, verdict, "vn-reviewer") == 0
+    run = vnctl.review_runs(vnctl.load_review_events(tmp_path, config))[review_id]
+    assert run["resolution"] is None
+    assert run["accepted"]
+    errors, warnings = vnctl.validate_review_ledger(tmp_path, config)
+    assert errors == []
+    assert warnings == []
+
+
 def test_markup_contract_preserves_wait_token_in_order():
     vnctl = load_vnctl()
     assert vnctl.markup_contract("選択肢A$d$w選択肢B")["preserve_exact"] == ["$d", "$w"]
