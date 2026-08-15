@@ -112,6 +112,22 @@ def make_project(tmp_path: Path):
     return config
 
 
+def write_delta_review(vnctl, tmp_path: Path, config: dict, run_id: str,
+                       window_id: str, decisions: list[dict], name: str = "delta.jsonl"):
+    run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
+    route_rows = vnctl.style_route_rows(tmp_path, config, run["route"])
+    by_id = {str(row["id"]): row for row in route_rows}
+    effective = vnctl.style_effective_changes(run, window_id)
+    report = tmp_path / "build" / name
+    write_jsonl(report, [{"__style_delta_review__": {
+        "run_id": run_id,
+        "window_id": window_id,
+        "base_sha256": vnctl.style_delta_review_hash(effective, by_id),
+        "changed_ids": [str(change["id"]) for change in effective],
+    }}, *decisions])
+    return report
+
+
 def make_sibling_preflight_project(
         tmp_path: Path, *, anchor_translation: str = "Новая формулировка.",
         sibling_translation: str = "Старая формулировка.",
@@ -276,7 +292,8 @@ def test_exact_source_sibling_preflight_blocks_stale_before(
     }]
     assert sibling_blockers(vnctl, tmp_path, config) == expected
     with pytest.raises(ValueError, match="1 blocker") as exc:
-        vnctl.style_audit_package(tmp_path, config, "STYLE-BLK0002-01")
+        vnctl.style_complete(
+            tmp_path, config, "STYLE-BLK0002-01", "vn-orchestrator")
     assert str(exc.value).splitlines()[1] == json.dumps(expected[0], ensure_ascii=False)
 
 
@@ -354,6 +371,49 @@ def test_exact_source_sibling_preflight_ignores_ineffective_review_transition(
     assert sibling_blockers(vnctl, tmp_path, config) == []
 
 
+def test_exact_source_sibling_preflight_ignores_reverted_review_issue(tmp_path):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_sibling_reverted_review_test")
+    config = make_sibling_preflight_project(
+        tmp_path, anchor_translation="Старая формулировка.")
+    write_review_transitions(
+        tmp_path, [("Старая формулировка.", "Новая формулировка.")])
+    vnctl.append_review_event(tmp_path, config, {
+        "schema_version": 2,
+        "event": "review_issue_reverted",
+        "review_id": "REV-SCN0001-01",
+        "scene_id": "SCN0001",
+        "issue_id": "REV-SCN0001-01-I001",
+        "actor": "vn-orchestrator",
+        "reason": "Поздний аудит опроверг замечание.",
+        "request_sha256": "sha256:request",
+        "input_sha256": "sha256:input",
+        "changes": [{"id": "SEG1_2"}],
+        "result_scene_sha256": "sha256:scene",
+        "result_delta_sha256": "sha256:delta",
+    })
+
+    assert sibling_blockers(vnctl, tmp_path, config) == []
+
+
+def test_exact_source_sibling_preflight_ignores_terminal_style_revert(tmp_path):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_sibling_reverted_style_test")
+    config = make_sibling_preflight_project(
+        tmp_path, anchor_translation="Старая формулировка.")
+    write_style_transitions(
+        tmp_path, [("Старая формулировка.", "Новая формулировка.")])
+    vnctl.append_style_event(tmp_path, config, {
+        "schema_version": 3,
+        "event": "style_keep_reverted",
+        "run_id": "STYLE-BLK0002-01",
+        "window_id": "W001",
+        "reverts": [{"id": "SEG1_2", "reason": "Поздний аудит."}],
+    })
+
+    assert sibling_blockers(vnctl, tmp_path, config) == []
+
+
 def test_exact_source_sibling_preflight_is_read_only(tmp_path):
     root = Path(__file__).parents[2]
     vnctl = load_module(root / "tools/vnctl.py", "vnctl_sibling_read_only_test")
@@ -365,11 +425,104 @@ def test_exact_source_sibling_preflight_is_read_only(tmp_path):
 
     assert len(sibling_blockers(vnctl, tmp_path, config)) == 1
     with pytest.raises(ValueError, match="Exact-source sibling preflight"):
-        vnctl.style_audit_package(tmp_path, config, "STYLE-BLK0002-01")
+        vnctl.style_complete(
+            tmp_path, config, "STYLE-BLK0002-01", "vn-orchestrator")
 
     after_paths = sorted((tmp_path / "translation").rglob("*.jsonl"))
     assert [path.relative_to(tmp_path) for path in after_paths] == list(before)
     assert {path.relative_to(tmp_path): path.read_bytes() for path in after_paths} == before
+
+
+def test_style_sibling_reconciliation_change_allows_completion(tmp_path, capsys):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_sibling_reconcile_test")
+    config = make_sibling_preflight_project(tmp_path)
+    write_style_transitions(
+        tmp_path, [("Старая формулировка.", "Новая формулировка.")])
+
+    package = vnctl.style_sibling_package(tmp_path, config, "STYLE-BLK0002-01")
+    assert "Exact-source sibling reconciliation" in package
+    run = vnctl.style_runs(vnctl.load_style_events(
+        tmp_path, config))["STYLE-BLK0002-01"]
+    rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
+    blockers = vnctl.style_unresolved_sibling_blockers(
+        tmp_path, config, run, rows,
+        vnctl.source_text_by_segment(tmp_path, config, rows))
+    blocker = blockers[0]
+    patch = tmp_path / "build/siblings.jsonl"
+    write_jsonl(patch, [
+        {"__style_siblings__": {
+            "run_id": "STYLE-BLK0002-01",
+            "base_sha256": vnctl.style_sibling_scope_hash(rows, blockers),
+            "blocker_ids": [blocker["blocker_id"]],
+        }},
+        {
+            "blocker_ids": [blocker["blocker_id"]],
+            "sibling_id": "SEG2_2",
+            "disposition": "change",
+            "translation": "Новая формулировка.",
+            "reason": "Точный повтор выполняет ту же функцию.",
+        },
+    ])
+
+    assert vnctl.style_reconcile_siblings(
+        tmp_path, config, "STYLE-BLK0002-01", patch, "vn-reviewer") == 0
+    sibling = vnctl.read_jsonl(
+        tmp_path / "translation/segments/SCN0002.jsonl")[2]
+    assert sibling["translation"] == "Новая формулировка."
+    assert sibling["status"] == "reviewed"
+    assert sibling["flags"] == []
+    assert vnctl.style_reconcile_siblings(
+        tmp_path, config, "STYLE-BLK0002-01", patch, "vn-reviewer") == 0
+    assert vnctl.style_complete(
+        tmp_path, config, "STYLE-BLK0002-01", "vn-orchestrator") == 0
+    assert vnctl.work_queue(tmp_path, config) == 0
+    queue_output = capsys.readouterr().out
+    assert "собирать" in queue_output
+    assert "вычитка" not in queue_output
+
+
+def test_style_sibling_reconciliation_keep_is_hash_bound(tmp_path):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_sibling_keep_test")
+    config = make_sibling_preflight_project(tmp_path)
+    write_review_transitions(
+        tmp_path, [("Старая формулировка.", "Новая формулировка.")])
+    run = vnctl.style_runs(vnctl.load_style_events(
+        tmp_path, config))["STYLE-BLK0002-01"]
+    rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
+    blockers = vnctl.style_unresolved_sibling_blockers(
+        tmp_path, config, run, rows,
+        vnctl.source_text_by_segment(tmp_path, config, rows))
+    blocker = blockers[0]
+    patch = tmp_path / "build/siblings-keep.jsonl"
+    write_jsonl(patch, [
+        {"__style_siblings__": {
+            "run_id": "STYLE-BLK0002-01",
+            "base_sha256": "sha256:stale",
+            "blocker_ids": [blocker["blocker_id"]],
+        }},
+        {
+            "blocker_ids": [blocker["blocker_id"]],
+            "sibling_id": "SEG2_2",
+            "disposition": "keep",
+            "reason": "Локальная функция реплики отличается.",
+        },
+    ])
+    assert vnctl.style_reconcile_siblings(
+        tmp_path, config, "STYLE-BLK0002-01", patch, "vn-reviewer") == 1
+
+    raw = vnctl.read_jsonl(patch)
+    raw[0]["__style_siblings__"]["base_sha256"] = vnctl.style_sibling_scope_hash(
+        rows, blockers)
+    write_jsonl(patch, raw)
+    assert vnctl.style_reconcile_siblings(
+        tmp_path, config, "STYLE-BLK0002-01", patch, "vn-reviewer") == 0
+    assert vnctl.read_jsonl(
+        tmp_path / "translation/segments/SCN0002.jsonl")[2]["translation"] == (
+            "Старая формулировка.")
+    assert vnctl.style_complete(
+        tmp_path, config, "STYLE-BLK0002-01", "vn-orchestrator") == 0
 
 
 def test_style_slice_hash_ignores_context_status_changes():
@@ -426,9 +579,11 @@ def test_style_pipeline_is_windowed_russian_only_and_never_creates_lqa(tmp_path)
             "base_sha256": vnctl.style_package_hash(package_rows, editable),
         }},
         {"id": "SEG0", "before": "Фраза 0.",
-         "translation": "Новая фраза.", "reason": "Естественнее."},
+         "translation": "Новая фраза.",
+         "reason": "STYLIST-DIAGNOSIS-MUST-BE-HIDDEN"},
         {"id": "SEG1", "before": "Фраза 1.",
-         "translation": "Новая вторая фраза.", "reason": "Естественнее."},
+         "translation": "Новая вторая фраза.",
+         "reason": "STYLIST-SECOND-DIAGNOSIS-MUST-BE-HIDDEN"},
     ])
     assert vnctl.style_check(tmp_path, config, run_id, "W001", patch1) == 0
     assert vnctl.style_apply(tmp_path, config, run_id, "W001", patch1) == 0
@@ -436,79 +591,53 @@ def test_style_pipeline_is_windowed_russian_only_and_never_creates_lqa(tmp_path)
     assert changed["status"] == "draft"
     assert changed["status"] != "lqa"
 
-    revise_report = tmp_path / "build/style-review-revise.md"
-    revise_report.write_text(
-        "# Review\n\nVERDICT: REVISE\n\n- SEG0: уточнить формулировку.\n",
-        encoding="utf-8")
-    fix_package = vnctl.style_revision_package(
-        tmp_path, config, run_id, "W001", revise_report)
-    assert "__style_revision__" in fix_package
-    assert "SEG0: уточнить формулировку" in fix_package
+    review_package = vnctl.style_review_package(
+        tmp_path, config, run_id, "W001")
+    assert "`before` уже прошёл source-aware review" in review_package
+    assert "`keep` или `revert`" in review_package
+    assert "Третий русский вариант запрещён" in review_package
+    assert "окончательный русский вариант" not in review_package
+    assert "STYLIST-DIAGNOSIS-MUST-BE-HIDDEN" not in review_package
+    assert "STYLIST-SECOND-DIAGNOSIS-MUST-BE-HIDDEN" not in review_package
+    assert "Диагноз стилиста намеренно скрыт" in review_package
 
-    revision = tmp_path / "build/style-revision-1.jsonl"
-    current = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")[0]
-    write_jsonl(revision, [
-        {"__style_revision__": {
-            "run_id": run_id,
-            "window_id": "W001",
-            "base_sha256": vnctl.style_slice_hash([current]),
-            "report_sha256": vnctl.sha256_file(revise_report),
-            "allowed_ids": ["SEG0"],
-        }},
-        {"id": "SEG0", "before": "Новая фраза.",
-          "translation": "Исправленная фраза.",
-          "reason": "Уточнено после source-aware проверки.",
-          "flags": ["needs_term_decision"]},
-    ])
-    assert vnctl.style_revise(
-        tmp_path, config, run_id, "W001", revision, revise_report,
-        "vn-stylist") == 0
-    revised = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")[0]
-    assert revised["translation"] == "Исправленная фраза."
-    assert revised["flags"] == ["needs_term_decision"]
-
-    review_package = vnctl.style_review_package(tmp_path, config, run_id, "W001")
-    assert "原文0" in review_package
-    assert "Исправленная фраза." in review_package
-    report1 = tmp_path / "build/review-1.md"
-    report1.write_text("# Review\nVERDICT: ACCEPT\n", encoding="utf-8")
+    third_variant = write_delta_review(vnctl, tmp_path, config, run_id, "W001", [
+        {"id": "SEG0", "decision": "revert", "reason": "Вернуть baseline.",
+         "translation": "Третья формулировка."},
+        {"id": "SEG1", "decision": "keep", "reason": "Есть явный выигрыш."},
+    ], "third-variant.jsonl")
     assert vnctl.style_accept(
-        tmp_path, config, run_id, "W001", report1, "vn-reviewer") == 0
+        tmp_path, config, run_id, "W001", third_variant,
+        "vn-style-delta-reviewer") == 1
 
-    late_report = tmp_path / "build/style-audit-revise.md"
-    late_report.write_text(
-        "# Audit\n\nVERDICT: REVISE\n\n- SEG0: исправить найденный сквозным аудитом повтор.\n",
-        encoding="utf-8")
-    late_fix_package = vnctl.style_revision_package(
-        tmp_path, config, run_id, "W001", late_report)
-    assert "__style_revision__" in late_fix_package
-    current = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")[0]
-    late_revision = tmp_path / "build/style-revision-late.jsonl"
-    write_jsonl(late_revision, [
-        {"__style_revision__": {
-            "run_id": run_id,
-            "window_id": "W001",
-            "base_sha256": vnctl.style_slice_hash([current]),
-            "report_sha256": vnctl.sha256_file(late_report),
-            "allowed_ids": ["SEG0"],
-        }},
-        {"id": "SEG0", "before": "Исправленная фраза.",
-         "translation": "Итоговая фраза.",
-         "reason": "Исправлен сквозной повтор после route audit."},
-    ])
-    assert vnctl.style_revise(
-        tmp_path, config, run_id, "W001", late_revision, late_report,
-        "vn-stylist") == 0
+    missing = write_delta_review(vnctl, tmp_path, config, run_id, "W001", [
+        {"id": "SEG0", "decision": "revert", "reason": "Вернуть baseline."},
+    ], "missing.jsonl")
+    assert vnctl.style_accept(
+        tmp_path, config, run_id, "W001", missing,
+        "vn-style-delta-reviewer") == 1
+
+    report1 = write_delta_review(vnctl, tmp_path, config, run_id, "W001", [
+        {"id": "SEG0", "decision": "revert",
+         "reason": "After не доказывает улучшение относительно baseline."},
+        {"id": "SEG1", "decision": "keep",
+         "reason": "After устраняет конкретный дефект без потерь."},
+    ], "review-1.jsonl")
+    assert vnctl.style_accept(
+        tmp_path, config, run_id, "W001", report1,
+        "vn-style-delta-reviewer") == 0
+    revised = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")
+    assert revised[0]["translation"] == "Фраза 0."
+    assert revised[1]["translation"] == "Новая вторая фраза."
+    assert revised[0]["status"] == revised[1]["status"] == "reviewed"
+
+    with pytest.raises(ValueError, match="no free revision"):
+        vnctl.style_revision_package(
+            tmp_path, config, run_id, "W001", report1)
+    with pytest.raises(ValueError, match="closes through style accept"):
+        vnctl.style_finalize(tmp_path, config, run_id, "W001", "vn-stylist")
     run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
-    assert "W001" not in run["accepted"]
-    assert vnctl.read_jsonl(
-        tmp_path / "translation/segments/SCN0001.jsonl")[0]["status"] == "draft"
-    assert vnctl.read_jsonl(
-        tmp_path / "translation/segments/SCN0001.jsonl")[1]["status"] == "reviewed"
-    late_accept = tmp_path / "build/review-late.md"
-    late_accept.write_text("# Review\nVERDICT: ACCEPT\n", encoding="utf-8")
-    assert vnctl.style_accept(
-        tmp_path, config, run_id, "W001", late_accept, "vn-reviewer") == 0
+    assert "W001" in run["accepted"]
     assert all(row["status"] == "reviewed" for row in vnctl.read_jsonl(
         tmp_path / "translation/segments/SCN0001.jsonl")[:2])
 
@@ -524,24 +653,178 @@ def test_style_pipeline_is_windowed_russian_only_and_never_creates_lqa(tmp_path)
     }}])
     assert "W002" in package2
     assert vnctl.style_apply(tmp_path, config, run_id, "W002", patch2) == 0
-    report2 = tmp_path / "build/review-2.md"
-    report2.write_text("# Review\nVERDICT: ACCEPT\n", encoding="utf-8")
+    report2 = write_delta_review(
+        vnctl, tmp_path, config, run_id, "W002", [], "review-2.jsonl")
     assert vnctl.style_accept(
-        tmp_path, config, run_id, "W002", report2, "vn-reviewer") == 0
+        tmp_path, config, run_id, "W002", report2,
+        "vn-style-delta-reviewer") == 0
 
-    audit_package = vnctl.style_audit_package(tmp_path, config, run_id)
-    assert "Итоговая фраза." in audit_package
-    audit = tmp_path / "build/audit.md"
-    audit.write_text("# Audit\nVERDICT: ACCEPT\n", encoding="utf-8")
-    assert vnctl.style_accept_audit(
-        tmp_path, config, run_id, audit, "vn-auditor") == 0
+    assert vnctl.style_complete(
+        tmp_path, config, run_id, "vn-orchestrator") == 0
+    assert vnctl.style_run_complete(tmp_path, config, "BLK0002")
+    assert vnctl.style_amend_revert(
+        tmp_path, config, run_id, "W001", ["SEG1"], "vn-orchestrator",
+        "Независимый пилот выявил ложный keep.") == 0
+    assert not vnctl.style_run_complete(tmp_path, config, "BLK0002")
+    assert vnctl.validate_style_ledger(tmp_path, config)[0] == []
+    amended = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")
+    assert amended[1]["translation"] == "Фраза 1."
+    assert amended[1]["status"] == "reviewed"
+    assert amended[1]["flags"] == []
+    run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
+    assert vnctl.style_effective_changes(run, "W001") == []
+    assert vnctl.style_amend_revert(
+        tmp_path, config, run_id, "W001", ["SEG1"], "vn-orchestrator",
+        "Независимый пилот выявил ложный keep.") == 0
+    with pytest.raises(ValueError, match="accepted style changes"):
+        vnctl.style_amend_revert(
+            tmp_path, config, run_id, "W001", ["SEG0"], "vn-orchestrator",
+            "Нельзя откатывать уже отклонённый candidate.")
+    assert vnctl.style_complete(
+        tmp_path, config, run_id, "vn-orchestrator") == 0
     assert vnctl.style_run_complete(tmp_path, config, "BLK0002")
     statuses = {row["status"] for row in vnctl.read_jsonl(
         tmp_path / "translation/segments/SCN0001.jsonl")}
     assert statuses == {"reviewed"}
 
 
-def test_release_preflight_rejects_block_without_current_audit(tmp_path):
+def test_style_amend_revert_cli_restores_terminal_keep(tmp_path, monkeypatch):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_style_amend_cli_test")
+    config = make_project(tmp_path)
+    (tmp_path / "config/project.yaml").write_text(
+        vnctl.yaml.safe_dump(config, allow_unicode=True, sort_keys=False),
+        encoding="utf-8")
+    assert vnctl.style_start(tmp_path, config, "BLK0002") == 0
+    run_id = "STYLE-BLK0002-01"
+    run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
+    route_rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
+    package_rows, editable = vnctl.style_window_rows(route_rows, run["windows"][0])
+    patch = tmp_path / "build/style-cli-amend.jsonl"
+    write_jsonl(patch, [
+        {"__style_window__": {
+            "run_id": run_id,
+            "window_id": "W001",
+            "base_sha256": vnctl.style_package_hash(package_rows, editable),
+        }},
+        {"id": "SEG0", "before": "Фраза 0.",
+         "translation": "Новая фраза.", "reason": "Проверяемый дефект."},
+    ])
+    assert vnctl.style_apply(tmp_path, config, run_id, "W001", patch) == 0
+    report = write_delta_review(vnctl, tmp_path, config, run_id, "W001", [
+        {"id": "SEG0", "decision": "keep",
+         "reason": "Правку первоначально сочли обязательной."},
+    ], "review-cli-amend.jsonl")
+    assert vnctl.style_accept(
+        tmp_path, config, run_id, "W001", report,
+        "vn-style-delta-reviewer") == 0
+
+    monkeypatch.setattr(sys, "argv", [
+        "vnctl.py", "--root", str(tmp_path), "style", "amend-revert",
+        run_id, "W001", "SEG0", "--actor", "vn-orchestrator",
+        "--reason", "Пилот выявил ложный keep.",
+    ])
+    assert vnctl.main() == 0
+    row = vnctl.read_jsonl(
+        tmp_path / "translation/segments/SCN0001.jsonl")[0]
+    assert row["translation"] == "Фраза 0."
+    assert row["status"] == "reviewed"
+    assert vnctl.validate_style_ledger(tmp_path, config)[0] == []
+
+
+@pytest.mark.parametrize("bad_rows", [
+    [
+        {"id": "SEG0", "decision": "keep", "reason": "Первое решение."},
+        {"id": "SEG0", "decision": "revert", "reason": "Повторное решение."},
+    ],
+    [
+        {"id": "SEG0", "decision": "keep", "reason": "Допустимое решение."},
+        {"id": "OUTSIDE", "decision": "revert", "reason": "Посторонний ID."},
+    ],
+])
+def test_comparative_delta_review_rejects_duplicate_and_outside_ids(
+        tmp_path, bad_rows):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_style_bad_delta_test")
+    config = make_project(tmp_path)
+    assert vnctl.style_start(tmp_path, config, "BLK0002") == 0
+    run_id = "STYLE-BLK0002-01"
+    run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
+    route_rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
+    package_rows, editable = vnctl.style_window_rows(route_rows, run["windows"][0])
+    patch = tmp_path / "build/style.jsonl"
+    write_jsonl(patch, [
+        {"__style_window__": {
+            "run_id": run_id,
+            "window_id": "W001",
+            "base_sha256": vnctl.style_package_hash(package_rows, editable),
+        }},
+        {"id": "SEG0", "before": "Фраза 0.",
+         "translation": "Новая фраза.", "reason": "Конкретный дефект."},
+    ])
+    assert vnctl.style_apply(tmp_path, config, run_id, "W001", patch) == 0
+    report = write_delta_review(
+        vnctl, tmp_path, config, run_id, "W001", bad_rows, "bad-delta.jsonl")
+    assert vnctl.style_accept(
+        tmp_path, config, run_id, "W001", report,
+        "vn-style-delta-reviewer") == 1
+    row = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")[0]
+    assert row["translation"] == "Новая фраза."
+    assert row["status"] == "draft"
+
+
+def test_style_cli_multi_output_writes_separate_files_without_wrapper(
+        tmp_path, monkeypatch):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_style_multi_output_test")
+    config = make_project(tmp_path)
+    (tmp_path / "config/project.yaml").write_text(
+        vnctl.yaml.safe_dump(config, allow_unicode=True, sort_keys=False),
+        encoding="utf-8")
+    assert vnctl.style_start(tmp_path, config, "BLK0002") == 0
+    run_id = "STYLE-BLK0002-01"
+
+    monkeypatch.setattr(sys, "argv", [
+        "vnctl.py", "--root", str(tmp_path), "style", "next", run_id,
+        "--window", "W001", "W002", "--output-dir", "build/packages",
+    ])
+    assert vnctl.main() == 0
+    assert sorted(path.name for path in (tmp_path / "build/packages").iterdir()) == [
+        f"style-package-{run_id}-W001.md",
+        f"style-package-{run_id}-W002.md",
+    ]
+
+    run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
+    route_rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
+    for window in run["windows"]:
+        window_id = str(window["window_id"])
+        package_rows, editable = vnctl.style_window_rows(route_rows, window)
+        patch = tmp_path / f"build/style-{window_id}.jsonl"
+        write_jsonl(patch, [{"__style_window__": {
+            "run_id": run_id,
+            "window_id": window_id,
+            "base_sha256": vnctl.style_package_hash(package_rows, editable),
+        }}])
+        assert vnctl.style_apply(tmp_path, config, run_id, window_id, patch) == 0
+
+    monkeypatch.setattr(sys, "argv", [
+        "vnctl.py", "--root", str(tmp_path), "style", "review", run_id,
+        "W001", "W002", "--output-dir", "build/reviews",
+    ])
+    assert vnctl.main() == 0
+    assert sorted(path.name for path in (tmp_path / "build/reviews").iterdir()) == [
+        f"style-review-package-{run_id}-W001.md",
+        f"style-review-package-{run_id}-W002.md",
+    ]
+
+    for path in (tmp_path / "build/reviews").iterdir():
+        text = path.read_text(encoding="utf-8")
+        assert "vn-style-delta-reviewer" in text
+        assert "keep|revert" in text
+        assert "Третий русский вариант запрещён" in text
+
+
+def test_release_preflight_rejects_block_without_current_style_completion(tmp_path):
     root = Path(__file__).parents[2]
     vnctl = load_module(root / "tools/vnctl.py", "vnctl_style_build_test")
     builder = load_module(root / "game-tools/build_luca_release.py", "luca_release_test")
@@ -566,12 +849,13 @@ def test_release_preflight_rejects_block_without_current_audit(tmp_path):
                 "base_sha256": vnctl.style_package_hash(package_rows, editable),
             }}])
             vnctl.style_apply(tmp_path, config, run_id, window_id, patch)
-            report = tmp_path / f"build/{window_id}.md"
-            report.write_text("VERDICT: ACCEPT\n", encoding="utf-8")
-            vnctl.style_accept(tmp_path, config, run_id, window_id, report, "reviewer")
-        audit = tmp_path / "build/audit.md"
-        audit.write_text("VERDICT: ACCEPT\n", encoding="utf-8")
-        vnctl.style_accept_audit(tmp_path, config, run_id, audit, "auditor")
+            report = write_delta_review(
+                vnctl, tmp_path, config, run_id, window_id, [],
+                f"{window_id}-review.jsonl")
+            vnctl.style_accept(
+                tmp_path, config, run_id, window_id, report,
+                "vn-style-delta-reviewer")
+        vnctl.style_complete(tmp_path, config, run_id, "orchestrator")
         assert builder.style_build_preflight(
             config, tmp_path / "translation/segments", {"SCN0001"}) == {
                 "BLK0002": run_id
@@ -783,7 +1067,7 @@ def test_release_reviewed_route_rejects_unknown_or_empty_route(tmp_path):
         builder.ROOT = old_root
 
 
-def test_style_audit_marks_review_issue_superseded_by_open_question(tmp_path):
+def test_style_package_marks_review_issue_superseded_by_open_question(tmp_path):
     root = Path(__file__).parents[2]
     vnctl = load_module(root / "tools/vnctl.py", "vnctl_style_supersession_test")
     config = make_project(tmp_path)
@@ -817,22 +1101,7 @@ def test_style_audit_marks_review_issue_superseded_by_open_question(tmp_path):
     assert vnctl.style_start(tmp_path, config, "BLK0002") == 0
     run_id = "STYLE-BLK0002-01"
     run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
-    for window in run["windows"]:
-        route_rows = vnctl.style_route_rows(tmp_path, config, "BLK0002")
-        package_rows, editable = vnctl.style_window_rows(route_rows, window)
-        patch = tmp_path / f"build/{window['window_id']}.jsonl"
-        write_jsonl(patch, [{"__style_window__": {
-            "run_id": run_id, "window_id": window["window_id"],
-            "base_sha256": vnctl.style_package_hash(package_rows, editable),
-        }}])
-        assert vnctl.style_apply(
-            tmp_path, config, run_id, window["window_id"], patch) == 0
-        report = tmp_path / f"build/{window['window_id']}.md"
-        report.write_text("VERDICT: ACCEPT\n", encoding="utf-8")
-        assert vnctl.style_accept(
-            tmp_path, config, run_id, window["window_id"], report, "reviewer") == 0
-
-    package = vnctl.style_audit_package(tmp_path, config, run_id)
+    package = vnctl.style_package(tmp_path, config, run_id, "W001")
     assert issue_id in package
     assert '"state": "superseded"' in package
     assert '"superseded_by_question": "OQ-1"' in package
@@ -860,7 +1129,7 @@ def test_project_agents_use_gpt_and_have_required_execution_permissions():
     agent_dir = root / ".opencode/agent"
     names = (
         "vn-translator.md", "vn-translator-alt.md", "vn-reviewer.md",
-        "vn-reviewer-alt.md", "vn-stylist.md", "vn-knowledge.md",
+        "vn-reviewer-alt.md", "vn-proofreader.md", "vn-stylist.md", "vn-knowledge.md",
         "vn-auditor.md", "second-opinion.md",
     )
     agents = {name: (agent_dir / name).read_text(encoding="utf-8") for name in names}
@@ -871,6 +1140,25 @@ def test_project_agents_use_gpt_and_have_required_execution_permissions():
     stylist = agents["vn-stylist.md"]
     assert "  read:\n    '*': deny\n    build/**: allow" in stylist
     assert "  edit:\n    '*': deny\n    build/**: allow" in stylist
+    for name in ("vn-reviewer.md", "vn-reviewer-alt.md"):
+        assert "variant: high" in agents[name]
+    for name in ("vn-proofreader.md", "vn-stylist.md"):
+        assert "variant: xhigh" in agents[name]
+
+    proofreader = agents["vn-proofreader.md"]
+    assert "Оригинал, before/after, патч и причины редактора" in proofreader
+    assert "не предлагая replacement" not in proofreader
+    assert "Не добавляй" in proofreader and "готовый replacement" in proofreader
+    assert "Canonical, ledgers и docs не правь" in proofreader
+    assert "Тяжёлый порядок" in stylist
+    assert "контекст допускает" in stylist
+    assert "Обязан ли редактор исправить" in stylist
+    assert "разговорная субстантивация" in stylist
+    assert "Финальная двуязычная редактура" in stylist
+    assert "второго proofreader-loop не будет" in stylist
+    for name in ("vn-reviewer.md", "vn-reviewer-alt.md"):
+        assert "Если пакет озаглавлен «Проверка стилевой дельты»" not in agents[name]
+        assert "vn-style-delta-reviewer" not in agents[name]
 
 
 def test_translation_agents_keep_mandatory_read_sets():
@@ -904,3 +1192,192 @@ def test_translation_agents_keep_mandatory_read_sets():
         assert "перечитывай отдельные `translation/segments/*.jsonl`" in text
         assert "Пакет не заменяет три документа выше" in text
         assert "Не перечитывай полную" not in text
+
+
+def test_style_run_retirement_is_exact_selective_and_allows_tep_successor(tmp_path):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_style_retirement_test")
+    builder = load_module(root / "game-tools/build_luca_release.py", "luca_retirement_test")
+    config = make_project(tmp_path)
+    assert vnctl.style_start(tmp_path, config, "BLK0002") == 0
+    run_id = "STYLE-BLK0002-01"
+    run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
+    for window in run["windows"]:
+        window_id = str(window["window_id"])
+        _, _, _, package_rows, editable = vnctl.style_run_window(
+            tmp_path, config, run_id, window_id)
+        patch = tmp_path / "build" / f"{window_id}.jsonl"
+        entries = []
+        if window_id == "W001":
+            for row in editable[:3]:
+                entries.append({
+                    "id": row["id"], "before": row["translation"],
+                    "translation": row["translation"] + " Правка.",
+                    "reason": "test",
+                })
+        write_jsonl(patch, [{"__style_window__": {
+            "run_id": run_id, "window_id": window_id,
+            "base_sha256": vnctl.style_package_hash(package_rows, editable),
+        }}, *entries])
+        assert vnctl.style_apply(tmp_path, config, run_id, window_id, patch) == 0
+        report = write_delta_review(
+            vnctl, tmp_path, config, run_id, window_id,
+            [{"id": entry["id"], "decision": "keep", "reason": "test"}
+             for entry in entries], name=f"{window_id}-delta.jsonl")
+        assert vnctl.style_accept(
+            tmp_path, config, run_id, window_id, report,
+            "vn-style-delta-reviewer") == 0
+
+    run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
+    active = vnctl.style_active_terminal_changes(run)
+    assert [change["id"] for change in active] == ["SEG0", "SEG1", "SEG2"]
+    categories = ["default_exact_revert", "explicit_keep", "quarantine"]
+    manifest = tmp_path / "build/rollback.json"
+    manifest.write_text(json.dumps({
+        "schema_version": 1,
+        "active_changes": [{
+            "run_id": run_id, "window_id": change["window_id"],
+            "change_kind": change["change_kind"], "scene_id": change["scene_id"],
+            "id": change["id"], "original_before": change["before"],
+            "ledger_effective_after": change["after"], "category": categories[index],
+            "category_reason": "test classification", "evidence_sources": ["test"],
+        } for index, change in enumerate(active)],
+    }, ensure_ascii=False), encoding="utf-8")
+    assert vnctl.style_retire_run(
+        tmp_path, config, run_id, manifest, "orchestrator", "replace terminal pass") == 0
+    rows = vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")
+    by_id = {row["id"]: row for row in rows}
+    assert by_id["SEG0"]["translation"] == "Фраза 0."
+    assert by_id["SEG1"]["translation"].endswith("Правка.")
+    assert by_id["SEG2"]["translation"].endswith("Правка.")
+    assert vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]["retired"]
+    assert not vnctl.style_run_complete(tmp_path, config, "BLK0002")
+    assert not vnctl.validate_style_ledger(tmp_path, config)[0]
+    old_root = builder.ROOT
+    builder.ROOT = tmp_path
+    try:
+        with pytest.raises(SystemExit, match="художественная вычитка не завершена"):
+            builder.style_build_preflight(
+                config, tmp_path / "translation/segments", {"SCN0001"})
+    finally:
+        builder.ROOT = old_root
+    config["workflow"]["finalization_mode"] = "tep"
+    assert vnctl.style_start(tmp_path, config, "BLK0002") == 0
+    successor = vnctl.current_style_run(tmp_path, config, "BLK0002")
+    assert successor["run_id"] == "STYLE-BLK0002-02"
+    assert successor["schema_version"] == 4
+    assert len(successor["windows"]) == 1
+    package = vnctl.style_package(tmp_path, config, successor["run_id"], "W001")
+    assert "Обязательные quarantine-решения" in package and "SEG2" in package
+    _, _, _, package_rows, editable = vnctl.style_run_window(
+        tmp_path, config, successor["run_id"], "W001")
+    tep_patch = tmp_path / "build/tep-quarantine.jsonl"
+    write_jsonl(tep_patch, [{"__style_window__": {
+        "run_id": successor["run_id"], "window_id": "W001",
+        "base_sha256": vnctl.style_package_hash(package_rows, editable),
+        "quarantine_ids": ["SEG2"],
+    }}, {"__tep_quarantine__": {
+        "id": "SEG2", "disposition": "keep", "reason": "source-aware check",
+    }}])
+    assert vnctl.style_apply(
+        tmp_path, config, successor["run_id"], "W001", tep_patch) == 0
+    successor = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[
+        successor["run_id"]]
+    assert successor["applied"]["W001"]["quarantine_resolutions"] == [{
+        "id": "SEG2", "disposition": "keep", "reason": "source-aware check",
+    }]
+
+
+def test_tep_editor_proofreader_single_fix_lifecycle(tmp_path):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_tep_lifecycle_test")
+    config = make_project(tmp_path)
+    config["workflow"]["finalization_mode"] = "tep"
+    assert vnctl.style_start(tmp_path, config, "BLK0002") == 0
+    run_id, window_id = "STYLE-BLK0002-01", "W001"
+    run, window, _, package_rows, editable = vnctl.style_run_window(
+        tmp_path, config, run_id, window_id)
+    assert run["schema_version"] == 4 and window["scene_id"] == "SCN0001"
+    editor_package = vnctl.style_package(tmp_path, config, run_id, window_id)
+    assert "source-aware final-editor" in editor_package and "原文0" in editor_package
+    patch = tmp_path / "build/editor.jsonl"
+    write_jsonl(patch, [{"__style_window__": {
+        "run_id": run_id, "window_id": window_id,
+        "base_sha256": vnctl.style_package_hash(package_rows, editable),
+        "quarantine_ids": [],
+    }}, {"id": "SEG0", "before": "Фраза 0.",
+         "translation": "Первая фраза.", "reason": "устранена калька"}])
+    assert vnctl.style_apply(tmp_path, config, run_id, window_id, patch) == 0
+    assert vnctl.read_jsonl(tmp_path / "translation/segments/SCN0001.jsonl")[0]["status"] == "reviewed"
+    proof_package = vnctl.style_review_package(tmp_path, config, run_id, window_id)
+    assert "Оригинал, патч и причины редактора намеренно скрыты" in proof_package
+    assert "原文" not in proof_package
+    _, _, _, _, editable = vnctl.style_run_window(tmp_path, config, run_id, window_id)
+    report = tmp_path / "build/proofread.jsonl"
+    write_jsonl(report, [{"__tep_proofread__": {
+        "run_id": run_id, "window_id": window_id, "scene_id": "SCN0001",
+        "base_sha256": vnctl.tep_proofread_hash(editable),
+    }}, {"issue_id": "TPR-I001", "segment_ids": ["SEG0"],
+         "category": "wording", "problem": "повтор слова"}])
+    assert vnctl.style_accept(
+        tmp_path, config, run_id, window_id, report, "vn-proofreader") == 0
+    run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
+    assert window_id in run["proofreads"] and window_id not in run["accepted"]
+    assert "второго proofreader-loop не будет" in vnctl.style_revision_package(
+        tmp_path, config, run_id, window_id, report)
+    current_rows = [row for row in vnctl.style_route_rows(tmp_path, config, "BLK0002")
+                    if row["id"] == "SEG0"]
+    revision = tmp_path / "build/revision.jsonl"
+    write_jsonl(revision, [{"__style_revision__": {
+        "run_id": run_id, "window_id": window_id,
+        "base_sha256": vnctl.style_slice_hash(current_rows),
+        "report_sha256": vnctl.sha256_file(report), "allowed_ids": ["SEG0"],
+    }}, {"__tep_resolution__": {
+        "issue_id": "TPR-I001", "disposition": "applied", "reason": "устранён",
+    }}, {"id": "SEG0", "before": "Первая фраза.",
+         "translation": "Начальная фраза.", "reason": "устранён повтор",
+         "issue_ids": ["TPR-I001"]}])
+    assert vnctl.style_revise(
+        tmp_path, config, run_id, window_id, revision, report, "vn-stylist") == 0
+    assert vnctl.style_finalize(tmp_path, config, run_id, window_id, "vn-stylist") == 0
+    assert vnctl.style_complete(tmp_path, config, run_id, "orchestrator") == 0
+    run = vnctl.style_runs(vnctl.load_style_events(tmp_path, config))[run_id]
+    assert window_id in run["accepted"] and run["completed"]
+    assert not vnctl.validate_style_ledger(tmp_path, config)[0]
+
+
+def test_tep_zero_issue_scene_completes_and_is_build_ready(tmp_path):
+    root = Path(__file__).parents[2]
+    vnctl = load_module(root / "tools/vnctl.py", "vnctl_tep_zero_test")
+    builder = load_module(root / "game-tools/build_luca_release.py", "luca_tep_zero_test")
+    config = make_project(tmp_path)
+    config["workflow"]["finalization_mode"] = "tep"
+    assert vnctl.style_start(tmp_path, config, "BLK0002") == 0
+    run_id, window_id = "STYLE-BLK0002-01", "W001"
+    _, _, _, package_rows, editable = vnctl.style_run_window(
+        tmp_path, config, run_id, window_id)
+    patch = tmp_path / "build/empty-editor.jsonl"
+    write_jsonl(patch, [{"__style_window__": {
+        "run_id": run_id, "window_id": window_id,
+        "base_sha256": vnctl.style_package_hash(package_rows, editable),
+        "quarantine_ids": [],
+    }}])
+    assert vnctl.style_apply(tmp_path, config, run_id, window_id, patch) == 0
+    _, _, _, _, editable = vnctl.style_run_window(tmp_path, config, run_id, window_id)
+    report = tmp_path / "build/zero-proofread.jsonl"
+    write_jsonl(report, [{"__tep_proofread__": {
+        "run_id": run_id, "window_id": window_id, "scene_id": "SCN0001",
+        "base_sha256": vnctl.tep_proofread_hash(editable),
+    }}])
+    assert vnctl.style_accept(
+        tmp_path, config, run_id, window_id, report, "vn-proofreader") == 0
+    assert vnctl.style_complete(tmp_path, config, run_id, "orchestrator") == 0
+    old_root = builder.ROOT
+    builder.ROOT = tmp_path
+    try:
+        assert builder.style_build_preflight(
+            config, tmp_path / "translation/segments", {"SCN0001"}) == {
+                "BLK0002": run_id
+            }
+    finally:
+        builder.ROOT = old_root

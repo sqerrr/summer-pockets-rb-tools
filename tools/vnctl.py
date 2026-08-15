@@ -1845,7 +1845,10 @@ STAGE_ORDER = (
 STYLE_READY_STATUSES = {"reviewed", "playable", "lqa", "approved"}
 STYLE_EVENTS = {
     "ledger_initialized", "run_started", "window_applied",
-    "window_revised", "window_accepted", "route_audited", "build_readback",
+    "window_revised", "window_accepted", "style_keep_reverted",
+    "style_siblings_reconciled", "style_run_retired",
+    "style_retirement_annotated", "window_proofread",
+    "run_completed", "route_audited", "build_readback",
 }
 CJK_RE = re.compile(r"[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff]")
 CJK_RUN_RE = re.compile(CJK_RE.pattern + "+")
@@ -1900,6 +1903,12 @@ def style_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
                 "revisions": {},
                 "accepted": {},
                 "reopened": set(),
+                "keep_reverts": {},
+                "sibling_reconciliations": [],
+                "proofreads": {},
+                "retired": None,
+                "retirement_annotations": None,
+                "completed": None,
                 "audit": None,
                 "builds": [],
             }
@@ -1916,6 +1925,23 @@ def style_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
             window_id = str(event["window_id"])
             runs[run_id]["accepted"][window_id] = event
             runs[run_id]["reopened"].discard(window_id)
+        elif run_id in runs and kind == "style_keep_reverted":
+            window_id = str(event["window_id"])
+            runs[run_id]["keep_reverts"].setdefault(window_id, []).append(event)
+            runs[run_id]["completed"] = None
+            runs[run_id]["audit"] = None
+        elif run_id in runs and kind == "style_siblings_reconciled":
+            runs[run_id]["sibling_reconciliations"].append(event)
+        elif run_id in runs and kind == "window_proofread":
+            runs[run_id]["proofreads"][str(event["window_id"])] = event
+        elif run_id in runs and kind == "style_run_retired":
+            runs[run_id]["retired"] = event
+            runs[run_id]["completed"] = None
+            runs[run_id]["audit"] = None
+        elif run_id in runs and kind == "style_retirement_annotated":
+            runs[run_id]["retirement_annotations"] = event
+        elif run_id in runs and kind == "run_completed":
+            runs[run_id]["completed"] = event
         elif run_id in runs and kind == "route_audited":
             runs[run_id]["audit"] = event
         elif run_id in runs and kind == "build_readback":
@@ -1940,7 +1966,85 @@ def style_effective_changes(run: dict[str, Any], window_id: str) -> list[dict[st
             by_id[sid]["flags_after"] = revision.get(
                 "flags_after", by_id[sid].get("flags_after", []))
             by_id[sid]["reason"] = revision.get("reason", by_id[sid].get("reason"))
+    reverted = {
+        str(item.get("id"))
+        for event in run.get("keep_reverts", {}).get(window_id, [])
+        for item in event.get("reverts", []) or []
+    }
+    accepted = run.get("accepted", {}).get(window_id)
+    if accepted and accepted.get("acceptance_mode") == "comparative":
+        kept = {
+            str(item.get("id")) for item in accepted.get("decisions", [])
+            if item.get("decision") == "keep"
+        }
+        order = [sid for sid in order if sid in kept]
+    order = [sid for sid in order if sid not in reverted]
     return [by_id[sid] for sid in order]
+
+
+def style_active_terminal_changes(run: dict[str, Any]) -> list[dict[str, Any]]:
+    """Project every still-active terminal style transition to one exact chain."""
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for window in run.get("windows", []):
+        window_id = str(window["window_id"])
+        for change in style_effective_changes(run, window_id):
+            if str(change.get("before", "")) == str(change.get("after", "")):
+                continue
+            sid = str(change["id"])
+            if sid in seen:
+                raise ValueError(f"style transition appears in multiple windows: {sid}")
+            seen.add(sid)
+            out.append({
+                **dict(change),
+                "run_id": str(run.get("run_id", "")),
+                "window_id": window_id,
+                "change_kind": "window_style_change",
+            })
+
+    sibling_by_id: dict[str, dict[str, Any]] = {}
+    sibling_order: list[str] = []
+    for event in run.get("sibling_reconciliations", []):
+        for change in event.get("changes", []) or []:
+            sid = str(change["id"])
+            if sid in seen:
+                raise ValueError(f"style window and sibling transition overlap: {sid}")
+            if sid not in sibling_by_id:
+                sibling_order.append(sid)
+                sibling_by_id[sid] = dict(change)
+            else:
+                sibling_by_id[sid]["after"] = change.get(
+                    "after", sibling_by_id[sid].get("after", ""))
+                sibling_by_id[sid]["flags_after"] = change.get(
+                    "flags_after", sibling_by_id[sid].get("flags_after", []))
+                sibling_by_id[sid]["reason"] = change.get(
+                    "reason", sibling_by_id[sid].get("reason", ""))
+    for sid in sibling_order:
+        change = sibling_by_id[sid]
+        if str(change.get("before", "")) == str(change.get("after", "")):
+            continue
+        seen.add(sid)
+        out.append({
+            **change,
+            "run_id": str(run.get("run_id", "")),
+            "window_id": "SIBLING_RECONCILIATION",
+            "change_kind": "sibling_reconciliation",
+        })
+    return out
+
+
+def style_route_quarantines(root: Path, config: dict[str, Any], route: str,
+                            segment_ids: set[str]) -> list[dict[str, Any]]:
+    by_id: dict[str, dict[str, Any]] = {}
+    for run in style_runs(load_style_events(root, config)).values():
+        if str(run.get("route", "")) != route or not run.get("retired"):
+            continue
+        event = run.get("retirement_annotations") or {}
+        for item in event.get("annotations", []) or []:
+            sid = str(item.get("id", ""))
+            if sid in segment_ids and item.get("category") == "quarantine":
+                by_id[sid] = dict(item)
+    return [by_id[sid] for sid in sorted(by_id)]
 
 
 def route_scenes(root: Path, config: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
@@ -2051,10 +2155,13 @@ def current_style_run(root: Path, config: dict[str, Any], route: str) -> dict[st
 
 def style_run_complete(root: Path, config: dict[str, Any], route: str) -> bool:
     run = current_style_run(root, config, route)
-    if not run or not run.get("audit"):
+    if not run:
+        return False
+    if run.get("retired"):
         return False
     rows = style_route_rows(root, config, route)
-    return run["audit"].get("route_sha256") == style_text_hash(rows)
+    receipt = run.get("completed") or run.get("audit")
+    return bool(receipt and receipt.get("route_sha256") == style_text_hash(rows))
 
 
 def work_queue(root: Path, config: dict[str, Any]) -> int:
@@ -2069,7 +2176,7 @@ def work_queue(root: Path, config: dict[str, Any]) -> int:
     buckets: dict[str, list[tuple[str, int, bool, str]]] = defaultdict(list)
     active_style_routes = {
         str(run.get("route")) for run in style_runs(load_style_events(root, config)).values()
-        if run.get("route") and not run.get("audit")
+        if run.get("route") and not style_run_complete(root, config, str(run["route"]))
     }
     done = 0
     total_segments = 0
@@ -2123,8 +2230,13 @@ def work_queue(root: Path, config: dict[str, Any]) -> int:
                     if run.get("rechecks"):
                         queue_stage = "review finalize"
                         note = "после единственной перепроверки"
-                    else:
+                    elif any(issue.get("severity") == "critical"
+                             for issue in run.get("issues", [])):
                         queue_stage = "review recheck"
+                        note = "critical требует независимой перепроверки"
+                    else:
+                        queue_stage = "review finalize"
+                        note = "после одной tracked правки"
                 else:
                     queue_stage = "review fix"
                     counts = Counter(
@@ -2155,12 +2267,24 @@ def work_queue(root: Path, config: dict[str, Any]) -> int:
         rows = style_route_rows(root, config, route)
         statuses = {str(row.get("status")) for row in rows}
         run = current_style_run(root, config, route)
-        if run and not run.get("audit"):
-            accepted = len(run["accepted"])
-            style_items.append(f"{route} ({accepted}/{len(run['windows'])} окон принято)")
-        elif statuses <= STYLE_READY_STATUSES and not style_run_complete(root, config, route):
-            style_items.append(f"{route} ({len(rows)}, начать)")
-        elif style_run_complete(root, config, route) and "reviewed" in statuses:
+        complete = style_run_complete(root, config, route)
+        if run and not complete:
+            if run.get("retired"):
+                style_items.append(f"{route} ({len(rows)}, начать TEP)")
+            else:
+                accepted = len(run["accepted"])
+                unit = "сцен" if int(run.get("schema_version", 1)) >= 4 else "окон"
+                style_items.append(
+                    f"{route} ({accepted}/{len(run['windows'])} {unit} принято)")
+        elif statuses <= STYLE_READY_STATUSES and not complete:
+            start_label = (
+                "начать TEP"
+                if str(config.get("workflow", {}).get(
+                    "finalization_mode", "comparative")) == "tep"
+                else "начать"
+            )
+            style_items.append(f"{route} ({len(rows)}, {start_label})")
+        elif complete and "reviewed" in statuses:
             build_items.append(f"{route} ({len(rows)})")
     if style_items:
         print(f"{'вычитка':12} " + ", ".join(style_items[:8]))
@@ -2191,30 +2315,53 @@ def style_start(root: Path, config: dict[str, Any], route: str) -> int:
     if bad:
         raise ValueError(f"Style block {route} is not reviewed completely: {dict(bad)}")
     current = current_style_run(root, config, route)
-    if current and not current.get("audit"):
+    if current and not current.get("retired") and not style_run_complete(root, config, route):
         raise ValueError(f"Style run already active: {current['run_id']}")
-    if style_run_complete(root, config, route):
-        print(f"{route}: current text already passed style audit")
+    if current and not current.get("retired") and style_run_complete(root, config, route):
+        print(f"{route}: current text already completed style review")
         return 0
     events = load_style_events(root, config)
     serial = 1 + sum(1 for event in events
                      if event.get("event") == "run_started" and event.get("route") == route)
     run_id = f"STYLE-{route}-{serial:02d}"
     workflow = config.get("workflow", {})
-    windows = plan_style_windows(
-        rows,
-        int(workflow.get("style_window_min", 600)),
-        int(workflow.get("style_window_max", 1000)),
-        int(workflow.get("style_context_segments", 75)),
-    )
+    tep_mode = str(workflow.get("finalization_mode", "comparative")) == "tep"
+    if tep_mode:
+        route_scene_ids = [str(scene["scene_id"])
+                           for scene in route_scenes(root, config).get(route, [])]
+        by_scene: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for row in rows:
+            by_scene[str(row["scene_id"])].append(row)
+        windows = []
+        for index, scene_id in enumerate(route_scene_ids, start=1):
+            scene_rows = by_scene.get(scene_id, [])
+            if not scene_rows:
+                continue
+            windows.append({
+                "window_id": f"W{index:03d}",
+                "scene_id": scene_id,
+                "editable_first": str(scene_rows[0]["id"]),
+                "editable_last": str(scene_rows[-1]["id"]),
+                "editable_count": len(scene_rows),
+                "context_before": 0,
+                "context_after": 0,
+            })
+    else:
+        windows = plan_style_windows(
+            rows,
+            int(workflow.get("style_window_min", 600)),
+            int(workflow.get("style_window_max", 1000)),
+            int(workflow.get("style_context_segments", 75)),
+        )
     append_style_event(root, config, {
-        "schema_version": 1,
+        "schema_version": 4 if tep_mode else 3,
         "event": "run_started",
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "run_id": run_id,
         "route": route,
         "route_sha256": style_text_hash(rows),
         "segment_count": len(rows),
+        "finalization_mode": "tep" if tep_mode else "comparative",
         "windows": windows,
     })
     print(f"{run_id}: {len(rows)} segments, {len(windows)} windows")
@@ -2267,9 +2414,90 @@ def style_package(root: Path, config: dict[str, Any], run_id: str,
         window = next((w for w in run["windows"]
                        if str(w["window_id"]) not in run["applied"]), None)
     if not window:
-        return f"# {run_id}\n\nВсе окна применены; ожидается проверка дельты и аудит.\n"
+        return f"# {run_id}\n\nВсе окна применены; ожидается проверка дельты.\n"
     rows = style_route_rows(root, config, str(run["route"]))
     package_rows, editable = style_window_rows(rows, window)
+    if int(run.get("schema_version", 1)) >= 4:
+        labels = speaker_labels(root)
+        records = load_source_records(
+            root, config, {(str(row["source_set_id"]), str(row["source_id"]))
+                           for row in editable})
+        source_text = "\n".join(
+            str(slot.get("body_text", slot.get("text", "")))
+            for record in records.values() for slot in record.get("slots", []))
+        glossary = glossary_for_scene(root, config, source_text)
+        quarantines = style_route_quarantines(
+            root, config, str(run["route"]), {str(row["id"]) for row in editable})
+        knowledge_rows = []
+        for row in editable:
+            record = records[(str(row["source_set_id"]), str(row["source_id"]))]
+            knowledge_rows.append({
+                **row,
+                "sources": {
+                    str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
+                    for slot in record.get("slots", [])
+                },
+            })
+        base_sha = style_package_hash(package_rows, editable)
+        parts = [
+            f"# Финальная двуязычная редактура {run_id} / {window['window_id']}", "",
+            f"Сцена: `{window.get('scene_id', editable[0]['scene_id'])}`. "
+            f"Редактируемо: {len(editable)} сегментов.",
+            f"base_sha256: `{base_sha}`", "",
+            "Роль: `vn-stylist` в source-aware final-editor режиме. Сначала прочитай "
+            "всю русскую сцену без правок, затем сверь JP/EN/ZH и обязательные знания. "
+            "Исправляй только проверяемый дефект; допустимую фразу не нормализуй.",
+            "Это единственный writer финального TEP-прохода. Старые style before/after и "
+            "их причины намеренно не показаны.", "",
+            render_required_knowledge(root, config, knowledge_rows, glossary, role="stylist"),
+            "", "## Обязательные quarantine-решения", "",
+            *(["```jsonl", *[json.dumps(item, ensure_ascii=False) for item in quarantines],
+               "```", "Для каждого ID обязательно запиши `keep` или `changed`."]
+              if quarantines else ["Нет."]),
+            "", "## Сцена", "", "```jsonl",
+        ]
+        prior = prior_review_issues(root, config, {str(row["id"]) for row in editable})
+        prior_by_id: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for issue in prior:
+            for sid in issue.get("segment_ids", []) or []:
+                prior_by_id[str(sid)].append(issue)
+        for row in editable:
+            record = records[(str(row["source_set_id"]), str(row["source_id"]))]
+            slots = {str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
+                     for slot in record.get("slots", [])}
+            parts.append(json.dumps({
+                "id": row["id"],
+                "scene": row["scene_id"],
+                "speaker": labels.get(str(row.get("speaker")), None)
+                if row.get("speaker") else None,
+                "sources": slots,
+                "ru": row.get("translation", ""),
+                "flags": row.get("flags", []),
+                "markup": markup_contract(slots.get("ja", "")),
+                "prior_review_issues": prior_by_id.get(str(row["id"]), []),
+            }, ensure_ascii=False))
+        parts.extend([
+            "```", "", "## Сдать", "",
+            f"Патч: `build/style-{run_id}-{window['window_id']}.jsonl`.",
+            "Первая строка:", "```json",
+            json.dumps({"__style_window__": {
+                "run_id": run_id,
+                "window_id": window["window_id"],
+                "base_sha256": base_sha,
+                "quarantine_ids": [item["id"] for item in quarantines],
+            }}, ensure_ascii=False),
+            "```",
+            "Сначала ровно по одной строке на каждый quarantine ID:",
+            '```json\n{"__tep_quarantine__":{"id":"SEG_...","disposition":"keep|changed","reason":"..."}}\n```',
+            "Дальше только реально изменённые записи:",
+            '```json\n{"id":"...","before":"...","translation":"...","reason":"..."}\n```',
+            "Пустой патч законен. Статусы назначает инструмент.", "",
+            f"Проверка: `python tools/vnctl.py style check {run_id} "
+            f"{window['window_id']} build/style-{run_id}-{window['window_id']}.jsonl`",
+            f"Применение: `python tools/vnctl.py style apply {run_id} "
+            f"{window['window_id']} build/style-{run_id}-{window['window_id']}.jsonl`",
+        ])
+        return "\n".join(parts)
     cjk_locked_ids = {
         str(row["id"]) for row in editable
         if CJK_RE.search(str(row.get("translation", "")))
@@ -2363,6 +2591,8 @@ def style_run_window(root: Path, config: dict[str, Any], run_id: str,
     run = style_runs(load_style_events(root, config)).get(run_id)
     if not run:
         raise ValueError(f"Unknown style run: {run_id}")
+    if run.get("retired"):
+        raise ValueError(f"Retired style run is read-only: {run_id}")
     window = next((item for item in run["windows"]
                    if str(item["window_id"]) == window_id), None)
     if not window:
@@ -2395,6 +2625,39 @@ def validate_style_patch(root: Path, config: dict[str, Any], run_id: str,
         errors.append(
             f"stale style package: header={header.get('base_sha256')} current={current_hash}")
 
+    source_aware = int(run.get("schema_version", 1)) >= 4
+    expected_quarantines = (
+        style_route_quarantines(
+            root, config, str(run["route"]), {str(row["id"]) for row in editable})
+        if source_aware else []
+    )
+    expected_quarantine_ids = [str(item["id"]) for item in expected_quarantines]
+    if source_aware and header.get("quarantine_ids") != expected_quarantine_ids:
+        errors.append("style header quarantine_ids do not match pending quarantine scope")
+    quarantine_resolutions: list[dict[str, str]] = []
+    seen_quarantines: set[str] = set()
+    for index, raw in enumerate(raw_rows, start=1):
+        item = raw.get("__tep_quarantine__")
+        if item is None:
+            continue
+        if not isinstance(item, dict):
+            errors.append(f"line {index}: invalid quarantine resolution")
+            continue
+        sid = str(item.get("id", ""))
+        disposition = str(item.get("disposition", ""))
+        resolution_reason = str(item.get("reason", "")).strip()
+        if (set(item) - {"id", "disposition", "reason"}
+                or sid not in expected_quarantine_ids or sid in seen_quarantines
+                or disposition not in {"keep", "changed"} or not resolution_reason):
+            errors.append(f"line {index}: invalid quarantine resolution")
+            continue
+        seen_quarantines.add(sid)
+        quarantine_resolutions.append({
+            "id": sid, "disposition": disposition, "reason": resolution_reason,
+        })
+    if source_aware and seen_quarantines != set(expected_quarantine_ids):
+        errors.append("style patch must resolve every quarantine ID exactly once")
+
     editable_by_id = {
         str(row["id"]): row for row in editable
         if not CJK_RE.search(str(row.get("translation", "")))
@@ -2406,7 +2669,7 @@ def validate_style_patch(root: Path, config: dict[str, Any], run_id: str,
     allowed_flags = set(qa.get("allowed_flags", []))
     allowed_fields = {"id", "before", "translation", "reason", "flags"}
     for index, raw in enumerate(raw_rows, start=1):
-        if raw.get("__style_window__"):
+        if raw.get("__style_window__") or raw.get("__tep_quarantine__"):
             continue
         entry = clean_meta(raw)
         unknown = set(entry) - allowed_fields
@@ -2435,7 +2698,7 @@ def validate_style_patch(root: Path, config: dict[str, Any], run_id: str,
         new_flags = list(entry.get("flags", old_flags) or [])
         if not set(old_flags) <= set(new_flags):
             errors.append(f"line {index}: style patch may not remove flags from {sid}")
-        if set(new_flags) - set(old_flags) - {"needs_source_check"}:
+        if not source_aware and set(new_flags) - set(old_flags) - {"needs_source_check"}:
             errors.append(f"line {index}: style patch may add only needs_source_check to {sid}")
         if set(new_flags) - allowed_flags:
             errors.append(f"line {index}: unknown flags for {sid}")
@@ -2448,6 +2711,19 @@ def validate_style_patch(root: Path, config: dict[str, Any], run_id: str,
             errors.append(f"line {index}: {sid} {finding.decision} {finding.message}")
         entry["flags"] = new_flags
         entries.append(entry)
+    if source_aware:
+        changed_ids = {str(entry["id"]) for entry in entries}
+        expected_changed = {
+            item["id"] for item in quarantine_resolutions
+            if item["disposition"] == "changed"
+        }
+        contradictory = {
+            item["id"] for item in quarantine_resolutions
+            if item["disposition"] == "keep" and item["id"] in changed_ids
+        }
+        if expected_changed - changed_ids or contradictory:
+            errors.append("quarantine keep/changed decisions do not match patch entries")
+        header["_quarantine_resolutions"] = quarantine_resolutions
     return errors, entries, header
 
 
@@ -2485,7 +2761,7 @@ def style_apply(root: Path, config: dict[str, Any], run_id: str,
         for message in errors:
             eprint(f"ERROR: {message}")
         return 1
-    _, _, _, _, editable = style_run_window(root, config, run_id, window_id)
+    run, _, _, _, editable = style_run_window(root, config, run_id, window_id)
     editable_by_id = {str(row["id"]): row for row in editable}
     affected = sorted({str(editable_by_id[str(entry["id"])]["scene_id"]) for entry in entries})
     seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
@@ -2510,25 +2786,95 @@ def style_apply(root: Path, config: dict[str, Any], run_id: str,
         })
         row["translation"] = entry["translation"]
         row["flags"] = entry["flags"]
-        row["status"] = "draft"
+        row["status"] = "reviewed" if int(run.get("schema_version", 1)) >= 4 else "draft"
     if scene_rows:
         write_scene_transaction(root, config, scene_rows)
     patch_file = patch_path if patch_path.is_absolute() else root / patch_path
     append_style_event(root, config, {
-        "schema_version": 1,
+        "schema_version": max(2, int(run.get("schema_version", 1))),
         "event": "window_applied",
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "run_id": run_id,
         "window_id": window_id,
         "input_sha256": header["base_sha256"],
         "patch_sha256": sha256_file(patch_file),
+        **({"quarantine_resolutions": header.get("_quarantine_resolutions", [])}
+           if int(run.get("schema_version", 1)) >= 4 else {}),
         "changes": changes,
     })
-    print(f"{run_id}/{window_id}: applied {len(changes)} changes; changed rows are draft")
+    state = "reviewed" if int(run.get("schema_version", 1)) >= 4 else "draft"
+    print(f"{run_id}/{window_id}: applied {len(changes)} changes; changed rows are {state}")
     return 0
 
 
 STYLE_SEGMENT_ID_RE = re.compile(r"\bSEG[A-Za-z0-9_]+\b")
+TEP_PROOFREAD_CATEGORIES = {"grammar", "punctuation", "wording", "coherence", "voice"}
+
+
+def tep_proofread_hash(rows: list[dict[str, Any]]) -> str:
+    return style_slice_hash(rows)
+
+
+def validate_tep_proofread_report(
+        root: Path, config: dict[str, Any], run_id: str, window_id: str,
+        report_path: Path) -> tuple[list[str], list[dict[str, Any]], dict[str, Any]]:
+    report = report_path if report_path.is_absolute() else root / report_path
+    if not report.exists():
+        return [f"proofread report not found: {report}"], [], {}
+    run, window, _, _, editable = style_run_window(root, config, run_id, window_id)
+    if int(run.get("schema_version", 1)) < 4:
+        return ["TEP proofread requires a schema v4 run"], [], {}
+    raw_rows = read_jsonl(report)
+    headers = [row.get("__tep_proofread__") for row in raw_rows
+               if row.get("__tep_proofread__")]
+    if len(headers) != 1 or not isinstance(headers[0], dict):
+        return ["report must contain exactly one __tep_proofread__ header"], [], {}
+    header = headers[0]
+    errors: list[str] = []
+    if header.get("run_id") != run_id or header.get("window_id") != window_id:
+        errors.append("proofread header does not match requested run/window")
+    if header.get("scene_id") != window.get("scene_id"):
+        errors.append("proofread header scene_id does not match window")
+    current_hash = tep_proofread_hash(editable)
+    if header.get("base_sha256") != current_hash:
+        errors.append(
+            f"stale proofread report: header={header.get('base_sha256')} current={current_hash}")
+    editable_ids = {
+        str(row["id"]) for row in editable
+        if not CJK_RE.search(str(row.get("translation", "")))
+    }
+    issues: list[dict[str, Any]] = []
+    seen_issues: set[str] = set()
+    allowed_fields = {"issue_id", "segment_ids", "category", "problem"}
+    for index, raw in enumerate(raw_rows, start=1):
+        if raw.get("__tep_proofread__"):
+            continue
+        item = clean_meta(raw)
+        unknown = set(item) - allowed_fields
+        issue_id = str(item.get("issue_id", ""))
+        segment_ids = list(map(str, item.get("segment_ids", []) or []))
+        category = str(item.get("category", ""))
+        problem = str(item.get("problem", "")).strip()
+        if unknown:
+            errors.append(f"line {index}: unknown fields {sorted(unknown)}")
+            continue
+        if not issue_id or issue_id in seen_issues:
+            errors.append(f"line {index}: missing or duplicate issue_id")
+        seen_issues.add(issue_id)
+        if (not segment_ids or len(segment_ids) != len(set(segment_ids))
+                or set(segment_ids) - editable_ids):
+            errors.append(f"line {index}: invalid proofread segment_ids")
+        if category not in TEP_PROOFREAD_CATEGORIES:
+            errors.append(f"line {index}: invalid proofread category")
+        if not problem:
+            errors.append(f"line {index}: missing proofread problem")
+        issues.append({
+            "issue_id": issue_id,
+            "segment_ids": segment_ids,
+            "category": category,
+            "problem": problem,
+        })
+    return errors, issues, header
 
 
 def style_revision_report(path: Path) -> tuple[str, set[str]]:
@@ -2548,11 +2894,19 @@ def validate_style_revision(root: Path, config: dict[str, Any], run_id: str,
     report_file = report_path if report_path.is_absolute() else root / report_path
     if not report_file.exists():
         return [f"review report not found: {report_file}"], [], {}
-    try:
-        _, report_ids = style_revision_report(report_file)
-    except ValueError as exc:
-        return [str(exc)], [], {}
     run, _, route_rows, _, editable = style_run_window(root, config, run_id, window_id)
+    if int(run.get("schema_version", 1)) >= 4:
+        report_errors, issues, _ = validate_tep_proofread_report(
+            root, config, run_id, window_id, report_file)
+        if report_errors:
+            return report_errors, [], {}
+        report_ids = {sid for issue in issues for sid in issue["segment_ids"]}
+        proofread_by_id = {str(issue["issue_id"]): issue for issue in issues}
+    else:
+        try:
+            _, report_ids = style_revision_report(report_file)
+        except ValueError as exc:
+            return [str(exc)], [], {}
     if window_id not in run["applied"]:
         return [f"window is not applied: {run_id}/{window_id}"], [], {}
     editable_ids = {str(row["id"]) for row in editable
@@ -2585,11 +2939,39 @@ def validate_style_revision(root: Path, config: dict[str, Any], run_id: str,
     source_texts = source_text_by_segment(root, config, current_rows)
     qa = read_yaml(root / "config/qa-rules.yaml", {}) or {}
     allowed_flags = set(qa.get("allowed_flags", []))
+    tep_mode = int(run.get("schema_version", 1)) >= 4
+    resolutions: list[dict[str, str]] = []
+    if tep_mode:
+        raw_resolutions = [row.get("__tep_resolution__") for row in raw_rows
+                           if row.get("__tep_resolution__")]
+        seen_resolution_ids: set[str] = set()
+        for index, item in enumerate(raw_resolutions, start=1):
+            if not isinstance(item, dict):
+                errors.append(f"resolution {index}: invalid object")
+                continue
+            issue_id = str(item.get("issue_id", ""))
+            disposition = str(item.get("disposition", ""))
+            reason = str(item.get("reason", "")).strip()
+            if (set(item) - {"issue_id", "disposition", "reason"}
+                    or issue_id not in proofread_by_id
+                    or issue_id in seen_resolution_ids
+                    or disposition not in {"applied", "rejected"}
+                    or not reason):
+                errors.append(f"resolution {index}: invalid TEP resolution")
+                continue
+            seen_resolution_ids.add(issue_id)
+            resolutions.append({
+                "issue_id": issue_id, "disposition": disposition, "reason": reason,
+            })
+        if seen_resolution_ids != set(proofread_by_id):
+            errors.append("TEP revision must resolve every proofread issue exactly once")
     allowed_fields = {"id", "before", "translation", "reason", "flags"}
+    if tep_mode:
+        allowed_fields.add("issue_ids")
     entries: list[dict[str, Any]] = []
     seen: set[str] = set()
     for index, raw in enumerate(raw_rows, start=1):
-        if raw.get("__style_revision__"):
+        if raw.get("__style_revision__") or raw.get("__tep_resolution__"):
             continue
         entry = clean_meta(raw)
         unknown = set(entry) - allowed_fields
@@ -2610,12 +2992,18 @@ def validate_style_revision(root: Path, config: dict[str, Any], run_id: str,
         before = str(entry.get("before", ""))
         after = str(entry.get("translation", ""))
         reason = str(entry.get("reason", "")).strip()
+        issue_ids = list(map(str, entry.get("issue_ids", []) or [])) if tep_mode else []
         if before != str(current.get("translation", "")):
             errors.append(f"line {index}: before text does not match canonical text for {sid}")
         if not after.strip():
             errors.append(f"line {index}: empty translation for {sid}")
         if not reason:
             errors.append(f"line {index}: missing reason for {sid}")
+        if tep_mode and (not issue_ids or len(issue_ids) != len(set(issue_ids))
+                         or set(issue_ids) - set(proofread_by_id)
+                         or any(sid not in proofread_by_id[issue_id]["segment_ids"]
+                                for issue_id in issue_ids)):
+            errors.append(f"line {index}: invalid issue_ids for {sid}")
         old_flags = list(current.get("flags", []) or [])
         new_flags = list(entry.get("flags", old_flags) or [])
         if not set(old_flags) <= set(new_flags):
@@ -2632,14 +3020,37 @@ def validate_style_revision(root: Path, config: dict[str, Any], run_id: str,
         for finding in findings:
             errors.append(f"line {index}: {sid} {finding.decision} {finding.message}")
         entry["flags"] = new_flags
+        if tep_mode:
+            entry["issue_ids"] = issue_ids
         entries.append(entry)
-    if not entries:
+    if tep_mode:
+        applied_ids = {
+            item["issue_id"] for item in resolutions if item["disposition"] == "applied"
+        }
+        changed_issue_ids = {
+            issue_id for entry in entries for issue_id in entry.get("issue_ids", [])
+        }
+        if changed_issue_ids != applied_ids:
+            errors.append("TEP applied resolutions must match changed-entry issue_ids")
+        header["_resolutions"] = resolutions
+    elif not entries:
         errors.append("style revision must contain at least one changed entry")
     return errors, entries, header
 
 
 def style_revise(root: Path, config: dict[str, Any], run_id: str, window_id: str,
                  patch_path: Path, report_path: Path, actor: str) -> int:
+    current_run = style_runs(load_style_events(root, config)).get(run_id)
+    if current_run and int(current_run.get("schema_version", 1)) == 3:
+        raise ValueError(
+            f"Comparative style run forbids free revision: {run_id}/{window_id}")
+    if current_run and current_run.get("accepted", {}).get(window_id):
+        raise ValueError(
+            f"Style window is terminal: {run_id}/{window_id}; "
+            "record a later defect in a new scoped run")
+    if current_run and current_run.get("revisions", {}).get(window_id):
+        raise ValueError(
+            f"Style window already used its single final revision: {run_id}/{window_id}")
     errors, entries, header = validate_style_revision(
         root, config, run_id, window_id, patch_path, report_path)
     if errors:
@@ -2673,11 +3084,13 @@ def style_revise(root: Path, config: dict[str, Any], run_id: str, window_id: str
         })
         row["translation"] = entry["translation"]
         row["flags"] = entry["flags"]
-        row["status"] = "draft"
+        row["status"] = (
+            "reviewed" if int(current_run.get("schema_version", 1)) >= 4 else "draft")
     write_scene_transaction(root, config, scene_rows)
     patch_file = patch_path if patch_path.is_absolute() else root / patch_path
     event = {
-        "schema_version": 1,
+        "schema_version": (
+            4 if int(current_run.get("schema_version", 1)) >= 4 else 2),
         "event": "window_revised",
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "run_id": run_id,
@@ -2686,6 +3099,8 @@ def style_revise(root: Path, config: dict[str, Any], run_id: str, window_id: str
         "report_sha256": header["report_sha256"],
         "input_sha256": header["base_sha256"],
         "patch_sha256": sha256_file(patch_file),
+        **({"resolutions": header.get("_resolutions", [])}
+           if int(current_run.get("schema_version", 1)) >= 4 else {}),
         "changes": changes,
     }
     try:
@@ -2702,12 +3117,167 @@ def style_revise(root: Path, config: dict[str, Any], run_id: str, window_id: str
     return 0
 
 
+def style_delta_review_hash(effective: list[dict[str, Any]],
+                            rows_by_id: dict[str, dict[str, Any]]) -> str:
+    payload = []
+    for change in effective:
+        sid = str(change["id"])
+        row = rows_by_id[sid]
+        payload.append({
+            "id": sid,
+            "before": change.get("before", ""),
+            "after": change.get("after", ""),
+            "reason": change.get("reason", ""),
+            "flags_before": change.get("flags_before", []),
+            "flags_after": change.get("flags_after", []),
+            "current_translation": row.get("translation", ""),
+            "current_flags": row.get("flags", []),
+            "current_status": row.get("status"),
+        })
+    return sha256_text(json.dumps(payload, ensure_ascii=False, sort_keys=True))
+
+
+def validate_style_delta_review(
+        root: Path, config: dict[str, Any], run_id: str, window_id: str,
+        report_path: Path) -> tuple[list[str], list[dict[str, str]], dict[str, Any]]:
+    report = report_path if report_path.is_absolute() else root / report_path
+    if not report.exists():
+        return [f"review report not found: {report}"], [], {}
+    run, _, route_rows, _, _ = style_run_window(root, config, run_id, window_id)
+    if int(run.get("schema_version", 1)) < 3:
+        return ["comparative delta review requires a schema v3 style run"], [], {}
+    if window_id not in run["applied"]:
+        return [f"window is not applied: {run_id}/{window_id}"], [], {}
+    if window_id in run["accepted"]:
+        return [f"window already accepted: {run_id}/{window_id}"], [], {}
+    if run.get("revisions", {}).get(window_id):
+        return [f"comparative window may not have a free revision: {run_id}/{window_id}"], [], {}
+
+    effective = style_effective_changes(run, window_id)
+    expected_ids = [str(change["id"]) for change in effective]
+    by_id = {str(row["id"]): row for row in route_rows}
+    raw_rows = read_jsonl(report)
+    headers = [row.get("__style_delta_review__") for row in raw_rows
+               if row.get("__style_delta_review__")]
+    if len(headers) != 1 or not isinstance(headers[0], dict):
+        return ["report must contain exactly one __style_delta_review__ header"], [], {}
+    header = headers[0]
+    errors: list[str] = []
+    if header.get("run_id") != run_id or header.get("window_id") != window_id:
+        errors.append("delta review header does not match requested run/window")
+    if header.get("changed_ids") != expected_ids:
+        errors.append("delta review header changed_ids do not match effective changes")
+    expected_hash = style_delta_review_hash(effective, by_id)
+    if header.get("base_sha256") != expected_hash:
+        errors.append(
+            f"stale delta review: header={header.get('base_sha256')} current={expected_hash}")
+
+    decisions: list[dict[str, str]] = []
+    seen: set[str] = set()
+    allowed_fields = {"id", "decision", "reason"}
+    expected = set(expected_ids)
+    change_by_id = {str(change["id"]): change for change in effective}
+    for index, raw in enumerate(raw_rows, start=1):
+        if raw.get("__style_delta_review__"):
+            continue
+        item = clean_meta(raw)
+        unknown = set(item) - allowed_fields
+        sid = str(item.get("id", ""))
+        decision = str(item.get("decision", ""))
+        reason = str(item.get("reason", "")).strip()
+        if unknown:
+            errors.append(f"line {index}: unknown fields {sorted(unknown)}")
+            continue
+        if sid in seen:
+            errors.append(f"line {index}: duplicate id {sid}")
+            continue
+        seen.add(sid)
+        if sid not in expected:
+            errors.append(f"line {index}: unknown changed id {sid}")
+            continue
+        if decision not in {"keep", "revert"}:
+            errors.append(f"line {index}: invalid decision for {sid}")
+        if not reason:
+            errors.append(f"line {index}: missing reason for {sid}")
+        change = change_by_id[sid]
+        current = by_id[sid]
+        if str(current.get("translation", "")) != str(change.get("after", "")):
+            errors.append(f"line {index}: canonical text no longer matches style after for {sid}")
+        if list(current.get("flags", []) or []) != list(change.get("flags_after", []) or []):
+            errors.append(f"line {index}: canonical flags no longer match style after for {sid}")
+        if str(current.get("status")) != "draft":
+            errors.append(f"line {index}: {sid} is not awaiting delta review")
+        decisions.append({"id": sid, "decision": decision, "reason": reason})
+    missing = [sid for sid in expected_ids if sid not in seen]
+    if missing:
+        errors.append("delta review is missing decisions: " + ", ".join(missing))
+    return errors, decisions, header
+
+
 def style_review_package(root: Path, config: dict[str, Any], run_id: str,
                          window_id: str) -> str:
     run, _, route_rows, _, _ = style_run_window(root, config, run_id, window_id)
     applied = run["applied"].get(window_id)
     if not applied:
         raise ValueError(f"Style window is not applied: {run_id}/{window_id}")
+    if window_id in run["accepted"]:
+        raise ValueError(f"Style window already accepted: {run_id}/{window_id}")
+    if int(run.get("schema_version", 1)) >= 4:
+        if window_id in run.get("proofreads", {}):
+            raise ValueError(f"TEP proofread already imported: {run_id}/{window_id}")
+        _, window, _, _, editable = style_run_window(
+            root, config, run_id, window_id)
+        labels = speaker_labels(root)
+        base_sha = tep_proofread_hash(editable)
+        ru_text = "\n".join(str(row.get("translation", "")) for row in editable)
+        glossary_path = root / config.get("paths", {}).get("glossary", "docs/glossary.yaml")
+        glossary_rows = read_yaml(glossary_path, []) or []
+        glossary = [item for item in glossary_rows if isinstance(item, dict)
+                    and str(item.get("preferred_ru", ""))
+                    and str(item.get("preferred_ru")) in ru_text]
+        report_name = f"build/style-proofread-{run_id}-{window_id}.jsonl"
+        parts = [
+            f"# Русская корректура {run_id} / {window_id}", "",
+            "Роль: `vn-proofreader`. Прочитай всю текущую русскую сцену как готовый "
+            "текст. Оригинал, патч и причины редактора намеренно скрыты.",
+            "Canonical не правь. Возвращай только проверяемые substantive issues; "
+            "вкусовые варианты и preferences запрещены.", "",
+            render_required_knowledge(
+                root, config, editable, glossary, role="proofreader", russian_only=True),
+            "", "## Сцена", "", "```jsonl",
+        ]
+        for row in editable:
+            parts.append(json.dumps({
+                "id": row["id"],
+                "speaker": labels.get(str(row.get("speaker")), None)
+                if row.get("speaker") else None,
+                "ru": russian_only_projection(str(row.get("translation", ""))),
+                "flags": row.get("flags", []),
+                "markup": markup_contract(str(row.get("translation", ""))),
+            }, ensure_ascii=False))
+        parts.extend([
+            "```", "", "## Сдать", "",
+            f"Запиши `{report_name}`. Первая строка:", "```json",
+            json.dumps({"__tep_proofread__": {
+                "run_id": run_id,
+                "window_id": window_id,
+                "scene_id": window.get("scene_id"),
+                "base_sha256": base_sha,
+            }}, ensure_ascii=False),
+            "```",
+            "Дальше ноль или больше issues:",
+            '```json\n{"issue_id":"TPR-...-I001","segment_ids":["SEG_..."],"category":"grammar|punctuation|wording|coherence|voice","problem":"проверяемый дефект"}\n```',
+            "Если substantive-дефектов нет, оставь только header.",
+        ])
+        output = "\n".join(parts)
+        if CJK_RE.search(output):
+            raise RuntimeError("Russian-only proofread package contains CJK")
+        return output
+    if int(run.get("schema_version", 1)) < 3:
+        raise ValueError(
+            f"Style run uses the retired free-revision workflow: {run_id}")
+    if run.get("revisions", {}).get(window_id):
+        raise ValueError(f"Comparative style window may not have revisions: {run_id}/{window_id}")
     effective = style_effective_changes(run, window_id)
     changed_ids = [str(item["id"]) for item in effective]
     by_id = {str(row["id"]): row for row in route_rows}
@@ -2725,19 +3295,27 @@ def style_review_package(root: Path, config: dict[str, Any], run_id: str,
     glossary = glossary_for_scene(
         root, config, "\n".join(
             "\n".join(item.get("sources", {}).values()) for item in knowledge_rows))
+    before_by_id = {str(item["id"]): item for item in effective}
+    prior = prior_review_issues(root, config, set(changed_ids))
+    prior_by_id: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for issue in prior:
+        for sid in issue.get("segment_ids", []) or []:
+            prior_by_id[str(sid)].append(issue)
+    base_sha = style_delta_review_hash(effective, by_id)
+    report_name = f"build/style-review-{run_id}-{window_id}.jsonl"
     parts = [
         f"# Проверка стилевой дельты {run_id} / {window_id}", "",
-        "Проверяй только изменённые записи. Соседи даны как неизменяемый контекст.",
-        "Задача: убедиться, что улучшение русского не изменило смысл, степень "
-        "выразительности, обрыв, двусмысленность, повтор или роль реплики.", "",
-        "Отдельно сверь конкретные сущности и предметы, оба участника и направление "
-        "каждого сравнения, элементы перечней, числа, отрицание, модальность и "
-        "причинность. Обобщение конкретного образа означает VERDICT: REVISE.", "",
-        render_required_knowledge(
-            root, config, knowledge_rows, glossary, role="reviewer"), "",
+        "Роль: `vn-style-delta-reviewer`. `before` уже прошёл source-aware review; "
+        "`after` — кандидат художественной вычитки.",
+        "Диагноз стилиста намеренно скрыт: независимо реши, обязан ли редактор "
+        "исправить `before`, а не можно ли предпочесть `after`.",
+        "Для каждого ID выбери только `keep` или `revert`. Равноценная перестановка, "
+        "шероховатая, но допустимая фраза, сомнение и вкусовая нормализация "
+        "означают `revert`.",
+        "Источник служит veto против смысловой потери, но не разрешает третью "
+        "формулировку. Старый дефект baseline укажи в reason для отдельной задачи.", "",
         "## Изменения", "", "```jsonl",
     ]
-    before_by_id = {str(item["id"]): item for item in effective}
     for row in changed_rows:
         key = (str(row["source_set_id"]), str(row["source_id"]))
         slots = {str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
@@ -2747,35 +3325,122 @@ def style_review_package(root: Path, config: dict[str, Any], run_id: str,
         parts.append(json.dumps({
             "id": row["id"],
             "speaker": row.get("speaker"),
-            "sources": slots,
             "before": before_by_id[str(row["id"])]["before"],
             "after": row.get("translation", ""),
-            "reason": before_by_id[str(row["id"])].get("reason"),
-            "flags": row.get("flags", []),
-            "markup": markup_contract(slots.get("ja", "")),
             "neighbors_ru": [{"id": n["id"], "ru": n.get("translation", "")}
                              for n in neighbors],
+            "prior_review_issues": prior_by_id.get(str(row["id"]), []),
+            "flags": row.get("flags", []),
+            "sources": slots,
+            "markup": markup_contract(slots.get("ja", "")),
         }, ensure_ascii=False))
     parts.extend([
-        "```", "", "## Вердикт", "",
-        "Запиши отчёт в `build/style-review-" + run_id + "-" + window_id + ".md`.",
-        "Первая непустая строка после заголовка должна быть одной из двух:",
-        "`VERDICT: ACCEPT` — смысл не снесён; `VERDICT: REVISE` — есть правки.",
-        "При REVISE перечисли ID, severity, причину и окончательный русский вариант.",
-        "Canonical files не правь.",
+        "```", "", render_required_knowledge(
+            root, config, knowledge_rows, glossary, role="style_delta_reviewer"), "",
+        "## Сдать", "",
+        f"Запиши `{report_name}`. Первая строка:", "```json",
+        json.dumps({"__style_delta_review__": {
+            "run_id": run_id,
+            "window_id": window_id,
+            "base_sha256": base_sha,
+            "changed_ids": changed_ids,
+        }}, ensure_ascii=False),
+        "```",
+        "Дальше ровно по одной строке на каждый changed ID, без поля translation:",
+        '```json\n{"id":"...","decision":"keep|revert","reason":"сравнение before и after"}\n```',
+        "Canonical files не правь. Третий русский вариант запрещён.",
     ])
     return "\n".join(parts)
 
 
 def style_revision_package(root: Path, config: dict[str, Any], run_id: str,
                            window_id: str, report_path: Path) -> str:
+    run, _, route_rows, _, editable = style_run_window(root, config, run_id, window_id)
+    if int(run.get("schema_version", 1)) >= 4:
+        errors, issues, _ = validate_tep_proofread_report(
+            root, config, run_id, window_id, report_path)
+        if errors:
+            raise ValueError("; ".join(errors))
+        if not issues:
+            raise ValueError("TEP fix requires at least one proofread issue")
+        report = report_path if report_path.is_absolute() else root / report_path
+        proofread = run.get("proofreads", {}).get(window_id)
+        if not proofread or proofread.get("report_sha256") != sha256_file(report):
+            raise ValueError("TEP proofread report is not imported")
+        allowed_ids = sorted({sid for issue in issues for sid in issue["segment_ids"]})
+        by_id = {str(row["id"]): row for row in route_rows}
+        current_rows = [by_id[sid] for sid in allowed_ids]
+        records = load_source_records(
+            root, config, {(str(row["source_set_id"]), str(row["source_id"]))
+                           for row in editable})
+        knowledge_rows = []
+        source_text_parts = []
+        for row in editable:
+            record = records[(str(row["source_set_id"]), str(row["source_id"]))]
+            slots = {
+                str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
+                for slot in record.get("slots", [])
+            }
+            source_text_parts.extend(slots.values())
+            knowledge_rows.append({**row, "sources": slots})
+        glossary = glossary_for_scene(root, config, "\n".join(source_text_parts))
+        base_sha = style_slice_hash(current_rows)
+        patch_name = f"build/style-revision-{run_id}-{window_id}.jsonl"
+        parts = [
+            f"# Source-aware исправление корректуры {run_id} / {window_id}", "",
+            "Роль: `vn-stylist` в final-editor режиме. Разреши каждый issue: "
+            "исправь его либо отклони с конкретной причиной. Это последняя текстовая "
+            "операция; второго proofreader-loop не будет.", "",
+            render_required_knowledge(
+                root, config, knowledge_rows, glossary, role="stylist"), "",
+            "## Сцена", "", "```jsonl",
+        ]
+        for row in editable:
+            record = records[(str(row["source_set_id"]), str(row["source_id"]))]
+            slots = {str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
+                     for slot in record.get("slots", [])}
+            parts.append(json.dumps({
+                "id": row["id"],
+                "speaker": row.get("speaker"),
+                "ru": row.get("translation", ""),
+                "sources": slots,
+                "flags": row.get("flags", []),
+            }, ensure_ascii=False))
+        parts.extend([
+            "```", "", "## Замечания корректора", "", "```jsonl",
+            *[json.dumps(issue, ensure_ascii=False) for issue in issues],
+            "```", "", "## Сдать", "", f"Патч: `{patch_name}`.",
+            "Первая строка:", "```json",
+            json.dumps({"__style_revision__": {
+                "run_id": run_id,
+                "window_id": window_id,
+                "base_sha256": base_sha,
+                "report_sha256": sha256_file(report),
+                "allowed_ids": allowed_ids,
+            }}, ensure_ascii=False),
+            "```",
+            "Сначала ровно по одной resolution на каждый issue:",
+            '```json\n{"__tep_resolution__":{"issue_id":"TPR-...-I001","disposition":"applied|rejected","reason":"..."}}\n```',
+            "Затем изменённые записи с `id`, `before`, `translation`, `reason`, "
+            "`issue_ids` и при необходимости `flags`. Для `rejected` canonical не трогай.",
+            f"Применение: `python tools/vnctl.py style revise {run_id} {window_id} "
+            f"{patch_name} --report {report_path} --actor vn-stylist`.",
+        ])
+        return "\n".join(parts)
+    if int(run.get("schema_version", 1)) >= 3:
+        raise ValueError(
+            f"Comparative style run has no free revision; use style accept: {run_id}")
     report = report_path if report_path.is_absolute() else root / report_path
     if not report.exists():
         raise ValueError(f"Style review report not found: {report}")
     review_text, report_ids = style_revision_report(report)
-    run, _, route_rows, _, editable = style_run_window(root, config, run_id, window_id)
     if window_id not in run["applied"]:
         raise ValueError(f"Style window is not applied: {run_id}/{window_id}")
+    if window_id in run["accepted"]:
+        raise ValueError(f"Style window is terminal: {run_id}/{window_id}")
+    if run.get("revisions", {}).get(window_id):
+        raise ValueError(
+            f"Style window already used its single final revision: {run_id}/{window_id}")
     editable_ids = {str(row["id"]) for row in editable
                     if not CJK_RE.search(str(row.get("translation", "")))}
     outside = report_ids - editable_ids
@@ -2848,14 +3513,148 @@ def style_accept(root: Path, config: dict[str, Any], run_id: str,
     report = report_path if report_path.is_absolute() else root / report_path
     if not report.exists():
         raise ValueError(f"Review report not found: {report}")
+    run, _, _, _, _ = style_run_window(root, config, run_id, window_id)
+    if int(run.get("schema_version", 1)) >= 4:
+        if reviewer != "vn-proofreader":
+            raise ValueError("TEP acceptance requires vn-proofreader")
+        errors, issues, header = validate_tep_proofread_report(
+            root, config, run_id, window_id, report)
+        if errors:
+            for message in errors:
+                eprint(f"ERROR: {message}")
+            return 1
+        report_sha = sha256_file(report)
+        previous = run.get("proofreads", {}).get(window_id)
+        if previous and previous.get("report_sha256") != report_sha:
+            raise ValueError(f"TEP proofread already imported: {run_id}/{window_id}")
+        if not previous:
+            append_style_event(root, config, {
+                "schema_version": 4,
+                "event": "window_proofread",
+                "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+                "run_id": run_id,
+                "window_id": window_id,
+                "reviewer": reviewer,
+                "input_sha256": header["base_sha256"],
+                "report_sha256": report_sha,
+                "issues": issues,
+            })
+        if issues:
+            print(f"{run_id}/{window_id}: proofread imported; issues={len(issues)}")
+            return 0
+        refreshed = style_runs(load_style_events(root, config)).get(run_id, {})
+        if window_id in refreshed.get("accepted", {}):
+            print(f"{run_id}/{window_id}: TEP accepted; zero proofread issues")
+            return 0
+        append_style_event(root, config, {
+            "schema_version": 4,
+            "event": "window_accepted",
+            "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+            "run_id": run_id,
+            "window_id": window_id,
+            "acceptance_mode": "tep_zero_issue",
+            "reviewer": reviewer,
+            "report_sha256": report_sha,
+            "final_delta_sha256": header["base_sha256"],
+        })
+        print(f"{run_id}/{window_id}: TEP accepted; zero proofread issues")
+        return 0
+    if int(run.get("schema_version", 1)) >= 3:
+        if reviewer != "vn-style-delta-reviewer":
+            raise ValueError(
+                "comparative style acceptance requires vn-style-delta-reviewer")
+        errors, decisions, header = validate_style_delta_review(
+            root, config, run_id, window_id, report)
+        if errors:
+            for message in errors:
+                eprint(f"ERROR: {message}")
+            return 1
+        effective = style_effective_changes(run, window_id)
+        change_by_id = {str(change["id"]): change for change in effective}
+        affected = sorted({str(change["scene_id"]) for change in effective})
+        seg_dir = root / config.get("paths", {}).get(
+            "segments", "translation/segments")
+        scene_rows = {
+            scene_id: [clean_meta(row) for row in read_jsonl(
+                seg_dir / f"{scene_id}.jsonl")]
+            for scene_id in affected
+        }
+        original_rows = {scene_id: [dict(row) for row in rows]
+                         for scene_id, rows in scene_rows.items()}
+        canonical = {str(row["id"]): row for rows in scene_rows.values() for row in rows}
+        reverted: list[dict[str, Any]] = []
+        final: list[dict[str, Any]] = []
+        for decision in decisions:
+            sid = decision["id"]
+            change = change_by_id[sid]
+            row = canonical[sid]
+            if decision["decision"] == "revert":
+                reverted.append({
+                    "id": sid,
+                    "scene_id": row["scene_id"],
+                    "before": row.get("translation", ""),
+                    "after": change.get("before", ""),
+                    "before_status": row.get("status"),
+                    "flags_before": row.get("flags", []),
+                    "flags_after": change.get("flags_before", []),
+                    "reason": decision["reason"],
+                })
+                row["translation"] = change.get("before", "")
+                row["flags"] = list(change.get("flags_before", []) or [])
+            row["status"] = "reviewed"
+            final.append({
+                "id": sid,
+                "translation": row.get("translation", ""),
+                "flags": row.get("flags", []),
+            })
+        if scene_rows:
+            write_scene_transaction(root, config, scene_rows)
+        agent_file = root / ".opencode" / "agent" / f"{reviewer}.md"
+        event = {
+            "schema_version": 3,
+            "event": "window_accepted",
+            "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+            "run_id": run_id,
+            "window_id": window_id,
+            "acceptance_mode": "comparative",
+            "reviewer": reviewer,
+            "reviewer_prompt_sha256": (
+                sha256_file(agent_file) if agent_file.exists() else None),
+            "input_sha256": header["base_sha256"],
+            "report_sha256": sha256_file(report),
+            "decisions": decisions,
+            "changes": reverted,
+            "final_delta_sha256": sha256_text(json.dumps(
+                final, ensure_ascii=False, sort_keys=True)),
+        }
+        try:
+            append_style_event(root, config, event)
+        except Exception:
+            accepted = style_runs(load_style_events(root, config)).get(
+                run_id, {}).get("accepted", {}).get(window_id)
+            if accepted and accepted.get("report_sha256") == event["report_sha256"]:
+                print(
+                    f"{run_id}/{window_id}: comparative delta accepted; "
+                    f"kept={len(decisions) - len(reverted)}, reverted={len(reverted)}")
+                return 0
+            if scene_rows:
+                write_scene_transaction(root, config, original_rows)
+            raise
+        print(
+            f"{run_id}/{window_id}: comparative delta accepted; "
+            f"kept={len(decisions) - len(reverted)}, reverted={len(reverted)}")
+        return 0
+
     if not report_accepts(report):
         raise ValueError("Style delta review did not say VERDICT: ACCEPT")
-    run, _, _, _, _ = style_run_window(root, config, run_id, window_id)
     applied = run["applied"].get(window_id)
     if not applied:
         raise ValueError(f"Style window is not applied: {run_id}/{window_id}")
     if window_id in run["accepted"]:
         raise ValueError(f"Style window already accepted: {run_id}/{window_id}")
+    if run.get("revisions", {}).get(window_id):
+        raise ValueError(
+            f"Style window has a final revision: {run_id}/{window_id}; use style finalize")
     seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
     effective = style_effective_changes(run, window_id)
     affected = sorted({str(change["scene_id"]) for change in effective})
@@ -2875,16 +3674,484 @@ def style_accept(root: Path, config: dict[str, Any], run_id: str,
     if scene_rows:
         write_scene_transaction(root, config, scene_rows)
     append_style_event(root, config, {
-        "schema_version": 1,
+        "schema_version": 2,
         "event": "window_accepted",
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "run_id": run_id,
         "window_id": window_id,
+        "acceptance_mode": "review",
         "reviewer": reviewer,
         "report_sha256": sha256_file(report),
         "final_delta_sha256": sha256_text(json.dumps(final, ensure_ascii=False)),
     })
     print(f"{run_id}/{window_id}: delta accepted, {len(final)} rows reviewed")
+    return 0
+
+
+def style_keep_revert_hash(run: dict[str, Any], window_id: str,
+                           changes: list[dict[str, Any]],
+                           rows_by_id: dict[str, dict[str, Any]]) -> str:
+    accepted = run.get("accepted", {}).get(window_id, {})
+    payload = {
+        "run_id": run.get("run_id"),
+        "window_id": window_id,
+        "acceptance_report_sha256": accepted.get("report_sha256"),
+        "changes": [{
+            "id": str(change["id"]),
+            "before": change.get("before", ""),
+            "after": change.get("after", ""),
+            "flags_before": change.get("flags_before", []),
+            "flags_after": change.get("flags_after", []),
+            "current_translation": rows_by_id[str(change["id"])].get(
+                "translation", ""),
+            "current_flags": rows_by_id[str(change["id"])].get("flags", []),
+            "current_status": rows_by_id[str(change["id"])].get("status"),
+        } for change in changes],
+    }
+    return sha256_text(json.dumps(payload, ensure_ascii=False, sort_keys=True))
+
+
+def style_amend_revert(root: Path, config: dict[str, Any], run_id: str,
+                       window_id: str, segment_ids: list[str], actor: str,
+                       reason: str) -> int:
+    actor = actor.strip()
+    reason = reason.strip()
+    selected = list(dict.fromkeys(map(str, segment_ids)))
+    if not actor or not reason:
+        raise ValueError("actor and reason are required")
+    if not selected:
+        raise ValueError("style amend-revert requires at least one segment ID")
+    if len(selected) != len(segment_ids):
+        raise ValueError("duplicate style amend-revert segment IDs")
+
+    run, _, route_rows, _, _ = style_run_window(root, config, run_id, window_id)
+    accepted = run.get("accepted", {}).get(window_id)
+    if not accepted:
+        raise ValueError(f"Style window is not terminal: {run_id}/{window_id}")
+
+    request_sha = sha256_text(json.dumps({
+        "run_id": run_id,
+        "window_id": window_id,
+        "segment_ids": selected,
+        "actor": actor,
+        "reason": reason,
+    }, ensure_ascii=False, sort_keys=True))
+    prior_events = run.get("keep_reverts", {}).get(window_id, [])
+    if any(event.get("request_sha256") == request_sha for event in prior_events):
+        print(f"{run_id}/{window_id}: terminal keep revert already applied; "
+              f"reverted={len(selected)}")
+        return 0
+
+    already_reverted = {
+        str(item.get("id"))
+        for event in prior_events
+        for item in event.get("reverts", []) or []
+    }
+    repeated = [sid for sid in selected if sid in already_reverted]
+    if repeated:
+        raise ValueError("style keep already reverted: " + ", ".join(repeated))
+
+    applied = run.get("applied", {}).get(window_id, {})
+    baseline_by_id = {
+        str(change["id"]): change for change in applied.get("changes", []) or []
+    }
+    active_by_id = {
+        str(change["id"]): change
+        for change in style_effective_changes(run, window_id)
+    }
+    if int(run.get("schema_version", 1)) >= 3:
+        accepted_ids = {
+            str(item.get("id")) for item in accepted.get("decisions", [])
+            if item.get("decision") == "keep"
+        }
+    else:
+        accepted_ids = set(active_by_id)
+    unknown = [sid for sid in selected
+               if sid not in accepted_ids or sid not in baseline_by_id]
+    if unknown:
+        raise ValueError(
+            "style amend-revert may target only accepted style changes: "
+            + ", ".join(unknown))
+    selected_changes = []
+    for sid in selected:
+        baseline = dict(baseline_by_id[sid])
+        current = active_by_id[sid]
+        baseline["after"] = current.get("after", baseline.get("after", ""))
+        baseline["flags_after"] = current.get(
+            "flags_after", baseline.get("flags_after", []))
+        selected_changes.append(baseline)
+    by_id = {str(row["id"]): row for row in route_rows}
+    for change in selected_changes:
+        sid = str(change["id"])
+        current = by_id[sid]
+        if (str(current.get("translation", "")) != str(change.get("after", ""))
+                or list(current.get("flags", []) or [])
+                != list(change.get("flags_after", []) or [])
+                or str(current.get("status")) != "reviewed"):
+            raise ValueError(f"stale terminal keep state for {sid}")
+
+    input_sha = style_keep_revert_hash(run, window_id, selected_changes, by_id)
+    affected = sorted({str(change["scene_id"]) for change in selected_changes})
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    scene_rows = {
+        scene_id: [clean_meta(row) for row in read_jsonl(
+            seg_dir / f"{scene_id}.jsonl")]
+        for scene_id in affected
+    }
+    original_rows = {scene_id: [dict(row) for row in rows]
+                     for scene_id, rows in scene_rows.items()}
+    canonical = {str(row["id"]): row for rows in scene_rows.values() for row in rows}
+    changes: list[dict[str, Any]] = []
+    final: list[dict[str, Any]] = []
+    for change in selected_changes:
+        sid = str(change["id"])
+        row = canonical[sid]
+        changes.append({
+            "id": sid,
+            "scene_id": row["scene_id"],
+            "before": row.get("translation", ""),
+            "after": change.get("before", ""),
+            "before_status": row.get("status"),
+            "flags_before": row.get("flags", []),
+            "flags_after": change.get("flags_before", []),
+            "reason": reason,
+        })
+        row["translation"] = change.get("before", "")
+        row["flags"] = list(change.get("flags_before", []) or [])
+        final.append({
+            "id": sid,
+            "translation": row.get("translation", ""),
+            "status": row.get("status"),
+            "flags": row.get("flags", []),
+        })
+    write_scene_transaction(root, config, scene_rows)
+    event = {
+        "schema_version": 3,
+        "event": "style_keep_reverted",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "run_id": run_id,
+        "window_id": window_id,
+        "actor": actor,
+        "reason": reason,
+        "request_sha256": request_sha,
+        "input_sha256": input_sha,
+        "reverts": [{"id": sid, "reason": reason} for sid in selected],
+        "changes": changes,
+        "result_delta_sha256": sha256_text(json.dumps(
+            final, ensure_ascii=False, sort_keys=True)),
+    }
+    try:
+        append_style_event(root, config, event)
+    except Exception:
+        recorded = style_runs(load_style_events(root, config)).get(
+            run_id, {}).get("keep_reverts", {}).get(window_id, [])
+        if any(item.get("request_sha256") == request_sha for item in recorded):
+            print(f"{run_id}/{window_id}: terminal keep revert applied; "
+                  f"reverted={len(selected)}")
+            return 0
+        write_scene_transaction(root, config, original_rows)
+        raise
+    print(f"{run_id}/{window_id}: terminal keep revert applied; "
+          f"reverted={len(selected)}")
+    return 0
+
+
+def style_retire_run(root: Path, config: dict[str, Any], run_id: str,
+                     manifest_path: Path, actor: str, reason: str) -> int:
+    actor = actor.strip()
+    reason = reason.strip()
+    if not actor or not reason:
+        raise ValueError("actor and reason are required")
+    manifest_file = manifest_path if manifest_path.is_absolute() else root / manifest_path
+    if not manifest_file.exists():
+        raise ValueError(f"rollback manifest not found: {manifest_file}")
+    manifest = json.loads(manifest_file.read_text(encoding="utf-8-sig"))
+    if int(manifest.get("schema_version", 0)) != 1:
+        raise ValueError("unsupported style rollback manifest schema")
+
+    run = style_runs(load_style_events(root, config)).get(run_id)
+    if not run:
+        raise ValueError(f"Unknown style run: {run_id}")
+    manifest_sha = sha256_file(manifest_file)
+    entries = [clean_meta(item) for item in manifest.get("active_changes", [])
+               if str(item.get("run_id", "")) == run_id]
+
+    def append_annotations() -> None:
+        annotations = [{
+            "id": str(item.get("id", "")),
+            "category": str(item.get("category", "")),
+            "category_reason": str(item.get("category_reason") or (
+                "Known source-aware rewrite/evidence case; resolve in TEP."
+                if item.get("category") == "quarantine" else
+                "Explicitly preserved by user, independent evidence, or active invariant."
+            )),
+            "evidence_sources": [
+                ":".join(part for part in (
+                    str(evidence.get("source", "")),
+                    str(evidence.get("reference", "")),
+                    str(evidence.get("recommendation", "")),
+                ) if part)
+                for evidence in item.get("evidence", []) or []
+            ],
+        } for item in entries if item.get("category") in {"explicit_keep", "quarantine"}]
+        append_style_event(root, config, {
+            "schema_version": 4,
+            "event": "style_retirement_annotated",
+            "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+            "run_id": run_id,
+            "manifest_sha256": manifest_sha,
+            "annotations": annotations,
+        })
+
+    if run.get("retired"):
+        if run["retired"].get("manifest_sha256") == manifest_sha:
+            annotations = (run.get("retirement_annotations") or {}).get(
+                "annotations", []) or []
+            if (not annotations
+                    or any(not str(item.get("category_reason", "")).strip()
+                           for item in annotations)):
+                append_annotations()
+                print(f"{run_id}: style retirement annotations recorded")
+            else:
+                print(f"{run_id}: style run already retired")
+            return 0
+        raise ValueError(f"Style run already retired with another manifest: {run_id}")
+
+    active = style_active_terminal_changes(run)
+    active_by_id = {str(change["id"]): change for change in active}
+    entry_by_id = {str(item.get("id", "")): item for item in entries}
+    if (not entries or len(entry_by_id) != len(entries)
+            or set(entry_by_id) != set(active_by_id)):
+        missing = sorted(set(active_by_id) - set(entry_by_id))
+        extra = sorted(set(entry_by_id) - set(active_by_id))
+        raise ValueError(
+            f"rollback manifest coverage mismatch for {run_id}: "
+            f"missing={missing[:10]} extra={extra[:10]}")
+
+    allowed = {"default_exact_revert", "explicit_keep", "quarantine"}
+    route_rows = style_route_rows(root, config, str(run["route"]))
+    by_id = {str(row["id"]): row for row in route_rows}
+    for sid, entry in entry_by_id.items():
+        change = active_by_id[sid]
+        if entry.get("category") not in allowed:
+            raise ValueError(f"invalid rollback category for {sid}")
+        if (str(entry.get("scene_id", "")) != str(change.get("scene_id", ""))
+                or str(entry.get("window_id", "")) != str(change.get("window_id", ""))
+                or str(entry.get("change_kind", "")) != str(change.get("change_kind", ""))
+                or str(entry.get("original_before", "")) != str(change.get("before", ""))
+                or str(entry.get("ledger_effective_after", "")) != str(change.get("after", ""))):
+            raise ValueError(f"rollback manifest provenance mismatch for {sid}")
+        row = by_id.get(sid)
+        if not row:
+            raise ValueError(f"rollback target is absent from route: {sid}")
+        if (str(row.get("translation", "")) != str(change.get("after", ""))
+                or list(row.get("flags", []) or [])
+                != list(change.get("flags_after", []) or [])
+                or str(row.get("status")) != "reviewed"):
+            raise ValueError(f"stale terminal style state for {sid}")
+
+    request_sha = sha256_text(json.dumps({
+        "run_id": run_id, "manifest_sha256": manifest_sha,
+        "actor": actor, "reason": reason,
+    }, ensure_ascii=False, sort_keys=True))
+    affected = sorted({str(active_by_id[sid]["scene_id"])
+                       for sid, item in entry_by_id.items()
+                       if item["category"] == "default_exact_revert"})
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    scene_rows = {
+        scene_id: [clean_meta(row) for row in read_jsonl(seg_dir / f"{scene_id}.jsonl")]
+        for scene_id in affected
+    }
+    original_rows = {scene_id: [dict(row) for row in rows]
+                     for scene_id, rows in scene_rows.items()}
+    canonical = {str(row["id"]): row for rows in scene_rows.values() for row in rows}
+    changes: list[dict[str, Any]] = []
+    decisions: list[dict[str, Any]] = []
+    for sid in sorted(entry_by_id):
+        entry = entry_by_id[sid]
+        change = active_by_id[sid]
+        category = str(entry["category"])
+        decisions.append({
+            "id": sid, "window_id": change["window_id"],
+            "change_kind": change["change_kind"], "category": category,
+        })
+        if category != "default_exact_revert":
+            continue
+        row = canonical[sid]
+        changes.append({
+            "id": sid, "scene_id": row["scene_id"],
+            "before": row.get("translation", ""), "after": change.get("before", ""),
+            "before_status": row.get("status"), "flags_before": row.get("flags", []),
+            "flags_after": change.get("flags_before", []), "reason": reason,
+        })
+        row["translation"] = change.get("before", "")
+        row["flags"] = list(change.get("flags_before", []) or [])
+
+    input_route_sha = style_text_hash(route_rows)
+    if scene_rows:
+        write_scene_transaction(root, config, scene_rows)
+    result_rows = style_route_rows(root, config, str(run["route"]))
+    event = {
+        "schema_version": 4, "event": "style_run_retired",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "run_id": run_id, "route": run["route"],
+        "mode": "selective_exact_rollback", "actor": actor, "reason": reason,
+        "request_sha256": request_sha, "input_route_sha256": input_route_sha,
+        "manifest_sha256": manifest_sha, "decisions": decisions, "changes": changes,
+        "result_route_sha256": style_text_hash(result_rows),
+    }
+    try:
+        append_style_event(root, config, event)
+    except Exception:
+        recorded = style_runs(load_style_events(root, config)).get(run_id, {}).get("retired")
+        if recorded and recorded.get("request_sha256") == request_sha:
+            print(f"{run_id}: style run retired; reverted={len(changes)}")
+            return 0
+        if scene_rows:
+            write_scene_transaction(root, config, original_rows)
+        raise
+    append_annotations()
+    counts = Counter(item["category"] for item in decisions)
+    print(f"{run_id}: style run retired; reverted={len(changes)}, "
+          f"kept={counts['explicit_keep']}, quarantined={counts['quarantine']}")
+    return 0
+
+
+def style_finalize(root: Path, config: dict[str, Any], run_id: str,
+                   window_id: str, actor: str) -> int:
+    actor = actor.strip()
+    if not actor:
+        raise ValueError("actor is required")
+    run, _, _, _, _ = style_run_window(root, config, run_id, window_id)
+    if int(run.get("schema_version", 1)) >= 4:
+        if window_id in run["accepted"]:
+            raise ValueError(f"Style window already accepted: {run_id}/{window_id}")
+        proofread = run.get("proofreads", {}).get(window_id)
+        revisions = run.get("revisions", {}).get(window_id, [])
+        if not proofread or not proofread.get("issues") or len(revisions) != 1:
+            raise ValueError(
+                f"TEP finalize requires one proofread report and one editor fix: "
+                f"{run_id}/{window_id}")
+        proofread_ids = {
+            str(issue.get("issue_id", "")) for issue in proofread.get("issues", [])
+        }
+        resolution_ids = {
+            str(item.get("issue_id", "")) for item in revisions[0].get("resolutions", [])
+        }
+        if proofread_ids != resolution_ids:
+            raise ValueError(f"TEP editor fix does not resolve every proofread issue: {run_id}")
+        _, _, _, _, editable = style_run_window(root, config, run_id, window_id)
+        final_hash = tep_proofread_hash(editable)
+        append_style_event(root, config, {
+            "schema_version": 4,
+            "event": "window_accepted",
+            "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+            "run_id": run_id,
+            "window_id": window_id,
+            "acceptance_mode": "tep_after_fix",
+            "actor": actor,
+            "proofread_report_sha256": proofread.get("report_sha256"),
+            "revision_patch_sha256": revisions[0].get("patch_sha256"),
+            "final_delta_sha256": final_hash,
+        })
+        print(f"{run_id}/{window_id}: TEP final editor fix accepted")
+        return 0
+    if int(run.get("schema_version", 1)) >= 3:
+        raise ValueError(
+            f"Comparative style run closes through style accept: {run_id}/{window_id}")
+    if window_id in run["accepted"]:
+        raise ValueError(f"Style window already accepted: {run_id}/{window_id}")
+    revisions = run.get("revisions", {}).get(window_id, [])
+    legacy_run = int(run.get("schema_version", 1)) == 1
+    if not revisions or (not legacy_run and len(revisions) != 1):
+        raise ValueError(
+            f"Style finalize requires exactly one final revision: {run_id}/{window_id}")
+    revision = revisions[-1]
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    effective = style_effective_changes(run, window_id)
+    affected = sorted({str(change["scene_id"]) for change in effective})
+    scene_rows = {
+        scene_id: [clean_meta(row) for row in read_jsonl(seg_dir / f"{scene_id}.jsonl")]
+        for scene_id in affected
+    }
+    original_rows = {scene_id: [dict(row) for row in rows]
+                     for scene_id, rows in scene_rows.items()}
+    canonical = {str(row["id"]): row for rows in scene_rows.values() for row in rows}
+    final = []
+    for change in effective:
+        row = canonical[str(change["id"])]
+        allowed_statuses = {"draft", "reviewed"} if legacy_run else {"draft"}
+        if row.get("status") not in allowed_statuses:
+            raise ValueError(f"Changed segment is not awaiting style finalize: {row['id']}")
+        row["status"] = "reviewed"
+        final.append({"id": row["id"], "translation": row.get("translation", "")})
+    if scene_rows:
+        write_scene_transaction(root, config, scene_rows)
+    event = {
+        "schema_version": 2,
+        "event": "window_accepted",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "run_id": run_id,
+        "window_id": window_id,
+        "acceptance_mode": "legacy_finalize" if legacy_run else "finalize",
+        "actor": actor,
+        "review_report_sha256": revision.get("report_sha256"),
+        "revision_patch_sha256": revision.get("patch_sha256"),
+        "final_delta_sha256": sha256_text(json.dumps(final, ensure_ascii=False)),
+    }
+    try:
+        append_style_event(root, config, event)
+    except Exception:
+        accepted = style_runs(load_style_events(root, config)).get(
+            run_id, {}).get("accepted", {}).get(window_id)
+        if accepted:
+            print(f"{run_id}/{window_id}: final revision accepted, {len(final)} rows reviewed")
+            return 0
+        if scene_rows:
+            write_scene_transaction(root, config, original_rows)
+        raise
+    print(f"{run_id}/{window_id}: final revision accepted, {len(final)} rows reviewed")
+    return 0
+
+
+def style_complete(root: Path, config: dict[str, Any], run_id: str,
+                   actor: str) -> int:
+    actor = actor.strip()
+    if not actor:
+        raise ValueError("actor is required")
+    run = style_runs(load_style_events(root, config)).get(run_id)
+    if not run:
+        raise ValueError(f"Unknown style run: {run_id}")
+    if run.get("retired"):
+        raise ValueError(f"Retired style run cannot be completed again: {run_id}")
+    if run.get("completed"):
+        raise ValueError(f"Style run already completed: {run_id}")
+    if len(run["accepted"]) != len(run["windows"]):
+        raise ValueError(
+            f"Not all style windows are accepted: {len(run['accepted'])}/{len(run['windows'])}")
+    rows = style_route_rows(root, config, str(run["route"]))
+    source_texts = source_text_by_segment(root, config, rows)
+    blockers = style_unresolved_sibling_blockers(
+        root, config, run, rows, source_texts)
+    if blockers:
+        diagnostics = "\n".join(json.dumps({
+            key: item[key] for key in (
+                "anchor", "sibling", "provenance", "before", "after")
+        }, ensure_ascii=False) for item in blockers)
+        raise ValueError(
+            f"Exact-source sibling preflight blocked style completion: "
+            f"{len(blockers)} blocker(s)\n" + diagnostics)
+    append_style_event(root, config, {
+        "schema_version": 2,
+        "event": "run_completed",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "run_id": run_id,
+        "route": run["route"],
+        "route_sha256": style_text_hash(rows),
+        "actor": actor,
+        "completion_mode": "all_windows_delta_checked",
+    })
+    print(f"{run_id}: style run completed for current text hash")
     return 0
 
 
@@ -2901,11 +4168,12 @@ def style_sibling_anchors(root: Path, config: dict[str, Any], run: dict[str, Any
         if not state.get("accepted"):
             continue
         superseded = state.get("superseded_issues", {})
+        reverted = state.get("reverted_issues", {})
         effective = state.get("effective_resolutions", {})
         for resolution in event.get("resolutions", []) or []:
             issue_id = str(resolution.get("issue_id", ""))
             if (effective.get(issue_id, {}).get("disposition") != "applied"
-                    or issue_id in superseded):
+                    or issue_id in superseded or issue_id in reverted):
                 continue
             for change in resolution.get("changes", []) or []:
                 sid = str(change.get("id", ""))
@@ -2923,6 +4191,10 @@ def style_sibling_anchors(root: Path, config: dict[str, Any], run: dict[str, Any
         window_id = str(window.get("window_id", ""))
         if window_id not in run.get("accepted", {}):
             continue
+        active_ids = {
+            str(change.get("id", ""))
+            for change in style_effective_changes(run, window_id)
+        }
         events = [run.get("applied", {}).get(window_id)]
         events.extend(run.get("revisions", {}).get(window_id, []))
         for event in events:
@@ -2932,7 +4204,7 @@ def style_sibling_anchors(root: Path, config: dict[str, Any], run: dict[str, Any
                 sid = str(change.get("id", ""))
                 before = str(change.get("before", ""))
                 after = str(change.get("after", ""))
-                if sid in segment_ids and before != after:
+                if sid in active_ids and sid in segment_ids and before != after:
                     latest[sid] = {
                         "anchor": sid,
                         "provenance": f"{run['run_id']}/{window_id}",
@@ -2999,7 +4271,312 @@ def style_exact_source_sibling_blockers(
         item["before"], item["after"]))
 
 
+def style_sibling_blocker_id(blocker: dict[str, str]) -> str:
+    payload = {key: blocker[key] for key in (
+        "anchor", "sibling", "provenance", "before", "after")}
+    digest = hashlib.sha256(json.dumps(
+        payload, ensure_ascii=False, sort_keys=True,
+        separators=(",", ":")).encode("utf-8")).hexdigest()
+    return f"SSB-{digest[:16]}"
+
+
+def style_unresolved_sibling_blockers(
+        root: Path, config: dict[str, Any], run: dict[str, Any],
+        rows: list[dict[str, Any]], source_texts: dict[str, str]) -> list[dict[str, str]]:
+    resolved = {
+        str(blocker_id)
+        for event in run.get("sibling_reconciliations", [])
+        for resolution in event.get("resolutions", []) or []
+        for blocker_id in resolution.get("blocker_ids", []) or []
+    }
+    blockers = []
+    for item in style_exact_source_sibling_blockers(
+            root, config, run, rows, source_texts):
+        blocker = {**item, "blocker_id": style_sibling_blocker_id(item)}
+        if blocker["blocker_id"] not in resolved:
+            blockers.append(blocker)
+    return blockers
+
+
+def style_sibling_scope_hash(rows: list[dict[str, Any]],
+                             blockers: list[dict[str, str]]) -> str:
+    return sha256_text(json.dumps({
+        "route_sha256": style_slice_hash(rows),
+        "blockers": blockers,
+    }, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+
+
+def style_sibling_package(root: Path, config: dict[str, Any], run_id: str) -> str:
+    run = style_runs(load_style_events(root, config)).get(run_id)
+    if not run:
+        raise ValueError(f"Unknown style run: {run_id}")
+    if run.get("completed"):
+        raise ValueError(f"Style run already completed: {run_id}")
+    if len(run["accepted"]) != len(run["windows"]):
+        raise ValueError("Sibling reconciliation requires all style windows accepted")
+    rows = style_route_rows(root, config, str(run["route"]))
+    source_texts = source_text_by_segment(root, config, rows)
+    blockers = style_unresolved_sibling_blockers(
+        root, config, run, rows, source_texts)
+    if not blockers:
+        raise ValueError(f"Style run has no unresolved exact-source siblings: {run_id}")
+    by_id = {str(row["id"]): row for row in rows}
+    focus_ids = {item[key] for item in blockers for key in ("anchor", "sibling")}
+    keys = {
+        (str(by_id[sid]["source_set_id"]), str(by_id[sid]["source_id"]))
+        for sid in focus_ids
+    }
+    records = load_source_records(root, config, keys)
+
+    def render_row(sid: str) -> dict[str, Any]:
+        row = by_id[sid]
+        record = records[(str(row["source_set_id"]), str(row["source_id"]))]
+        return {
+            "id": sid,
+            "scene_id": row["scene_id"],
+            "speaker": row.get("speaker"),
+            "sources": {
+                str(slot["language"]): str(slot.get("body_text", slot.get("text", "")))
+                for slot in record.get("slots", [])
+            },
+            "translation": row.get("translation", ""),
+            "status": row.get("status"),
+            "flags": row.get("flags", []),
+        }
+
+    header = {
+        "run_id": run_id,
+        "base_sha256": style_sibling_scope_hash(rows, blockers),
+        "blocker_ids": sorted(item["blocker_id"] for item in blockers),
+    }
+    parts = [
+        f"# Exact-source sibling reconciliation {run_id}", "",
+        "Роль: `vn-stylist` в source-aware final-editor режиме. Это узкая задача "
+        "после принятия всех TEP-сцен. Не переоткрывай сцены и не редактируй "
+        "canonical-файлы напрямую.",
+        "Для каждого sibling выбери `change` или `keep`. Автоматически копировать "
+        "`anchor.after` нельзя: несколько anchors могут конфликтовать.", "",
+        "## Blockers", "", "```jsonl",
+    ]
+    for blocker in blockers:
+        parts.append(json.dumps({
+            **blocker,
+            "anchor_row": render_row(blocker["anchor"]),
+            "sibling_row": render_row(blocker["sibling"]),
+        }, ensure_ascii=False))
+    example = blockers[0]
+    parts.extend([
+        "```", "", "## Machine resolution", "",
+        f"Запиши `build/style-sibling-resolution-{run_id}.jsonl`. Первая строка:",
+        "", "```json", json.dumps({"__style_siblings__": header}, ensure_ascii=False),
+        "```", "",
+        "Дальше одна строка на sibling. Все его `blocker_ids` перечисли вместе; "
+        "каждый blocker ID из заголовка разреши ровно один раз.", "", "```jsonl",
+        json.dumps({
+            "blocker_ids": [example["blocker_id"]],
+            "sibling_id": example["sibling"],
+            "disposition": "change",
+            "translation": "Окончательный русский вариант.",
+            "reason": "Почему вариант верен по источнику и функции.",
+        }, ensure_ascii=False),
+        json.dumps({
+            "blocker_ids": [example["blocker_id"]],
+            "sibling_id": example["sibling"],
+            "disposition": "keep",
+            "reason": "Почему контекст требует сохранить различие.",
+        }, ensure_ascii=False),
+        "```",
+    ])
+    return "\n".join(parts)
+
+
+def validate_style_sibling_resolution(
+        root: Path, config: dict[str, Any], run_id: str,
+        patch_path: Path) -> tuple[list[str], list[dict[str, Any]], dict[str, Any]]:
+    patch_file = patch_path if patch_path.is_absolute() else root / patch_path
+    if not patch_file.exists():
+        return [f"patch not found: {patch_file}"], [], {}
+    run = style_runs(load_style_events(root, config)).get(run_id)
+    if not run:
+        return [f"unknown style run: {run_id}"], [], {}
+    if run.get("completed"):
+        return [f"style run already completed: {run_id}"], [], {}
+    if len(run["accepted"]) != len(run["windows"]):
+        return ["sibling reconciliation requires all style windows accepted"], [], {}
+    rows = style_route_rows(root, config, str(run["route"]))
+    source_texts = source_text_by_segment(root, config, rows)
+    blockers = style_unresolved_sibling_blockers(
+        root, config, run, rows, source_texts)
+    expected = {item["blocker_id"]: item for item in blockers}
+    raw_rows = read_jsonl(patch_file)
+    headers = [row.get("__style_siblings__") for row in raw_rows
+               if row.get("__style_siblings__")]
+    if len(headers) != 1 or not isinstance(headers[0], dict):
+        return ["patch must contain exactly one __style_siblings__ header"], [], {}
+    header = headers[0]
+    errors: list[str] = []
+    if header.get("run_id") != run_id:
+        errors.append("sibling resolution header does not match requested run")
+    if header.get("blocker_ids") != sorted(expected):
+        errors.append("sibling resolution header blocker_ids do not match current blockers")
+    current_hash = style_sibling_scope_hash(rows, blockers)
+    if header.get("base_sha256") != current_hash:
+        errors.append(
+            f"stale sibling resolution: header={header.get('base_sha256')} current={current_hash}")
+
+    by_id = {str(row["id"]): row for row in rows}
+    grouped: dict[str, list[str]] = defaultdict(list)
+    for blocker in blockers:
+        grouped[blocker["sibling"]].append(blocker["blocker_id"])
+    normalized: list[dict[str, Any]] = []
+    seen_blockers: set[str] = set()
+    seen_siblings: set[str] = set()
+    for index, raw in enumerate(raw_rows, start=1):
+        if raw.get("__style_siblings__"):
+            continue
+        item = clean_meta(raw)
+        unknown = set(item) - {
+            "blocker_ids", "sibling_id", "disposition", "translation", "reason"}
+        if unknown:
+            errors.append(f"line {index}: unknown fields {sorted(unknown)}")
+            continue
+        blocker_ids = list(map(str, item.get("blocker_ids", []) or []))
+        sibling_id = str(item.get("sibling_id", ""))
+        disposition = str(item.get("disposition", ""))
+        reason = str(item.get("reason", "")).strip()
+        if sibling_id in seen_siblings:
+            errors.append(f"line {index}: duplicate sibling {sibling_id}")
+        seen_siblings.add(sibling_id)
+        if (not blocker_ids or len(blocker_ids) != len(set(blocker_ids))
+                or set(blocker_ids) != set(grouped.get(sibling_id, []))):
+            errors.append(f"line {index}: blocker_ids do not match sibling {sibling_id}")
+        if seen_blockers & set(blocker_ids):
+            errors.append(f"line {index}: duplicate blocker IDs")
+        seen_blockers.update(blocker_ids)
+        if disposition not in {"change", "keep"}:
+            errors.append(f"line {index}: disposition must be change or keep")
+        if not reason:
+            errors.append(f"line {index}: reason is required")
+        current = by_id.get(sibling_id)
+        if not current:
+            errors.append(f"line {index}: unknown sibling {sibling_id}")
+            continue
+        if str(current.get("status")) not in STYLE_READY_STATUSES:
+            errors.append(f"line {index}: sibling {sibling_id} is not reviewed")
+        normalized_item = {
+            "blocker_ids": blocker_ids,
+            "sibling_id": sibling_id,
+            "disposition": disposition,
+            "reason": reason,
+        }
+        if disposition == "change":
+            after = str(item.get("translation", ""))
+            before = str(current.get("translation", ""))
+            if not after.strip() or after == before:
+                errors.append(f"line {index}: change for {sibling_id} is empty or no-op")
+            findings = allowed_line_findings(
+                root, sibling_id,
+                check_line(after, is_dialogue=bool(current.get("speaker"))))
+            findings += check_markup(source_texts[sibling_id], after)
+            for finding in findings:
+                errors.append(
+                    f"line {index}: {sibling_id} {finding.decision} {finding.message}")
+            normalized_item["translation"] = after
+        elif "translation" in item:
+            errors.append(f"line {index}: keep for {sibling_id} must not include translation")
+        normalized.append(normalized_item)
+    if seen_blockers != set(expected):
+        errors.append("resolution must cover every current blocker exactly once")
+    return errors, normalized, header
+
+
+def style_reconcile_siblings(root: Path, config: dict[str, Any], run_id: str,
+                             patch_path: Path, actor: str) -> int:
+    actor = actor.strip()
+    if not actor:
+        raise ValueError("actor is required")
+    patch_file = patch_path if patch_path.is_absolute() else root / patch_path
+    patch_sha256 = sha256_file(patch_file) if patch_file.exists() else None
+    current_run = style_runs(load_style_events(root, config)).get(run_id)
+    if current_run and any(
+            event.get("patch_sha256") == patch_sha256
+            for event in current_run.get("sibling_reconciliations", [])):
+        print(f"{run_id}: sibling resolution already applied")
+        return 0
+    errors, resolutions, header = validate_style_sibling_resolution(
+        root, config, run_id, patch_path)
+    if errors:
+        for message in errors:
+            eprint(f"ERROR: {message}")
+        return 1
+    run = style_runs(load_style_events(root, config))[run_id]
+    rows = style_route_rows(root, config, str(run["route"]))
+    by_id = {str(row["id"]): row for row in rows}
+    changed_resolutions = [item for item in resolutions if item["disposition"] == "change"]
+    affected = sorted({str(by_id[item["sibling_id"]]["scene_id"])
+                       for item in changed_resolutions})
+    seg_dir = root / config.get("paths", {}).get("segments", "translation/segments")
+    scene_rows = {
+        scene_id: [clean_meta(row) for row in read_jsonl(seg_dir / f"{scene_id}.jsonl")]
+        for scene_id in affected
+    }
+    original_rows = {scene_id: [dict(row) for row in items]
+                     for scene_id, items in scene_rows.items()}
+    canonical = {str(row["id"]): row for items in scene_rows.values() for row in items}
+    changes: list[dict[str, Any]] = []
+    for resolution in changed_resolutions:
+        sid = resolution["sibling_id"]
+        row = canonical[sid]
+        changes.append({
+            "id": sid,
+            "scene_id": row["scene_id"],
+            "before": row.get("translation", ""),
+            "after": resolution["translation"],
+            "status": row.get("status"),
+            "flags": row.get("flags", []),
+            "reason": resolution["reason"],
+        })
+        row["translation"] = resolution["translation"]
+    if scene_rows:
+        write_scene_transaction(root, config, scene_rows)
+    result_rows = style_route_rows(root, config, str(run["route"]))
+    event = {
+        "schema_version": 2,
+        "event": "style_siblings_reconciled",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "run_id": run_id,
+        "route": run["route"],
+        "actor": actor,
+        "input_sha256": header["base_sha256"],
+        "patch_sha256": patch_sha256,
+        "blocker_ids": header["blocker_ids"],
+        "resolutions": resolutions,
+        "changes": changes,
+        "result_route_sha256": style_text_hash(result_rows),
+    }
+    try:
+        append_style_event(root, config, event)
+    except Exception:
+        reconciliations = style_runs(load_style_events(root, config)).get(
+            run_id, {}).get("sibling_reconciliations", [])
+        if any(item.get("patch_sha256") == patch_sha256 for item in reconciliations):
+            print(f"{run_id}: reconciled {len(resolutions)} sibling decisions")
+            return 0
+        if scene_rows:
+            write_scene_transaction(root, config, original_rows)
+        raise
+    print(f"{run_id}: reconciled {len(resolutions)} sibling decisions, "
+          f"{len(changes)} text changes")
+    return 0
+
+
 def style_audit_package(root: Path, config: dict[str, Any], run_id: str) -> str:
+    raise ValueError(
+        "Whole-block style audit is disabled: it does not fit bounded agent context. "
+        "Complete accepted TEP scenes with style complete; run focused consistency audits separately.")
+
+
+def legacy_style_audit_package(root: Path, config: dict[str, Any], run_id: str) -> str:
     run = style_runs(load_style_events(root, config)).get(run_id)
     if not run:
         raise ValueError(f"Unknown style run: {run_id}")
@@ -3053,7 +4630,7 @@ def style_audit_package(root: Path, config: dict[str, Any], run_id: str) -> str:
         "```", "", "## Вердикт", "",
         f"Отчёт: `build/style-audit-{run_id}.md`.",
         "После заголовка: `VERDICT: ACCEPT` либо `VERDICT: REVISE`.",
-        "REVISE означает, что конкретный дефект надо исправить и повторить аудит.",
+        "REVISE означает отдельную узкую задачу; полный аудит не повторяется.",
     ])
     output = "\n".join(parts)
     if CJK_RE.search(output):
@@ -3063,27 +4640,9 @@ def style_audit_package(root: Path, config: dict[str, Any], run_id: str) -> str:
 
 def style_accept_audit(root: Path, config: dict[str, Any], run_id: str,
                        report_path: Path, auditor: str) -> int:
-    report = report_path if report_path.is_absolute() else root / report_path
-    if not report.exists() or not report_accepts(report):
-        raise ValueError("Route audit report is absent or did not say VERDICT: ACCEPT")
-    run = style_runs(load_style_events(root, config)).get(run_id)
-    if not run:
-        raise ValueError(f"Unknown style run: {run_id}")
-    if len(run["accepted"]) != len(run["windows"]):
-        raise ValueError("Route audit cannot pass before every window is accepted")
-    rows = style_route_rows(root, config, str(run["route"]))
-    append_style_event(root, config, {
-        "schema_version": 1,
-        "event": "route_audited",
-        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
-        "run_id": run_id,
-        "route": run["route"],
-        "route_sha256": style_text_hash(rows),
-        "auditor": auditor,
-        "report_sha256": sha256_file(report),
-    })
-    print(f"{run_id}: route audit accepted; build is allowed for current text hash")
-    return 0
+    raise ValueError(
+        "Whole-block style audit acceptance is disabled; use style complete after "
+        "all TEP scenes are terminal")
 
 
 def style_status(root: Path, config: dict[str, Any]) -> int:
@@ -3092,10 +4651,12 @@ def style_status(root: Path, config: dict[str, Any]) -> int:
         print("Style runs: 0")
         return 0
     for run in runs.values():
-        audit = "audited" if run.get("audit") else "pending audit"
+        terminal = "retired" if run.get("retired") else (
+            "complete" if run.get("completed") else (
+                "legacy audited" if run.get("audit") else "active"))
         print(f"{run['run_id']}: {run['route']}, "
               f"applied={len(run['applied'])}/{len(run['windows'])}, "
-              f"accepted={len(run['accepted'])}/{len(run['windows'])}, {audit}")
+              f"accepted={len(run['accepted'])}/{len(run['windows'])}, {terminal}")
     return 0
 
 
@@ -3107,7 +4668,8 @@ def validate_style_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str]
     runs: dict[str, dict[str, Any]] = {}
     for index, event in enumerate(events, start=1):
         kind = event.get("event")
-        if event.get("schema_version") != 1:
+        schema_version = event.get("schema_version")
+        if schema_version not in {1, 2, 3, 4}:
             errors.append(f"style ledger line {index}: unsupported schema_version")
         if kind not in STYLE_EVENTS:
             errors.append(f"style ledger line {index}: unknown event {kind!r}")
@@ -3121,13 +4683,25 @@ def validate_style_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str]
             windows = event.get("windows")
             if not isinstance(windows, list) or not windows:
                 errors.append(f"style ledger line {index}: run without windows")
-            runs[run_id] = {"windows": {str(w.get('window_id')) for w in windows or []},
-                            "applied": set(), "accepted": set(), "audited": False}
+            runs[run_id] = {"route": event.get("route"),
+                            "schema_version": schema_version,
+                            "windows": {str(w.get('window_id')) for w in windows or []},
+                            "applied": set(), "revised": set(), "accepted": set(),
+                            "applied_ids": {},
+                            "accepted_keeps": {}, "keep_reverted": {},
+                            "sibling_blockers": set(), "completed": False,
+                            "audited": False, "retired": False,
+                            "retirement_annotation_manifest": None,
+                            "proofread": set(), "proofread_issues": {}}
         elif kind != "ledger_initialized":
             run_id = str(event.get("run_id", ""))
             run = runs.get(run_id)
             if not run:
                 errors.append(f"style ledger line {index}: event references unknown run {run_id}")
+                continue
+            if (run["completed"] and kind not in {
+                    "build_readback", "style_keep_reverted", "style_run_retired"}):
+                errors.append(f"style ledger line {index}: operational event after completion")
                 continue
             window_id = str(event.get("window_id", ""))
             if kind == "window_applied":
@@ -3136,32 +4710,250 @@ def validate_style_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str]
                 if window_id in run["applied"]:
                     errors.append(f"style ledger line {index}: window applied twice {window_id}")
                 run["applied"].add(window_id)
+                change_ids = [str(change.get("id", ""))
+                              for change in event.get("changes", []) or []]
+                if len(change_ids) != len(set(change_ids)):
+                    errors.append(
+                        f"style ledger line {index}: duplicate applied change IDs {window_id}")
+                if run["schema_version"] >= 4:
+                    quarantine_resolutions = event.get("quarantine_resolutions", []) or []
+                    quarantine_ids = [str(item.get("id", ""))
+                                      for item in quarantine_resolutions]
+                    if (len(quarantine_ids) != len(set(quarantine_ids))
+                            or any(item.get("disposition") not in {"keep", "changed"}
+                                   or not str(item.get("reason", "")).strip()
+                                   for item in quarantine_resolutions)):
+                        errors.append(
+                            f"style ledger line {index}: invalid quarantine resolutions")
+                run["applied_ids"][window_id] = set(change_ids)
             elif kind == "window_revised":
                 if window_id not in run["applied"]:
                     errors.append(f"style ledger line {index}: window revised before apply {window_id}")
-                run["accepted"].discard(window_id)
-                run["audited"] = False
+                if schema_version >= 2 and window_id in run["accepted"]:
+                    errors.append(f"style ledger line {index}: terminal window revised {window_id}")
+                if schema_version >= 2 and window_id in run["revised"]:
+                    errors.append(f"style ledger line {index}: window revised twice {window_id}")
+                if run["schema_version"] == 3:
+                    errors.append(
+                        f"style ledger line {index}: comparative window revised {window_id}")
+                if run["schema_version"] >= 4:
+                    resolutions = event.get("resolutions", []) or []
+                    resolution_ids = [str(item.get("issue_id", ""))
+                                      for item in resolutions]
+                    if (window_id not in run["proofread"]
+                            or len(resolution_ids) != len(set(resolution_ids))
+                            or set(resolution_ids)
+                            != run["proofread_issues"].get(window_id, set())
+                            or any(item.get("disposition") not in {"applied", "rejected"}
+                                   or not str(item.get("reason", "")).strip()
+                                   for item in resolutions)):
+                        errors.append(
+                            f"style ledger line {index}: invalid TEP issue resolutions")
+                run["revised"].add(window_id)
+                if schema_version == 1:
+                    run["accepted"].discard(window_id)
+                    run["audited"] = False
             elif kind == "window_accepted":
                 if window_id not in run["applied"]:
                     errors.append(f"style ledger line {index}: window accepted before apply {window_id}")
                 if window_id in run["accepted"]:
                     errors.append(f"style ledger line {index}: window accepted twice {window_id}")
+                if schema_version >= 2:
+                    mode = event.get("acceptance_mode")
+                    if mode in {"finalize", "legacy_finalize"} and window_id not in run["revised"]:
+                        errors.append(
+                            f"style ledger line {index}: finalized without revision {window_id}")
+                if run["schema_version"] == 3:
+                    decisions = event.get("decisions", []) or []
+                    decision_ids = [str(item.get("id", "")) for item in decisions]
+                    if event.get("acceptance_mode") != "comparative":
+                        errors.append(
+                            f"style ledger line {index}: invalid comparative acceptance mode")
+                    if (len(decision_ids) != len(set(decision_ids))
+                            or set(decision_ids) != run["applied_ids"].get(window_id, set())
+                            or any(item.get("decision") not in {"keep", "revert"}
+                                   or not str(item.get("reason", "")).strip()
+                                   for item in decisions)
+                            or not str(event.get("reviewer", "")).strip()
+                            or not str(event.get("input_sha256", "")).strip()
+                            or not str(event.get("report_sha256", "")).strip()):
+                        errors.append(
+                            f"style ledger line {index}: invalid comparative decisions {window_id}")
+                    run["accepted_keeps"][window_id] = {
+                        str(item.get("id")) for item in decisions
+                        if item.get("decision") == "keep"
+                    }
+                elif run["schema_version"] < 3:
+                    run["accepted_keeps"][window_id] = set(
+                        run["applied_ids"].get(window_id, set()))
+                elif run["schema_version"] >= 4:
+                    mode = event.get("acceptance_mode")
+                    if mode not in {"tep_zero_issue", "tep_after_fix"}:
+                        errors.append(
+                            f"style ledger line {index}: invalid TEP acceptance mode")
+                    if window_id not in run["proofread"]:
+                        errors.append(
+                            f"style ledger line {index}: TEP accepted before proofread")
                 run["accepted"].add(window_id)
+            elif kind == "style_keep_reverted":
+                if window_id not in run["accepted"]:
+                    errors.append(
+                        f"style ledger line {index}: terminal keep revert before acceptance")
+                reverts = event.get("reverts", []) or []
+                revert_ids = [str(item.get("id", "")) for item in reverts]
+                previous = run["keep_reverted"].setdefault(window_id, set())
+                if (not reverts or len(revert_ids) != len(set(revert_ids))
+                        or any(not str(item.get("reason", "")).strip()
+                               for item in reverts)
+                        or not set(revert_ids)
+                        <= run["accepted_keeps"].get(window_id, set())
+                        or set(revert_ids) & previous):
+                    errors.append(
+                        f"style ledger line {index}: invalid terminal keep reverts {window_id}")
+                change_ids = {
+                    str(change.get("id", ""))
+                    for change in event.get("changes", []) or []
+                }
+                if (change_ids != set(revert_ids)
+                        or not str(event.get("actor", "")).strip()
+                        or not str(event.get("reason", "")).strip()
+                        or not str(event.get("request_sha256", "")).strip()
+                        or not str(event.get("input_sha256", "")).strip()
+                        or not str(event.get("result_delta_sha256", "")).strip()):
+                    errors.append(
+                        f"style ledger line {index}: incomplete terminal keep revert metadata")
+                previous.update(revert_ids)
+                run["completed"] = False
+                run["audited"] = False
+            elif kind == "style_siblings_reconciled":
+                if run["accepted"] != run["windows"]:
+                    errors.append(
+                        f"style ledger line {index}: siblings reconciled before all windows")
+                if event.get("route") != run["route"]:
+                    errors.append(f"style ledger line {index}: sibling route mismatch")
+                resolutions = event.get("resolutions", []) or []
+                blocker_ids = list(map(str, event.get("blocker_ids", []) or []))
+                resolved_ids = [
+                    str(blocker_id)
+                    for resolution in resolutions
+                    for blocker_id in resolution.get("blocker_ids", []) or []
+                ]
+                if (not str(event.get("actor", "")).strip()
+                        or not str(event.get("input_sha256", "")).strip()
+                        or not str(event.get("patch_sha256", "")).strip()
+                        or not str(event.get("result_route_sha256", "")).strip()):
+                    errors.append(
+                        f"style ledger line {index}: incomplete sibling reconciliation metadata")
+                if (not resolutions or len(blocker_ids) != len(set(blocker_ids))
+                        or sorted(resolved_ids) != sorted(blocker_ids)
+                        or len(resolved_ids) != len(set(resolved_ids))):
+                    errors.append(
+                        f"style ledger line {index}: invalid sibling blocker coverage")
+                if set(blocker_ids) & run["sibling_blockers"]:
+                    errors.append(
+                        f"style ledger line {index}: sibling blocker resolved twice")
+                for resolution in resolutions:
+                    if (resolution.get("disposition") not in {"change", "keep"}
+                            or not str(resolution.get("sibling_id", "")).strip()
+                            or not str(resolution.get("reason", "")).strip()):
+                        errors.append(
+                            f"style ledger line {index}: invalid sibling resolution")
+                change_ids = {str(change.get("id", ""))
+                              for change in event.get("changes", []) or []}
+                expected_change_ids = {
+                    str(resolution.get("sibling_id", ""))
+                    for resolution in resolutions
+                    if resolution.get("disposition") == "change"
+                }
+                if change_ids != expected_change_ids:
+                    errors.append(
+                        f"style ledger line {index}: sibling changes do not match resolutions")
+                run["sibling_blockers"].update(blocker_ids)
+            elif kind == "window_proofread":
+                if window_id not in run["applied"]:
+                    errors.append(
+                        f"style ledger line {index}: proofread before edit {window_id}")
+                if window_id in run["proofread"]:
+                    errors.append(
+                        f"style ledger line {index}: proofread imported twice {window_id}")
+                issues = event.get("issues", []) or []
+                issue_ids = [str(item.get("issue_id", "")) for item in issues]
+                if (run["schema_version"] < 4
+                        or len(issue_ids) != len(set(issue_ids))
+                        or any(not issue_id for issue_id in issue_ids)
+                        or not str(event.get("reviewer", "")).strip()
+                        or not str(event.get("input_sha256", "")).strip()
+                        or not str(event.get("report_sha256", "")).strip()):
+                    errors.append(
+                        f"style ledger line {index}: invalid proofread metadata")
+                run["proofread"].add(window_id)
+                run["proofread_issues"][window_id] = set(issue_ids)
+            elif kind == "style_run_retired":
+                decisions = event.get("decisions", []) or []
+                decision_ids = [str(item.get("id", "")) for item in decisions]
+                if (run["retired"] or not decisions
+                        or len(decision_ids) != len(set(decision_ids))
+                        or any(item.get("category") not in {
+                            "default_exact_revert", "explicit_keep", "quarantine"}
+                            for item in decisions)
+                        or not str(event.get("actor", "")).strip()
+                        or not str(event.get("reason", "")).strip()
+                        or not str(event.get("request_sha256", "")).strip()
+                        or not str(event.get("input_route_sha256", "")).strip()
+                        or not str(event.get("manifest_sha256", "")).strip()
+                        or not str(event.get("result_route_sha256", "")).strip()):
+                    errors.append(
+                        f"style ledger line {index}: invalid style retirement")
+                reverted_ids = {
+                    str(item.get("id", "")) for item in decisions
+                    if item.get("category") == "default_exact_revert"
+                }
+                change_ids = {
+                    str(change.get("id", ""))
+                    for change in event.get("changes", []) or []
+                }
+                if change_ids != reverted_ids:
+                    errors.append(
+                        f"style ledger line {index}: retirement changes mismatch decisions")
+                run["retired"] = True
+                run["completed"] = False
+                run["audited"] = False
+            elif kind == "style_retirement_annotated":
+                annotations = event.get("annotations", []) or []
+                annotation_ids = [str(item.get("id", "")) for item in annotations]
+                manifest_sha = str(event.get("manifest_sha256", ""))
+                if (not run["retired"]
+                        or (run["retirement_annotation_manifest"]
+                            and run["retirement_annotation_manifest"] != manifest_sha)
+                        or len(annotation_ids) != len(set(annotation_ids))
+                        or any(item.get("category") not in {"explicit_keep", "quarantine"}
+                               for item in annotations)
+                        or not manifest_sha):
+                    errors.append(
+                        f"style ledger line {index}: invalid retirement annotations")
+                run["retirement_annotation_manifest"] = manifest_sha
+            elif kind == "run_completed":
+                if run["accepted"] != run["windows"]:
+                    errors.append(f"style ledger line {index}: run completed before all windows")
+                if run["completed"]:
+                    errors.append(f"style ledger line {index}: run completed twice")
+                run["completed"] = True
             elif kind == "route_audited":
                 if run["accepted"] != run["windows"]:
                     errors.append(f"style ledger line {index}: route audited before all windows")
                 if run["audited"]:
                     errors.append(f"style ledger line {index}: route audited twice")
                 run["audited"] = True
-            elif kind == "build_readback" and not run["audited"]:
-                errors.append(f"style ledger line {index}: build before route audit")
+            elif kind == "build_readback" and not (run["completed"] or run["audited"]):
+                errors.append(f"style ledger line {index}: build before style completion")
     return errors, warnings
 
 
 REVIEW_EVENTS = {
     "ledger_initialized", "review_imported", "review_resolved", "review_rechecked",
-    "review_accepted", "review_issue_superseded", "review_invalidated",
-    "review_finalization_blocked",
+    "review_accepted", "review_issue_superseded", "review_issue_reverted",
+    "review_invalidated",
+    "review_finalization_blocked", "review_run_superseded",
 }
 REVIEW_SEVERITIES = {"critical", "major", "minor", "preference"}
 REVIEW_DISPOSITIONS = {"applied", "rejected"}
@@ -3195,10 +4987,13 @@ def review_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
                 **event, "resolution": None, "resolution_events": [],
                 "effective_resolutions": {}, "recheck": None, "rechecks": [],
                 "accepted": None, "invalidated": None,
+                "superseded": None,
                 "finalization_blocked": None,
                 "superseded_issues": {},
+                "reverted_issues": {},
             }
-        elif review_id in runs and runs[review_id].get("invalidated"):
+        elif review_id in runs and (runs[review_id].get("invalidated")
+                                    or runs[review_id].get("superseded")):
             continue
         elif review_id in runs and kind == "review_resolved":
             run = runs[review_id]
@@ -3216,8 +5011,13 @@ def review_runs(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
         elif review_id in runs and kind == "review_issue_superseded":
             issue_id = str(event.get("issue_id", ""))
             runs[review_id]["superseded_issues"][issue_id] = event
+        elif review_id in runs and kind == "review_issue_reverted":
+            issue_id = str(event.get("issue_id", ""))
+            runs[review_id]["reverted_issues"][issue_id] = event
         elif review_id in runs and kind == "review_invalidated":
             runs[review_id]["invalidated"] = event
+        elif review_id in runs and kind == "review_run_superseded":
+            runs[review_id]["superseded"] = event
         elif review_id in runs and kind == "review_finalization_blocked":
             runs[review_id]["finalization_blocked"] = event
     return runs
@@ -3231,7 +5031,7 @@ def effective_review_resolutions(run: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def review_open_issue_ids(run: dict[str, Any]) -> set[str]:
-    if run.get("accepted") or run.get("invalidated"):
+    if run.get("accepted") or run.get("invalidated") or run.get("superseded"):
         return set()
     if run.get("finalization_blocked"):
         return set(map(str, run["finalization_blocked"].get("issue_ids", []) or []))
@@ -3298,7 +5098,24 @@ def next_review_id(root: Path, config: dict[str, Any], scene_id: str) -> str:
 def latest_review_for_scene(root: Path, config: dict[str, Any],
                             scene_id: str) -> dict[str, Any] | None:
     items = [run for run in review_runs(load_review_events(root, config)).values()
-             if run.get("scene_id") == scene_id and not run.get("invalidated")]
+             if run.get("scene_id") == scene_id
+             and not run.get("invalidated") and not run.get("superseded")]
+    return items[-1] if items else None
+
+
+def review_terminal(run: dict[str, Any]) -> bool:
+    blocked = run.get("finalization_blocked")
+    return bool(
+        run.get("accepted") or run.get("invalidated") or run.get("superseded")
+        or (blocked and int(blocked.get("schema_version", 1)) >= 2)
+    )
+
+
+def active_review_for_scene(root: Path, config: dict[str, Any],
+                            scene_id: str) -> dict[str, Any] | None:
+    items = [run for run in review_runs(load_review_events(root, config)).values()
+             if run.get("scene_id") == scene_id
+             and not review_terminal(run)]
     return items[-1] if items else None
 
 
@@ -3310,7 +5127,12 @@ def review_package(root: Path, config: dict[str, Any], scene_id: str) -> str:
         raise ValueError(f"Unknown or empty scene: {scene_id}")
     if {str(row.get("status")) for row in rows} != {"draft"}:
         raise ValueError(f"Scene {scene_id} is not a complete draft")
+    active = active_review_for_scene(root, config, scene_id)
+    if active:
+        raise ValueError(
+            f"Scene {scene_id} already has active review {active['review_id']}")
     review_id = next_review_id(root, config, scene_id)
+    parent = latest_review_for_scene(root, config, scene_id)
     base_hash = scene_review_hash(rows)
     ensure_fresh_scene_index(root, config, scene_id, base_hash)
     context = build_context(root, config, scene_id, purpose="review")
@@ -3330,9 +5152,12 @@ def review_package(root: Path, config: dict[str, Any], scene_id: str) -> str:
             "review_id": review_id,
             "scene_id": scene_id,
             "base_sha256": base_hash,
+            **({"parent_review_id": parent["review_id"]}
+               if parent and review_terminal(parent) else {}),
         }}, ensure_ascii=False),
         "```", "",
-        "Дальше одна строка на каждое замечание, включая preference:", "",
+        "Дальше одна строка только на substantive-дефект. Чистую preference не "
+        "включай в обязательный lifecycle:", "",
         "```json",
         json.dumps({
             "issue_id": f"{review_id}-I001",
@@ -3362,6 +5187,15 @@ def review_import(root: Path, config: dict[str, Any], scene_id: str,
         raise ValueError("review_id does not match scene")
     if review_id in review_runs(load_review_events(root, config)):
         raise ValueError(f"Review already imported: {review_id}")
+    active = active_review_for_scene(root, config, scene_id)
+    if active:
+        raise ValueError(
+            f"Scene {scene_id} already has active review {active['review_id']}")
+    previous = latest_review_for_scene(root, config, scene_id)
+    expected_parent = (str(previous["review_id"])
+                       if previous and review_terminal(previous) else None)
+    if header.get("parent_review_id") != expected_parent:
+        raise ValueError("review report parent_review_id does not match latest terminal run")
     seg_file = root / config.get("paths", {}).get(
         "segments", "translation/segments") / f"{scene_id}.jsonl"
     scene_rows = [clean_meta(row) for row in read_jsonl(seg_file)]
@@ -3383,6 +5217,9 @@ def review_import(root: Path, config: dict[str, Any], scene_id: str,
         seen.add(issue_id)
         if issue.get("severity") not in REVIEW_SEVERITIES:
             raise ValueError(f"{issue_id}: invalid severity")
+        if issue.get("severity") == "preference":
+            raise ValueError(
+                f"{issue_id}: preference does not enter the mandatory review lifecycle")
         if not str(issue.get("category", "")).strip() or not str(issue.get("problem", "")).strip():
             raise ValueError(f"{issue_id}: category and problem are required")
         segment_ids = list(map(str, issue.get("segment_ids", [])))
@@ -3399,12 +5236,13 @@ def review_import(root: Path, config: dict[str, Any], scene_id: str,
         issues.append(issue)
     agent_file = root / ".opencode" / "agent" / f"{reviewer}.md"
     append_review_event(root, config, {
-        "schema_version": 1,
+        "schema_version": 2,
         "event": "review_imported",
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "review_id": review_id,
         "scene_id": scene_id,
         "base_sha256": current_hash,
+        **({"parent_review_id": expected_parent} if expected_parent else {}),
         "reviewer": reviewer,
         "reviewer_prompt_sha256": sha256_file(agent_file) if agent_file.exists() else None,
         "report_sha256": sha256_file(report),
@@ -3423,6 +5261,9 @@ def review_resolution_package(root: Path, config: dict[str, Any], review_id: str
         raise ValueError(f"Review is invalidated: {review_id}")
     if run.get("accepted"):
         raise ValueError(f"Review already accepted: {review_id}")
+    if run.get("finalization_blocked"):
+        raise ValueError(
+            f"Review is terminally blocked: {review_id}; create a linked amendment run")
     open_issue_ids = review_open_issue_ids(run)
     if not open_issue_ids:
         raise ValueError(f"Review has no issues awaiting resolution: {review_id}")
@@ -3445,16 +5286,24 @@ def review_resolution_package(root: Path, config: dict[str, Any], review_id: str
     context = build_context(
         root, config, scene_id, purpose="review-fix",
         focus_segment_ids=focus_ids if repeated_resolution else None)
+    recheck = run.get("recheck")
+    final_by_issue = {
+        str(item.get("issue_id", "")): item
+        for item in (recheck or {}).get("final_resolutions", []) or []
+    }
     templates = []
     for issue in issues:
         changes = []
-        for suggestion in issue.get("suggested_changes", []) or []:
+        suggestions = (final_by_issue.get(str(issue.get("issue_id")), {}).get("changes", [])
+                       if recheck and recheck.get("verdict") == "revise"
+                       else issue.get("suggested_changes", []) or [])
+        for suggestion in suggestions:
             sid = str(suggestion.get("id"))
             changes.append({
                 "id": sid,
                 "before": by_id[sid].get("translation", ""),
                 "translation": suggestion.get("translation", ""),
-                "flags": by_id[sid].get("flags", []),
+                "flags": suggestion.get("flags", by_id[sid].get("flags", [])),
             })
         templates.append({
             "issue_id": issue.get("issue_id"),
@@ -3473,6 +5322,10 @@ def review_resolution_package(root: Path, config: dict[str, Any], review_id: str
         "Формы из глоссария и утверждённых решений заблокированы. Японские бытовые "
         "реалии и родственные обращения не заменяй функциональным русским эквивалентом, "
         "если пакет закрепляет транслитерированную форму.", "",
+        *( ["Это финальная дельта после единственной перепроверки. Тексты и flags "
+            "из заготовки заданы reviewer и должны быть применены точно; если они "
+            "конфликтуют с валидатором или политикой, используй review block.", ""]
+           if recheck and recheck.get("verdict") == "revise" else []),
         f"Запиши `build/resolutions-{review_id}.jsonl`: ровно одна строка на каждый "
         "issue_id из этого дельтового пакета, без пропусков. Уже закрытые замечания "
         "повторно не разрешай. Начальная заготовка:", "", "```jsonl",
@@ -3501,6 +5354,10 @@ def review_resolve(root: Path, config: dict[str, Any], review_id: str,
         raise ValueError(f"Review is invalidated: {review_id}")
     if run.get("accepted"):
         raise ValueError(f"Review already accepted: {review_id}")
+    if (run.get("finalization_blocked")
+            and run["finalization_blocked"].get("schema_version", 1) >= 2):
+        raise ValueError(
+            f"Review is terminally blocked: {review_id}; create a linked amendment run")
     expected_issue_ids = review_open_issue_ids(run)
     if not expected_issue_ids:
         raise ValueError(f"Review has no issues awaiting resolution: {review_id}")
@@ -3558,6 +5415,8 @@ def review_resolve(root: Path, config: dict[str, Any], review_id: str,
             flags = list(change.get("flags", current.get("flags", [])) or [])
             if set(flags) - allowed_flags:
                 raise ValueError(f"{issue_id}: unknown flags for {sid}")
+            if after == before and flags == list(current.get("flags", []) or []):
+                raise ValueError(f"{issue_id}: no-op change for {sid}")
             candidate = {"translation": after, "flags": flags}
             if sid in changed and changed[sid] != candidate:
                 raise ValueError(f"conflicting resolutions for {sid}")
@@ -3585,6 +5444,31 @@ def review_resolve(root: Path, config: dict[str, Any], review_id: str,
                 "provisional": str(escalation["provisional"]).strip(),
             }} if escalation is not None else {}),
         })
+    recheck = run.get("recheck")
+    if recheck and recheck.get("verdict") == "revise":
+        expected = {
+            str(item.get("issue_id", "")): item.get("changes", []) or []
+            for item in recheck.get("final_resolutions", []) or []
+        }
+        for item in normalized:
+            issue_id = str(item["issue_id"])
+            if item["disposition"] != "applied" or item.get("escalation"):
+                raise ValueError(
+                    f"{issue_id}: final reviewer delta must be applied exactly or blocked")
+            actual_changes = [{
+                "id": change["id"],
+                "before": change["before"],
+                "translation": change["translation"],
+                "flags": change["flags"],
+            } for change in item["changes"]]
+            expected_changes = [{
+                "id": str(change.get("id", "")),
+                "before": str(change.get("before", "")),
+                "translation": str(change.get("translation", "")),
+                "flags": list(change.get("flags", []) or []),
+            } for change in expected.get(issue_id, [])]
+            if actual_changes != expected_changes:
+                raise ValueError(f"{issue_id}: final resolution differs from reviewer delta")
     for sid, change in changed.items():
         by_id[sid]["translation"] = change["translation"]
         by_id[sid]["flags"] = change["flags"]
@@ -3593,7 +5477,7 @@ def review_resolve(root: Path, config: dict[str, Any], review_id: str,
         write_jsonl_atomic(seg_file, rows)
     result_hash = scene_review_hash(rows)
     append_review_event(root, config, {
-        "schema_version": 1,
+        "schema_version": 2,
         "event": "review_resolved",
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "review_id": review_id,
@@ -3620,6 +5504,10 @@ def review_recheck_package(root: Path, config: dict[str, Any], review_id: str) -
         raise ValueError(
             f"Review already used its single recheck: {review_id}; "
             "apply final corrections, then use review finalize or review block")
+    critical = any(issue.get("severity") == "critical" for issue in run.get("issues", []))
+    if not critical:
+        raise ValueError(
+            f"Review {review_id} has no critical issues; finalize after the tracked fix")
     open_issue_ids = review_open_issue_ids(run)
     if open_issue_ids:
         raise ValueError(
@@ -3665,10 +5553,13 @@ def review_recheck_package(root: Path, config: dict[str, Any], review_id: str) -
             "scene_sha256": result_hash,
             "verdict": "accept",
             "open_issue_ids": [],
+            "final_resolutions": [],
         }, ensure_ascii=False),
         "```", "",
         "При `revise` перечисли в `open_issue_ids` все незакрытые issue_id и "
-        "опиши исправления в отдельном Markdown-отчёте.",
+        "добавь `final_resolutions`: по одному объекту на issue_id с точными "
+        "`changes` (`id`, `before`, `translation`, `flags`). Это окончательная "
+        "машинная дельта; нового reviewer-вызова не будет.",
     ]
     return "\n".join(parts)
 
@@ -3683,6 +5574,11 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
         raise ValueError(f"Review has no complete resolution: {review_id}")
     if run.get("accepted"):
         raise ValueError(f"Review already accepted: {review_id}")
+    if (not zero_issue_initial and not run.get("rechecks")
+            and not any(issue.get("severity") == "critical"
+                        for issue in run.get("issues", []))):
+        raise ValueError(
+            f"Review has no critical issues; use review finalize after the tracked fix: {review_id}")
     verdict_file = verdict_path if verdict_path.is_absolute() else root / verdict_path
     verdict_rows = [clean_meta(row) for row in read_jsonl(verdict_file)]
     if len(verdict_rows) != 1:
@@ -3695,6 +5591,7 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
     current_hash = scene_review_hash(rows)
     verdict_name = str(verdict.get("verdict", ""))
     open_issue_ids = list(map(str, verdict.get("open_issue_ids", []) or []))
+    final_resolutions = verdict.get("final_resolutions", []) or []
     known_issue_ids = {
         str(issue.get("issue_id", "")) for issue in run.get("issues", [])
     }
@@ -3704,6 +5601,7 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
             or len(open_issue_ids) != len(set(open_issue_ids))
             or set(open_issue_ids) - known_issue_ids
             or (verdict_name == "accept" and open_issue_ids)
+            or (verdict_name == "accept" and final_resolutions)
             or (verdict_name == "revise" and not open_issue_ids)):
         raise ValueError("invalid review verdict for the current scene hash")
     expected_hash = (run["base_sha256"] if zero_issue_initial
@@ -3716,8 +5614,53 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
         raise ValueError(
             f"review has unresolved user escalations: {', '.join(map(str, escalations))}")
     if verdict_name == "revise":
-        append_review_event(root, config, {
-            "schema_version": 1,
+        if not isinstance(final_resolutions, list):
+            raise ValueError("revise verdict final_resolutions must be a list")
+        final_by_issue = {
+            str(item.get("issue_id", "")): item for item in final_resolutions
+            if isinstance(item, dict)
+        }
+        if len(final_by_issue) != len(final_resolutions) or set(final_by_issue) != set(open_issue_ids):
+            raise ValueError("revise verdict must provide one final resolution per open issue")
+        by_issue = {str(issue.get("issue_id", "")): issue for issue in run.get("issues", [])}
+        by_id = {str(row["id"]): row for row in rows}
+        normalized_final = []
+        qa = read_yaml(root / "config/qa-rules.yaml", {}) or {}
+        allowed_flags = set(qa.get("allowed_flags", []))
+        for issue_id in open_issue_ids:
+            changes = final_by_issue[issue_id].get("changes", []) or []
+            allowed_ids = set(map(str, by_issue[issue_id].get("segment_ids", [])))
+            if not changes:
+                raise ValueError(f"{issue_id}: revise verdict needs at least one final change")
+            normalized_changes = []
+            for change in changes:
+                sid = str(change.get("id", ""))
+                if sid not in allowed_ids:
+                    raise ValueError(f"{issue_id}: final change outside issue segment_ids")
+                current = by_id[sid]
+                before = str(change.get("before", ""))
+                after = str(change.get("translation", ""))
+                flags = list(change.get("flags", current.get("flags", [])) or [])
+                if before != str(current.get("translation", "")):
+                    raise ValueError(f"{issue_id}: stale final before text for {sid}")
+                if not after.strip() or (after == before and flags == list(current.get("flags", []) or [])):
+                    raise ValueError(f"{issue_id}: empty or no-op final change for {sid}")
+                if set(flags) - allowed_flags:
+                    raise ValueError(f"{issue_id}: unknown flags for {sid}")
+                source = source_text_by_segment(root, config, [current])[sid]
+                findings = allowed_line_findings(
+                    root, sid, check_line(after, is_dialogue=bool(current.get("speaker"))))
+                findings += check_markup(source, after)
+                if findings:
+                    detail = "; ".join(
+                        f"{item.decision}: {item.message}" for item in findings)
+                    raise ValueError(f"{issue_id}: invalid final change for {sid}: {detail}")
+                normalized_changes.append({
+                    "id": sid, "before": before, "translation": after, "flags": flags,
+                })
+            normalized_final.append({"issue_id": issue_id, "changes": normalized_changes})
+        event = {
+            "schema_version": 2,
             "event": "review_rechecked",
             "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
             "review_id": review_id,
@@ -3725,9 +5668,20 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
             "scene_sha256": current_hash,
             "verdict": "revise",
             "open_issue_ids": open_issue_ids,
+            "final_resolutions": normalized_final,
             "reviewer": reviewer,
             "verdict_sha256": sha256_file(verdict_file),
-        })
+        }
+        try:
+            append_review_event(root, config, event)
+        except Exception:
+            rechecks = review_runs(load_review_events(root, config)).get(
+                review_id, {}).get("rechecks", [])
+            if any(item.get("verdict_sha256") == event["verdict_sha256"]
+                   for item in rechecks):
+                print(f"{review_id}: revise; {len(open_issue_ids)} issues reopened")
+                return 0
+            raise
         print(f"{review_id}: revise; {len(open_issue_ids)} issues reopened")
         return 0
     unresolved = review_open_issue_ids(run)
@@ -3744,13 +5698,14 @@ def review_close(root: Path, config: dict[str, Any], review_id: str,
             row["status"] = "reviewed"
         write_jsonl_atomic(seg_file, rows)
     event = {
-        "schema_version": 1,
+        "schema_version": 2,
         "event": "review_accepted",
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "review_id": review_id,
         "scene_id": scene_id,
         "scene_sha256": current_hash,
         "reviewer": reviewer,
+        "acceptance_mode": "zero_issue" if zero_issue_initial else "recheck_accept",
         "verdict_sha256": sha256_file(verdict_file),
     }
     try:
@@ -3780,10 +5735,15 @@ def review_finalize(root: Path, config: dict[str, Any], review_id: str,
     if run.get("accepted"):
         raise ValueError(f"Review already accepted: {review_id}")
     rechecks = run.get("rechecks") or []
-    if len(rechecks) != 1 or rechecks[0].get("verdict") != "revise":
-        raise ValueError(f"Review finalize requires exactly one revise recheck: {review_id}")
-    if run.get("recheck") is not None:
-        raise ValueError(f"Review still needs final corrections: {review_id}")
+    if len(rechecks) > 1:
+        raise ValueError(f"Review used more than one recheck: {review_id}")
+    if rechecks:
+        if rechecks[0].get("verdict") != "revise":
+            raise ValueError(f"Review finalize received an invalid recheck: {review_id}")
+        if run.get("recheck") is not None:
+            raise ValueError(f"Review still needs final corrections: {review_id}")
+    elif not run.get("resolution"):
+        raise ValueError(f"Review finalize requires a complete tracked fix: {review_id}")
     if run.get("finalization_blocked"):
         raise ValueError(f"Review finalization is blocked: {review_id}")
     unresolved = review_open_issue_ids(run)
@@ -3797,16 +5757,41 @@ def review_finalize(root: Path, config: dict[str, Any], review_id: str,
     current_hash = scene_review_hash(rows)
     if current_hash != run["resolution"].get("result_sha256"):
         raise ValueError("scene changed after final resolution")
-    verdict_file = root / "build" / f"verdict-finalize-{review_id}.jsonl"
-    verdict_file.parent.mkdir(parents=True, exist_ok=True)
-    write_jsonl_atomic(verdict_file, [{
+    statuses = {str(row.get("status")) for row in rows}
+    if statuses not in ({"draft"}, {"reviewed"}):
+        raise ValueError(f"scene is not awaiting review finalize: {dict(Counter(statuses))}")
+    recovering = statuses == {"reviewed"}
+    original_rows = [dict(row) for row in rows]
+    if not recovering:
+        for row in rows:
+            row["status"] = "reviewed"
+        write_jsonl_atomic(seg_file, rows)
+    event = {
+        "schema_version": 2,
+        "event": "review_accepted",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "review_id": review_id,
+        "scene_id": scene_id,
         "scene_sha256": current_hash,
-        "verdict": "accept",
-        "open_issue_ids": [],
-        "finalized_after_single_recheck": True,
-    }])
-    return review_close(root, config, review_id, verdict_file, actor)
+        "actor": actor,
+        "acceptance_mode": "finalize_after_recheck" if rechecks else "finalize_after_fix",
+        "resolution_event_sha256": sha256_text(json.dumps(
+            run["resolution"], ensure_ascii=False, sort_keys=True)),
+        **({"recheck_event_sha256": sha256_text(json.dumps(
+            rechecks[0], ensure_ascii=False, sort_keys=True))} if rechecks else {}),
+    }
+    try:
+        append_review_event(root, config, event)
+    except Exception:
+        accepted = review_runs(load_review_events(root, config)).get(review_id, {}).get("accepted")
+        if accepted:
+            print(f"{review_id}: accepted; {len(rows)} segments are reviewed")
+            return 0
+        if not recovering:
+            write_jsonl_atomic(seg_file, original_rows)
+        raise
+    print(f"{review_id}: accepted; {len(rows)} segments are reviewed")
+    return 0
 
 
 def review_block(root: Path, config: dict[str, Any], review_id: str,
@@ -3824,17 +5809,19 @@ def review_block(root: Path, config: dict[str, Any], review_id: str,
     if run.get("invalidated") or run.get("accepted"):
         raise ValueError(f"Review cannot be blocked: {review_id}")
     rechecks = run.get("rechecks") or []
-    if len(rechecks) != 1 or rechecks[0].get("verdict") != "revise":
-        raise ValueError(f"Review block requires exactly one revise recheck: {review_id}")
-    if run.get("recheck") is not None:
-        raise ValueError(f"Review still needs final corrections: {review_id}")
+    if len(rechecks) > 1:
+        raise ValueError(f"Review used more than one recheck: {review_id}")
+    if rechecks and rechecks[0].get("verdict") != "revise":
+        raise ValueError(f"Review block received an invalid recheck: {review_id}")
     if run.get("finalization_blocked"):
         raise ValueError(f"Review finalization already blocked: {review_id}")
-    allowed = set(map(str, rechecks[0].get("open_issue_ids", []) or []))
+    allowed = (set(map(str, rechecks[0].get("open_issue_ids", []) or []))
+               if rechecks else {str(issue.get("issue_id", ""))
+                                  for issue in run.get("issues", [])})
     if set(issue_ids) - allowed:
         raise ValueError("review block references issues outside the revise verdict")
     append_review_event(root, config, {
-        "schema_version": 1,
+        "schema_version": 2,
         "event": "review_finalization_blocked",
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "review_id": review_id,
@@ -3877,7 +5864,7 @@ def review_issue_supersede(root: Path, config: dict[str, Any], issue_id: str,
     if question.get("status") != "open":
         raise ValueError(f"superseding question is not open: {question_id}")
     append_review_event(root, config, {
-        "schema_version": 1,
+        "schema_version": 2,
         "event": "review_issue_superseded",
         "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
         "review_id": review_id,
@@ -3887,6 +5874,132 @@ def review_issue_supersede(root: Path, config: dict[str, Any], issue_id: str,
         "reason": reason,
     })
     print(f"{issue_id}: superseded by {question_id}")
+    return 0
+
+
+def review_issue_revert(root: Path, config: dict[str, Any], issue_id: str,
+                        actor: str, reason: str) -> int:
+    actor = actor.strip()
+    reason = reason.strip()
+    if not actor or not reason:
+        raise ValueError("actor and reason are required")
+    runs = review_runs(load_review_events(root, config))
+    matches = [
+        (review_id, run)
+        for review_id, run in runs.items()
+        if issue_id in {str(issue.get("issue_id", "")) for issue in run.get("issues", [])}
+    ]
+    if len(matches) != 1:
+        raise ValueError(f"review issue must exist exactly once: {issue_id}")
+    review_id, run = matches[0]
+    if not run.get("accepted"):
+        raise ValueError(f"review issue is not accepted: {issue_id}")
+    if issue_id in run.get("superseded_issues", {}):
+        raise ValueError(f"review issue already superseded: {issue_id}")
+
+    request_sha = sha256_text(json.dumps({
+        "review_id": review_id,
+        "issue_id": issue_id,
+        "actor": actor,
+        "reason": reason,
+    }, ensure_ascii=False, sort_keys=True))
+    previous = run.get("reverted_issues", {}).get(issue_id)
+    if previous:
+        if previous.get("request_sha256") == request_sha:
+            print(f"{issue_id}: accepted reviewer issue already reverted")
+            return 0
+        raise ValueError(f"review issue already reverted: {issue_id}")
+
+    transitions: dict[str, dict[str, Any]] = {}
+    for event in run.get("resolution_events", []) or []:
+        for resolution in event.get("resolutions", []) or []:
+            if str(resolution.get("issue_id", "")) != issue_id:
+                continue
+            if resolution.get("disposition") != "applied":
+                raise ValueError(f"review issue was not applied: {issue_id}")
+            for change in resolution.get("changes", []) or []:
+                sid = str(change.get("id", ""))
+                if not sid:
+                    continue
+                transition = transitions.setdefault(sid, {
+                    "id": sid,
+                    "baseline": change.get("before", ""),
+                })
+                transition["current"] = change.get("translation", "")
+                transition["flags"] = list(change.get("flags", []) or [])
+    if not transitions:
+        raise ValueError(f"review issue has no applied text changes: {issue_id}")
+
+    scene_id = str(run["scene_id"])
+    seg_path = root / config.get("paths", {}).get(
+        "segments", "translation/segments") / f"{scene_id}.jsonl"
+    scene_rows = [clean_meta(row) for row in read_jsonl(seg_path)]
+    original_rows = [dict(row) for row in scene_rows]
+    by_id = {str(row["id"]): row for row in scene_rows}
+    input_payload = []
+    changes = []
+    final = []
+    for sid, transition in transitions.items():
+        row = by_id.get(sid)
+        if not row:
+            raise ValueError(f"review issue change is outside its scene: {sid}")
+        if (str(row.get("translation", "")) != str(transition.get("current", ""))
+                or str(row.get("status")) != "reviewed"):
+            raise ValueError(f"stale accepted reviewer issue state for {sid}")
+        input_payload.append({
+            "id": sid,
+            "current": row.get("translation", ""),
+            "target": transition.get("baseline", ""),
+            "status": row.get("status"),
+            "flags": row.get("flags", []),
+        })
+        changes.append({
+            "id": sid,
+            "scene_id": scene_id,
+            "before": row.get("translation", ""),
+            "after": transition.get("baseline", ""),
+            "before_status": row.get("status"),
+            "flags_before": row.get("flags", []),
+            "flags_after": row.get("flags", []),
+            "reason": reason,
+        })
+        row["translation"] = transition.get("baseline", "")
+        final.append({
+            "id": sid,
+            "translation": row.get("translation", ""),
+            "status": row.get("status"),
+            "flags": row.get("flags", []),
+        })
+    input_sha = sha256_text(json.dumps(
+        input_payload, ensure_ascii=False, sort_keys=True))
+    write_scene_transaction(root, config, {scene_id: scene_rows})
+    event = {
+        "schema_version": 2,
+        "event": "review_issue_reverted",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "review_id": review_id,
+        "scene_id": scene_id,
+        "issue_id": issue_id,
+        "actor": actor,
+        "reason": reason,
+        "request_sha256": request_sha,
+        "input_sha256": input_sha,
+        "changes": changes,
+        "result_scene_sha256": scene_review_hash(scene_rows),
+        "result_delta_sha256": sha256_text(json.dumps(
+            final, ensure_ascii=False, sort_keys=True)),
+    }
+    try:
+        append_review_event(root, config, event)
+    except Exception:
+        recorded = review_runs(load_review_events(root, config)).get(
+            review_id, {}).get("reverted_issues", {}).get(issue_id)
+        if recorded and recorded.get("request_sha256") == request_sha:
+            print(f"{issue_id}: accepted reviewer issue reverted")
+            return 0
+        write_scene_transaction(root, config, {scene_id: original_rows})
+        raise
+    print(f"{issue_id}: accepted reviewer issue reverted; changes={len(changes)}")
     return 0
 
 
@@ -3919,6 +6032,35 @@ def review_invalidate(root: Path, config: dict[str, Any], review_id: str,
     return 0
 
 
+def review_supersede_run(root: Path, config: dict[str, Any], review_id: str,
+                         newer_review_id: str, actor: str, reason: str) -> int:
+    actor = actor.strip()
+    reason = reason.strip()
+    if not actor or not reason:
+        raise ValueError("actor and reason are required")
+    runs = review_runs(load_review_events(root, config))
+    run = runs.get(review_id)
+    newer = runs.get(newer_review_id)
+    if not run or not newer:
+        raise ValueError("both review runs must exist")
+    if run.get("accepted") or run.get("invalidated") or run.get("superseded"):
+        raise ValueError(f"Review is already terminal: {review_id}")
+    if newer.get("scene_id") != run.get("scene_id") or not newer.get("accepted"):
+        raise ValueError("superseding review must be an accepted run of the same scene")
+    append_review_event(root, config, {
+        "schema_version": 2,
+        "event": "review_run_superseded",
+        "timestamp": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "review_id": review_id,
+        "scene_id": run["scene_id"],
+        "superseded_by_review_id": newer_review_id,
+        "actor": actor,
+        "reason": reason,
+    })
+    print(f"{review_id}: superseded by {newer_review_id}")
+    return 0
+
+
 def review_status(root: Path, config: dict[str, Any]) -> int:
     runs = review_runs(load_review_events(root, config))
     if not runs:
@@ -3927,10 +6069,11 @@ def review_status(root: Path, config: dict[str, Any]) -> int:
     for run in runs.values():
         issues = run.get("issues", [])
         open_ids = review_open_issue_ids(run)
-        state = "invalidated" if run.get("invalidated") else (
+        state = "superseded" if run.get("superseded") else (
+            "invalidated" if run.get("invalidated") else (
             "accepted" if run.get("accepted") else (
                 f"open:{len(open_ids)}" if open_ids else
-                "awaiting recheck" if run.get("resolution") else "open"))
+                "ready to finalize" if run.get("resolution") else "open")))
         counts = Counter(str(issue.get("severity")) for issue in issues)
         escalations = sum(1 for item in effective_review_resolutions(run)
                           if item.get("escalation"))
@@ -3951,7 +6094,8 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
     runs: dict[str, dict[str, Any]] = {}
     for index, event in enumerate(load_review_events(root, config), start=1):
         kind = event.get("event")
-        if event.get("schema_version") != 1:
+        schema_version = event.get("schema_version")
+        if schema_version not in {1, 2}:
             errors.append(f"review ledger line {index}: unsupported schema_version")
         if kind not in REVIEW_EVENTS:
             errors.append(f"review ledger line {index}: unknown event {kind!r}")
@@ -3974,14 +6118,27 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
                 errors.append(f"review ledger line {index}: invalid issue severity")
             runs[review_id] = {
                 "issues": set(issue_ids), "expected": set(issue_ids),
+                "issue_segments": {
+                    str(issue.get("issue_id", "")): set(map(
+                        str, issue.get("segment_ids", []) or []))
+                    for issue in issues
+                },
                 "effective": {}, "resolved": not issue_ids, "accepted": False,
-                "superseded": set(), "invalidated": False,
-                "rechecks": 0, "blocked": False,
+                "superseded": set(), "reverted": set(), "invalidated": False,
+                "run_superseded": False, "rechecks": 0, "blocked": False,
+                "terminal_blocked": False,
             }
             continue
         run = runs.get(review_id)
         if not run:
             errors.append(f"review ledger line {index}: event before import {review_id}")
+            continue
+        if run["accepted"] and kind not in {
+                "review_issue_superseded", "review_issue_reverted"}:
+            errors.append(f"review ledger line {index}: operational event after accept {review_id}")
+            continue
+        if run["terminal_blocked"]:
+            errors.append(f"review ledger line {index}: event after terminal block {review_id}")
             continue
         if kind == "review_invalidated":
             if run["invalidated"]:
@@ -3993,8 +6150,18 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
             if not str(event.get("actor", "")).strip() or not str(event.get("reason", "")).strip():
                 errors.append(f"review ledger line {index}: invalidation actor and reason required")
             run["invalidated"] = True
-        elif run["invalidated"]:
-            errors.append(f"review ledger line {index}: event after invalidation {review_id}")
+        elif kind == "review_run_superseded":
+            if run["accepted"] or run["invalidated"] or run["run_superseded"]:
+                errors.append(f"review ledger line {index}: non-active run superseded")
+            newer_id = str(event.get("superseded_by_review_id", ""))
+            newer = runs.get(newer_id)
+            if not newer or not newer["accepted"]:
+                errors.append(f"review ledger line {index}: superseding review is not accepted")
+            if not str(event.get("actor", "")).strip() or not str(event.get("reason", "")).strip():
+                errors.append(f"review ledger line {index}: supersession actor and reason required")
+            run["run_superseded"] = True
+        elif run["invalidated"] or run["run_superseded"]:
+            errors.append(f"review ledger line {index}: event after terminal state {review_id}")
         elif kind == "review_resolved":
             resolution_ids = {str(item.get("issue_id", ""))
                               for item in event.get("resolutions", []) or []}
@@ -4025,7 +6192,7 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
             run["resolved"] = False
         elif kind == "review_finalization_blocked":
             issue_ids = list(map(str, event.get("issue_ids", []) or []))
-            if run["rechecks"] != 1 or not run["resolved"]:
+            if schema_version == 1 and (run["rechecks"] != 1 or not run["resolved"]):
                 errors.append(
                     f"review ledger line {index}: finalization blocked outside final stage")
             if (not issue_ids or len(issue_ids) != len(set(issue_ids))
@@ -4036,6 +6203,7 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
             if run["blocked"]:
                 errors.append(f"review ledger line {index}: finalization blocked twice")
             run["blocked"] = True
+            run["terminal_blocked"] = schema_version >= 2
             run["expected"] = set(issue_ids)
             run["resolved"] = False
         elif kind == "review_accepted":
@@ -4043,6 +6211,10 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
                 errors.append(f"review ledger line {index}: accepted before resolution")
             if run["accepted"]:
                 errors.append(f"review ledger line {index}: accepted twice")
+            if schema_version >= 2 and event.get("acceptance_mode") not in {
+                    "zero_issue", "recheck_accept", "finalize_after_fix",
+                    "finalize_after_recheck"}:
+                errors.append(f"review ledger line {index}: invalid acceptance mode")
             run["accepted"] = True
         elif kind == "review_issue_superseded":
             issue_id = str(event.get("issue_id", ""))
@@ -4058,7 +6230,30 @@ def validate_review_ledger(root: Path, config: dict[str, Any]) -> tuple[list[str
                 errors.append(f"review ledger line {index}: supersession actor and reason required")
             if issue_id in run["superseded"]:
                 errors.append(f"review ledger line {index}: issue superseded twice {issue_id}")
+            if issue_id in run["reverted"]:
+                errors.append(f"review ledger line {index}: reverted issue superseded {issue_id}")
             run["superseded"].add(issue_id)
+        elif kind == "review_issue_reverted":
+            issue_id = str(event.get("issue_id", ""))
+            change_ids = [str(change.get("id", ""))
+                          for change in event.get("changes", []) or []]
+            if not run["accepted"]:
+                errors.append(f"review ledger line {index}: issue reverted before accept")
+            if issue_id not in run["issues"]:
+                errors.append(f"review ledger line {index}: unknown issue {issue_id}")
+            if issue_id in run["superseded"] or issue_id in run["reverted"]:
+                errors.append(f"review ledger line {index}: issue reverted after terminal issue event")
+            if (not change_ids or len(change_ids) != len(set(change_ids))
+                    or set(change_ids) - run["issue_segments"].get(issue_id, set())):
+                errors.append(f"review ledger line {index}: invalid reverted issue changes")
+            if (not str(event.get("actor", "")).strip()
+                    or not str(event.get("reason", "")).strip()
+                    or not str(event.get("request_sha256", "")).strip()
+                    or not str(event.get("input_sha256", "")).strip()
+                    or not str(event.get("result_scene_sha256", "")).strip()
+                    or not str(event.get("result_delta_sha256", "")).strip()):
+                errors.append(f"review ledger line {index}: incomplete issue revert metadata")
+            run["reverted"].add(issue_id)
     return errors, warnings
 
 
@@ -4070,6 +6265,7 @@ def prior_review_issues(root: Path, config: dict[str, Any],
             continue
         resolutions = run.get("effective_resolutions", {})
         superseded = run.get("superseded_issues", {})
+        reverted = run.get("reverted_issues", {})
         for issue in run.get("issues", []):
             linked = set(map(str, issue.get("segment_ids", [])))
             if not linked & segment_ids:
@@ -4077,6 +6273,7 @@ def prior_review_issues(root: Path, config: dict[str, Any],
             issue_id = str(issue.get("issue_id"))
             resolution = resolutions.get(issue_id, {})
             supersession = superseded.get(issue_id)
+            reversion = reverted.get(issue_id)
             item = {
                 "issue_id": issue.get("issue_id"),
                 "severity": issue.get("severity"),
@@ -4085,13 +6282,19 @@ def prior_review_issues(root: Path, config: dict[str, Any],
                 "problem": issue.get("problem"),
                 "disposition": resolution.get("disposition"),
                 "reason": resolution.get("reason"),
-                "state": "superseded" if supersession else "active",
+                "state": "superseded" if supersession else (
+                    "reverted" if reversion else "active"),
             }
             if supersession:
                 item.update({
                     "superseded_by_question": supersession.get("question_id"),
                     "supersession_reason": supersession.get("reason"),
                     "superseded_by_actor": supersession.get("actor"),
+                })
+            if reversion:
+                item.update({
+                    "reversion_reason": reversion.get("reason"),
+                    "reverted_by_actor": reversion.get("actor"),
                 })
             result.append(item)
     return result
@@ -4677,8 +6880,6 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str,
     )
     seg_ids = {str(r["id"]) for r in context_rows}
     glossary = glossary_for_scene(root, config, source_text)
-    constraints = safe_constraints(root, config, seg_ids)
-    decisions = linked_decisions(db, seg_ids)
     workflow = config.get("workflow", {})
     example_limit = int(workflow.get(
         "internal_examples_limit",
@@ -4708,28 +6909,6 @@ def build_context(root: Path, config: dict[str, Any], scene_id: str,
     parts.append("")
     parts.append("## Участники\n" + (", ".join(speakers) if speakers else "Повествование / неизвестно") + "\n")
     if include_full_reference:
-        parts.append(render_global_reference(root, config) + "\n")
-        for speaker in speakers:
-            doc = character_doc(root, config, speaker)
-            if doc:
-                parts.append(f"## Карточка персонажа: {speaker}\n{doc}\n")
-        parts.append("## Релевантный глоссарий\n")
-        if glossary:
-            parts.append("```yaml\n" + (yaml.safe_dump(glossary, allow_unicode=True, sort_keys=False) if yaml else json.dumps(glossary, ensure_ascii=False, indent=2)) + "```\n")
-        else:
-            parts.append("Нет совпадений.\n")
-        parts.append("## Безопасные сюжетные ограничения\n")
-        if constraints:
-            for item in constraints:
-                parts.append(f"- {item['id']}: " + "; ".join(map(str, item.get("safe_rules", []))))
-            parts.append("")
-        else:
-            parts.append("Нет.\n")
-        parts.append("## Связанные с сегментами утверждённые решения\n")
-        if decisions:
-            parts.append("```json\n" + json.dumps(decisions, ensure_ascii=False, indent=2) + "\n```\n")
-        else:
-            parts.append("Нет.\n")
         parts.append("## Утверждённые внутренние примеры письменной речи\n")
         if examples:
             parts.append("```jsonl")
@@ -5156,10 +7335,19 @@ def main() -> int:
     p_rsupersede.add_argument("--by-question", dest="question_id", required=True)
     p_rsupersede.add_argument("--actor", required=True)
     p_rsupersede.add_argument("--reason", required=True)
+    p_rrevert_issue = review_sub.add_parser("revert-issue")
+    p_rrevert_issue.add_argument("issue_id")
+    p_rrevert_issue.add_argument("--actor", required=True)
+    p_rrevert_issue.add_argument("--reason", required=True)
     p_rinvalidate = review_sub.add_parser("invalidate")
     p_rinvalidate.add_argument("review_id")
     p_rinvalidate.add_argument("--actor", required=True)
     p_rinvalidate.add_argument("--reason", required=True)
+    p_rsupersede_run = review_sub.add_parser("supersede-run")
+    p_rsupersede_run.add_argument("review_id")
+    p_rsupersede_run.add_argument("--by-review", dest="newer_review_id", required=True)
+    p_rsupersede_run.add_argument("--actor", required=True)
+    p_rsupersede_run.add_argument("--reason", required=True)
     p_style = sub.add_parser("style")
     style_sub = p_style.add_subparsers(dest="style_command", required=True)
     style_sub.add_parser("status")
@@ -5167,8 +7355,10 @@ def main() -> int:
     p_sstart.add_argument("route")
     p_snext = style_sub.add_parser("next")
     p_snext.add_argument("run_id")
-    p_snext.add_argument("--window", dest="window_id")
+    p_snext.add_argument("--window", dest="window_ids", nargs="+")
     p_snext.add_argument("-o", "--output", type=Path)
+    p_snext.add_argument("--output-dir", type=Path)
+    p_snext.add_argument("--allow-oversize", action="store_true")
     p_scheck = style_sub.add_parser("check")
     p_scheck.add_argument("run_id")
     p_scheck.add_argument("window_id")
@@ -5185,18 +7375,46 @@ def main() -> int:
     p_srevise.add_argument("--actor", required=True)
     p_sreview = style_sub.add_parser("review")
     p_sreview.add_argument("run_id")
-    p_sreview.add_argument("window_id")
+    p_sreview.add_argument("window_ids", nargs="+")
     p_sreview.add_argument("-o", "--output", type=Path)
+    p_sreview.add_argument("--output-dir", type=Path)
+    p_sreview.add_argument("--allow-oversize", action="store_true")
     p_sfix = style_sub.add_parser("fix")
     p_sfix.add_argument("run_id")
-    p_sfix.add_argument("window_id")
-    p_sfix.add_argument("report", type=Path)
+    p_sfix.add_argument("items", nargs="+")
     p_sfix.add_argument("-o", "--output", type=Path)
+    p_sfix.add_argument("--output-dir", type=Path)
+    p_sfix.add_argument("--allow-oversize", action="store_true")
     p_saccept = style_sub.add_parser("accept")
     p_saccept.add_argument("run_id")
     p_saccept.add_argument("window_id")
     p_saccept.add_argument("report", type=Path)
     p_saccept.add_argument("--reviewer", required=True)
+    p_samend = style_sub.add_parser("amend-revert")
+    p_samend.add_argument("run_id")
+    p_samend.add_argument("window_id")
+    p_samend.add_argument("segment_ids", nargs="+")
+    p_samend.add_argument("--actor", required=True)
+    p_samend.add_argument("--reason", required=True)
+    p_sretire = style_sub.add_parser("retire")
+    p_sretire.add_argument("run_id")
+    p_sretire.add_argument("manifest", type=Path)
+    p_sretire.add_argument("--actor", required=True)
+    p_sretire.add_argument("--reason", required=True)
+    p_sfinalize = style_sub.add_parser("finalize")
+    p_sfinalize.add_argument("run_id")
+    p_sfinalize.add_argument("window_id")
+    p_sfinalize.add_argument("--actor", required=True)
+    p_scomplete = style_sub.add_parser("complete")
+    p_scomplete.add_argument("run_id")
+    p_scomplete.add_argument("--actor", required=True)
+    p_ssiblings = style_sub.add_parser("siblings")
+    p_ssiblings.add_argument("run_id")
+    p_ssiblings.add_argument("-o", "--output", type=Path)
+    p_sreconcile = style_sub.add_parser("reconcile")
+    p_sreconcile.add_argument("run_id")
+    p_sreconcile.add_argument("patch", type=Path)
+    p_sreconcile.add_argument("--actor", required=True)
     p_saudit = style_sub.add_parser("audit")
     p_saudit.add_argument("run_id")
     p_saudit.add_argument("-o", "--output", type=Path)
@@ -5319,9 +7537,16 @@ def main() -> int:
             if args.review_command == "supersede":
                 return review_issue_supersede(
                     root, config, args.issue_id, args.question_id, args.actor, args.reason)
+            if args.review_command == "revert-issue":
+                return review_issue_revert(
+                    root, config, args.issue_id, args.actor, args.reason)
             if args.review_command == "invalidate":
                 return review_invalidate(
                     root, config, args.review_id, args.actor, args.reason)
+            if args.review_command == "supersede-run":
+                return review_supersede_run(
+                    root, config, args.review_id, args.newer_review_id,
+                    args.actor, args.reason)
             if args.output and args.output_dir:
                 raise ValueError("use either -o or --output-dir, not both")
             if args.review_command == "package":
@@ -5396,7 +7621,47 @@ def main() -> int:
             if args.style_command == "start":
                 return style_start(root, config, args.route)
             if args.style_command == "next":
-                content = style_package(root, config, args.run_id, args.window_id)
+                if args.output and args.output_dir:
+                    raise ValueError("use either -o or --output-dir, not both")
+                window_ids = list(dict.fromkeys(args.window_ids or []))
+                if len(window_ids) != len(args.window_ids or []):
+                    raise ValueError("duplicate style window IDs")
+                run = style_runs(load_style_events(root, config)).get(args.run_id)
+                if not run:
+                    raise ValueError(f"Unknown style run: {args.run_id}")
+                if not window_ids:
+                    window_ids = [str(window["window_id"]) for window in run["windows"]
+                                  if str(window["window_id"]) not in run["applied"]][:1]
+                if not window_ids:
+                    packages = [(f"style-package-{args.run_id}.md",
+                                 style_package(root, config, args.run_id))]
+                else:
+                    by_id = {str(window["window_id"]): window for window in run["windows"]}
+                    unknown = [window_id for window_id in window_ids if window_id not in by_id]
+                    if unknown:
+                        raise ValueError("unknown style window IDs: " + ", ".join(unknown))
+                    workload = sum(int(by_id[window_id]["editable_count"])
+                                   for window_id in window_ids)
+                    enforce_dispatch_budget(
+                        "style", len(window_ids), len(window_ids),
+                        dispatch_limit(config, "style_dispatch_max_files", 3),
+                        "files", args.allow_oversize)
+                    enforce_dispatch_budget(
+                        "style", len(window_ids), workload,
+                        dispatch_limit(config, "style_dispatch_max_segments", 1400),
+                        "segments", args.allow_oversize)
+                    packages = [
+                        (f"style-package-{args.run_id}-{window_id}.md",
+                         style_package(root, config, args.run_id, window_id))
+                        for window_id in window_ids
+                    ]
+                if args.output_dir:
+                    for path in write_package_files(root, args.output_dir, packages):
+                        print(path)
+                    return 0
+                if len(packages) > 1:
+                    raise ValueError("multiple style files require --output-dir")
+                content = packages[0][1]
                 if args.output:
                     out = args.output if args.output.is_absolute() else root / args.output
                     out.parent.mkdir(parents=True, exist_ok=True)
@@ -5414,7 +7679,47 @@ def main() -> int:
                     root, config, args.run_id, args.window_id, args.patch,
                     args.report, args.actor)
             if args.style_command == "review":
-                content = style_review_package(root, config, args.run_id, args.window_id)
+                if args.output and args.output_dir:
+                    raise ValueError("use either -o or --output-dir, not both")
+                window_ids = list(dict.fromkeys(args.window_ids))
+                if len(window_ids) != len(args.window_ids):
+                    raise ValueError("duplicate style window IDs")
+                run = style_runs(load_style_events(root, config)).get(args.run_id)
+                if not run:
+                    raise ValueError(f"Unknown style run: {args.run_id}")
+                if int(run.get("schema_version", 1)) >= 4:
+                    by_window = {str(window["window_id"]): window
+                                 for window in run.get("windows", [])}
+                    workload = sum(int(by_window[window_id]["editable_count"])
+                                   for window_id in window_ids)
+                    workload_key = "segments"
+                    workload_limit = dispatch_limit(
+                        config, "style_dispatch_max_segments", 1400)
+                else:
+                    workload = sum(len(style_effective_changes(run, window_id))
+                                   for window_id in window_ids)
+                    workload_key = "changes"
+                    workload_limit = dispatch_limit(
+                        config, "style_review_dispatch_max_changes", 250)
+                enforce_dispatch_budget(
+                    "style review", len(window_ids), len(window_ids),
+                    dispatch_limit(config, "style_review_dispatch_max_files", 10),
+                    "files", args.allow_oversize)
+                enforce_dispatch_budget(
+                    "style review", len(window_ids), workload,
+                    workload_limit, workload_key, args.allow_oversize)
+                packages = [
+                    (f"style-review-package-{args.run_id}-{window_id}.md",
+                     style_review_package(root, config, args.run_id, window_id))
+                    for window_id in window_ids
+                ]
+                if args.output_dir:
+                    for path in write_package_files(root, args.output_dir, packages):
+                        print(path)
+                    return 0
+                if len(packages) > 1:
+                    raise ValueError("multiple style review files require --output-dir")
+                content = packages[0][1]
                 if args.output:
                     out = args.output if args.output.is_absolute() else root / args.output
                     out.parent.mkdir(parents=True, exist_ok=True)
@@ -5424,8 +7729,57 @@ def main() -> int:
                     print(content)
                 return 0
             if args.style_command == "fix":
-                content = style_revision_package(
-                    root, config, args.run_id, args.window_id, args.report)
+                if args.output and args.output_dir:
+                    raise ValueError("use either -o or --output-dir, not both")
+                run = style_runs(load_style_events(root, config)).get(args.run_id)
+                if not run:
+                    raise ValueError(f"Unknown style run: {args.run_id}")
+                if int(run.get("schema_version", 1)) == 3:
+                    raise ValueError(
+                        "comparative style runs close through style accept; "
+                        "style fix is retired")
+                if len(args.items) % 2:
+                    raise ValueError("style fix requires WINDOW REPORT pairs")
+                pairs = [(args.items[index], Path(args.items[index + 1]))
+                         for index in range(0, len(args.items), 2)]
+                window_ids = [window_id for window_id, _ in pairs]
+                if len(set(window_ids)) != len(window_ids):
+                    raise ValueError("duplicate style window IDs")
+                workload = 0
+                for window_id, report_path in pairs:
+                    report = report_path if report_path.is_absolute() else root / report_path
+                    if not report.exists():
+                        raise ValueError(f"Style review report not found: {report}")
+                    if int(run.get("schema_version", 1)) >= 4:
+                        errors, issues, _ = validate_tep_proofread_report(
+                            root, config, args.run_id, window_id, report)
+                        if errors:
+                            raise ValueError("; ".join(errors))
+                        workload += len(issues)
+                    else:
+                        _, report_ids = style_revision_report(report)
+                        workload += len(report_ids)
+                enforce_dispatch_budget(
+                    "style fix", len(pairs), len(pairs),
+                    dispatch_limit(config, "style_fix_dispatch_max_files", 10),
+                    "files", args.allow_oversize)
+                enforce_dispatch_budget(
+                    "style fix", len(pairs), workload,
+                    dispatch_limit(config, "style_fix_dispatch_max_issues", 80),
+                    "issues", args.allow_oversize)
+                packages = [
+                    (f"style-fix-package-{args.run_id}-{window_id}.md",
+                     style_revision_package(
+                         root, config, args.run_id, window_id, report_path))
+                    for window_id, report_path in pairs
+                ]
+                if args.output_dir:
+                    for path in write_package_files(root, args.output_dir, packages):
+                        print(path)
+                    return 0
+                if len(packages) > 1:
+                    raise ValueError("multiple style fix files require --output-dir")
+                content = packages[0][1]
                 if args.output:
                     out = args.output if args.output.is_absolute() else root / args.output
                     out.parent.mkdir(parents=True, exist_ok=True)
@@ -5437,6 +7791,31 @@ def main() -> int:
             if args.style_command == "accept":
                 return style_accept(root, config, args.run_id, args.window_id,
                                     args.report, args.reviewer)
+            if args.style_command == "amend-revert":
+                return style_amend_revert(
+                    root, config, args.run_id, args.window_id,
+                    args.segment_ids, args.actor, args.reason)
+            if args.style_command == "retire":
+                return style_retire_run(
+                    root, config, args.run_id, args.manifest,
+                    args.actor, args.reason)
+            if args.style_command == "finalize":
+                return style_finalize(root, config, args.run_id, args.window_id, args.actor)
+            if args.style_command == "complete":
+                return style_complete(root, config, args.run_id, args.actor)
+            if args.style_command == "siblings":
+                content = style_sibling_package(root, config, args.run_id)
+                if args.output:
+                    out = args.output if args.output.is_absolute() else root / args.output
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_text(content, encoding="utf-8")
+                    print(out)
+                else:
+                    print(content)
+                return 0
+            if args.style_command == "reconcile":
+                return style_reconcile_siblings(
+                    root, config, args.run_id, args.patch, args.actor)
             if args.style_command == "audit":
                 content = style_audit_package(root, config, args.run_id)
                 if args.output:

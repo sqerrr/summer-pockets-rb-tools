@@ -92,27 +92,30 @@ def style_build_preflight(config: dict, seg_dir: Path,
     events = read_jsonl(ledger_path)
     route_by_run: dict[str, str] = {}
     latest_run_by_route: dict[str, str] = {}
-    audits_by_run: dict[str, str] = {}
+    receipts_by_run: dict[str, str] = {}
+    retired_runs: set[str] = set()
     for event in events:
         if event.get("event") == "run_started":
             run_id = str(event["run_id"])
             route = str(event["route"])
             route_by_run[run_id] = route
             latest_run_by_route[route] = run_id
-        elif event.get("event") == "route_audited":
-            audits_by_run[str(event.get("run_id", ""))] = str(
+        elif event.get("event") in {"run_completed", "route_audited"}:
+            receipts_by_run[str(event.get("run_id", ""))] = str(
                 event.get("route_sha256", ""))
+        elif event.get("event") == "style_run_retired":
+            retired_runs.add(str(event.get("run_id", "")))
 
     selected_runs: dict[str, str] = {}
     failures = []
     for route, rows in sorted(rows_by_route.items()):
         current = text_hash(rows)
         run_id = latest_run_by_route.get(route)
-        audit_hash = audits_by_run.get(run_id or "")
-        if not run_id or not audit_hash:
+        completion_hash = None if run_id in retired_runs else receipts_by_run.get(run_id or "")
+        if not run_id or not completion_hash:
             failures.append(f"{route}: художественная вычитка не завершена")
-        elif audit_hash != current:
-            failures.append(f"{route}: текст изменился после сквозного аудита")
+        elif completion_hash != current:
+            failures.append(f"{route}: текст изменился после завершения вычитки")
         else:
             selected_runs[route] = run_id
     if failures:

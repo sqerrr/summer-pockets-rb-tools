@@ -4,7 +4,7 @@
   "type": "object",
   "required": ["schema_version", "event"],
   "properties": {
-    "schema_version": {"const": 1},
+    "schema_version": {"enum": [1, 2]},
     "event": {
       "enum": [
         "ledger_initialized",
@@ -13,8 +13,10 @@
         "review_rechecked",
         "review_accepted",
         "review_issue_superseded",
+        "review_issue_reverted",
         "review_invalidated",
-        "review_finalization_blocked"
+        "review_finalization_blocked",
+        "review_run_superseded"
       ]
     },
     "review_id": {"type": "string", "pattern": "^REV-SCN[0-9]{4}-[0-9]{2}$"},

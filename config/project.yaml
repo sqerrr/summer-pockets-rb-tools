@@ -117,10 +117,13 @@ engine:
     lower: U+0121..U+0140 = а..я без ё
     lower_yo: U+0141 = ё
 workflow:
+  finalization_mode: tep
   context_previous_segments: 20
   context_next_segments: 10
   review_issue_context_segments: 5
   agent_context_window_tokens: 370000
+  style_dispatch_target_context_percent: 65
+  style_dispatch_max_context_percent: 70
   translation_dispatch_max_segments: 1125
   translation_dispatch_max_files: 5
   review_initial_dispatch_max_segments: 750
@@ -132,9 +135,15 @@ workflow:
   internal_examples_limit: 20
   external_reference_limit: 3
   max_scene_segments: 400
-  style_window_min: 600
-  style_window_max: 1000
-  style_context_segments: 75
+  style_window_min: 400
+  style_window_max: 700
+  style_context_segments: 50
+  style_dispatch_max_segments: 1400
+  style_dispatch_max_files: 3
+  style_review_dispatch_max_changes: 250
+  style_review_dispatch_max_files: 10
+  style_fix_dispatch_max_issues: 80
+  style_fix_dispatch_max_files: 10
   style_service_routes:
   - BLK0001
   - BLK0019

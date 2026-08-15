@@ -46,23 +46,45 @@ Then:
    packages and do not create a wrapper manifest; the reviewer closes one file
    before reading the next.
 3. Dispatch `vn-stylist` on `vnctl review fix`. It is the only post-review
-   editor: the first fix receives the complete scene context and resolves every
-   imported issue through `vnctl review resolve`. Later resolution rounds receive
-   only remaining issue IDs. Closed issues are not sent again after a revise
-   verdict. Generate several ordinary files with
-   `vnctl review fix REVIEW... --output-dir build`; their printed paths may share
-   one stylist call when the combined input fits comfortably.
-4. Dispatch a source-aware reviewer on `vnctl review recheck` exactly once per
-   run. Accept verdicts close normally. A revise verdict must give final text for
-   every reopened issue; `vn-stylist` applies that focused delta, then
-   `vnctl review finalize` closes it without another reviewer. A tooling or policy
-   conflict goes through `vnctl review block` to `review wait`, never into a
-   fix/recheck loop. Generate several ordinary files with
+    editor: the first fix receives the complete scene context and resolves every
+    substantive imported issue through `vnctl review resolve`. Ordinary runs then
+    close with `vnctl review finalize`. Generate several ordinary files with
+    `vnctl review fix REVIEW... --output-dir build`; their printed paths may share
+    one stylist call when the combined input fits comfortably.
+4. Dispatch `vnctl review recheck` only for critical or explicitly escalated
+   risk, and at most once per run. A revise verdict must give an exact machine
+   final delta; `vn-stylist` applies it once, then `vnctl review finalize` closes
+   without another reviewer. A tooling or policy conflict terminates the run via
+   `review block`; later work starts a linked amendment run. Generate ordinary files with
    `vnctl review recheck REVIEW... --output-dir build`; their printed paths may
    share one reviewer call while retaining separate verdict files.
 5. Run `validate`, `index`, `work queue` and `stats`. Always report translated
    segments as `translated/total`, percentage and status counts after the whole
    parallel wave, never from a worker's stale partial snapshot.
+
+For final TEP work, generate ordinary whole-scene files in batches instead of
+manual one-window commands:
+
+```bash
+python tools/vnctl.py style next RUN --window W001 W003 --output-dir build
+python tools/vnctl.py style review RUN W001 W003 --output-dir build
+```
+
+These commands create separate per-scene packages, never a wrapper or combined
+prompt. Plan around the configured 65% target and do not exceed 70%. A single
+writer closes files sequentially; parallel writers must not edit the same scene.
+
+Dispatch `style next` packages to source-aware `vn-stylist`, the only final
+writer. Dispatch generated `style review` packages only to Russian-only
+`vn-proofreader`; it returns substantive issues without replacements and never
+changes canonical. Import the report with `style accept`: zero issues accepts
+the scene. For issues, generate `style fix`, let the same source-aware editor
+apply or reject every issue once with `style revise`, then close through
+`style finalize`. Never run a second proofreader loop.
+
+Historical schema 1-3 style runs remain readable but are not started in
+production. `style retire` applies a complete exact rollback/keep/quarantine
+manifest and invalidates the old completion receipt before a schema-v4 TEP run.
 
 After a wave is verified, immediately launch the next ready parallel wave. Do
 not wait for a separate user confirmation between batches. Continue until the
@@ -97,8 +119,8 @@ asks only project-wide conflicts, grouped into short interactive questions;
 all other reviewer issues must be either applied or rejected with a tracked
 reason.
 
-`vn-knowledge` after a block, `vn-auditor` after several: the auditor needs
-accumulated volume to find anything.
+`vn-knowledge` after a block. Cross-scene audit uses bounded candidate clusters
+and samples; never put a whole multi-thousand-segment block into one prompt.
 
 ## Verify by files, not by the report
 

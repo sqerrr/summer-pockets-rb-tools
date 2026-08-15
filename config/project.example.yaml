@@ -49,6 +49,7 @@ integration:
   smoke_test_command: ""
 
 workflow:
+  finalization_mode: tep
   context_previous_segments: 20
   context_next_segments: 10
   internal_examples_limit: 20
