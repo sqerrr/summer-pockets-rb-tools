@@ -4,6 +4,7 @@
     game_steam.ps1 -Action launch [-Wait 30]
     game_steam.ps1 -Action resume [-Out path.png]
     game_steam.ps1 -Action shot [-Out path.png] [-Full]
+    game_steam.ps1 -Action opening [-Out path-prefix] [-Frames 50] [-Interval 600]
     game_steam.ps1 -Action click -X 960 -Y 540
     game_steam.ps1 -Action key -Key ENTER
     game_steam.ps1 -Action keydown -Key LCTRL
@@ -16,13 +17,15 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('launch', 'resume', 'shot', 'click', 'key', 'keydown', 'keyup', 'state', 'info', 'exit', 'close')]
+    [ValidateSet('launch', 'resume', 'opening', 'shot', 'click', 'key', 'keydown', 'keyup', 'state', 'info', 'exit', 'close')]
     [string]$Action,
     [int]$Wait = 30,
     [string]$Out,
     [int]$X,
     [int]$Y,
     [string]$Key,
+    [int]$Frames = 50,
+    [int]$Interval = 600,
     [switch]$Full
 )
 
@@ -237,6 +240,24 @@ switch ($Action) {
         if (-not (Wait-ScreenState $hwnd 'game' 40)) { throw 'Saved scene did not load' }
         Start-Sleep -Milliseconds 700
         Save-Shot $hwnd $Out
+    }
+    'opening' {
+        $hwnd = Start-Game $Wait
+        Set-GameFocus $hwnd
+        for ($i = 0; $i -lt 45; $i++) {
+            if ((Get-ScreenState $hwnd) -eq 'title') { break }
+            Invoke-ClientClick $hwnd 960 1000
+            Start-Sleep -Milliseconds 500
+        }
+        if ((Get-ScreenState $hwnd) -ne 'title') { throw 'Title screen did not appear' }
+        if (-not $Out) { $Out = Join-Path $ShotDir 'opening-preview' }
+        Invoke-ClientClick $hwnd 330 365
+        for ($i = 0; $i -lt $Frames; $i++) {
+            Start-Sleep -Milliseconds $Interval
+            $path = '{0}-{1:D3}.png' -f $Out, $i
+            Save-Shot $hwnd $path | Out-Null
+        }
+        "Captured $Frames opening frames with prefix $Out"
     }
     'shot' {
         Save-Shot (Get-GameWindow) $Out -FullScreen:$Full

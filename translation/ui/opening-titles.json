@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "asset_id": "opening_intertitles",
+  "archive": "OTHCG.PAK",
+  "source_language": "en",
+  "pristine_sha256": "sha256:9f6bb18ee3e33ae51fc1dd9b0e89a8cdb5d702684690baf6ecdbbf1d24b24f6f",
+  "status": "approved",
+  "approved_by": "user",
+  "approved_date": "2026-08-18T19:07:04+03:00",
+  "render": {
+    "canvas_size": [1920, 1080],
+    "text_center": [960, 547],
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "font_size": 72,
+    "max_text_width": 1600,
+    "halo_width": 5,
+    "inner_stroke_width": 1,
+    "glow_color": [148, 184, 237],
+    "fill_color": [255, 255, 255],
+    "inner_stroke_color": [205, 222, 247],
+    "far_glow_radius": 8,
+    "far_glow_alpha": 0.3,
+    "near_glow_radius": 4,
+    "near_glow_alpha": 0.6,
+    "long_line_policy": "horizontal_scale_only"
+  },
+  "entries": [
+    {
+      "entry_name": "EF_CHARACTER01_00en",
+      "entry_id": 25257,
+      "text_ru": "Давным-давно."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_01en",
+      "entry_id": 25260,
+      "text_ru": "Когда я был ещё маленьким."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_02en",
+      "entry_id": 25263,
+      "text_ru": "Я беззаботно носился всё лето, и казалось, ему не будет конца."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_03en",
+      "entry_id": 25266,
+      "text_ru": "С семьёй."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_04en",
+      "entry_id": 25269,
+      "text_ru": "С друзьями."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_05en",
+      "entry_id": 25272,
+      "text_ru": "И сколько бы я ни играл, всегда находилось чем заняться."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_06en",
+      "entry_id": 25275,
+      "text_ru": "А солнце заливало ярким светом каждый такой день."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_07en",
+      "entry_id": 25278,
+      "text_ru": "Но незаметно эти воспоминания затерялись в глубинах памяти."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_08en",
+      "entry_id": 25281,
+      "text_ru": "И всё же я помню сияние, коснувшееся моих век в тот день."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_09en",
+      "entry_id": 25284,
+      "text_ru": "В поисках того сияния я полетел вперёд."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_10en",
+      "entry_id": 25287,
+      "text_ru": "На крохотных крыльях я пытался перелететь огромный океан."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_11en",
+      "entry_id": 25290,
+      "text_ru": "Вдали я увидел маленькую тень."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_12en",
+      "entry_id": 25293,
+      "text_ru": "Едва различимую тень над океаном."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_13en",
+      "entry_id": 25296,
+      "text_ru": "А-а…"
+    },
+    {
+      "entry_name": "EF_CHARACTER01_14en",
+      "entry_id": 25299,
+      "text_ru": "До цели оставалось совсем немного."
+    },
+    {
+      "entry_name": "EF_CHARACTER01_15en",
+      "entry_id": 25302,
+      "text_ru": "Ещё немного — и я доберусь…"
+    },
+    {
+      "entry_name": "EF_CHARACTER01_16en",
+      "entry_id": 25305,
+      "text_ru": "До того лета."
+    }
+  ]
+}

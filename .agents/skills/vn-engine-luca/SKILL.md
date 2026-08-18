@@ -94,6 +94,24 @@ It does not map `«»`. Canonical translation retains standard Unicode; any
 display substitution or INFO-table patch belongs to build configuration and
 must be verified separately.
 
+## Opening Images
+
+The approved 17 opening intertitles are image assets, not EXE strings. Their
+canonical Russian text, exact OTHCG entry IDs, pristine hash, approval state and
+render profile live in `translation/ui/opening-titles.json`.
+
+```bash
+python game-tools/build_luca_opening_images.py
+python game-tools/build_luca_opening_images.py --install
+powershell -File game-tools/game_steam.ps1 -Action opening -Out build/steam/opening-check -Frames 80 -Interval 1200
+powershell -File game-tools/game_steam.ps1 -Action exit
+```
+
+Build only from the hash-pinned pristine OTHCG backup. Preserve all PAK entry
+IDs, names, order, image geometry and canvas metadata; validate all 17 payloads
+and decoded pixel buffers through a fresh `Pak`. Do not patch the EXE for these
+titles. Restore with `--restore-installed` only while the game is closed.
+
 ## Russian Language Slot
 
 `DEC-0024` is the active delivery decision:

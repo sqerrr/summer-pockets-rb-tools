@@ -184,6 +184,37 @@ powershell -File game-tools/game_steam.ps1 -Action exit
 как `U+2014`, `U+2026`, `U+275D/U+275E` присутствуют во всех 17 регулярных
 таблицах `FONT__INFO.PAK`; `info40` покрывает 66/66 русских букв.
 
+## Стартовые интертитры
+
+Канонический источник: `translation/ui/opening-titles.json`. Он содержит 17
+русских строк и одобренный render profile для английских image entries
+`EF_CHARACTER01_00en`..`EF_CHARACTER01_16en`.
+
+```powershell
+python game-tools/build_luca_opening_images.py
+powershell -File game-tools/game_steam.ps1 -Action opening -Out build/steam/opening-preview-shot -Frames 80 -Interval 1200
+powershell -File game-tools/game_steam.ps1 -Action exit
+```
+
+```text
+pristine OTHCG.PAK entries       2127
+pristine OTHCG.PAK sha256        9F6BB18EE3E33AE51FC1DD9B0E89A8CDB5D702684690BAF6ECDBBF1D24B24F6F
+source image codec               CZ3
+replaced entries                 17
+replacement codec               CZ0 RGBA
+replacement size                8294464 bytes each
+output OTHCG.PAK sha256          86E42DC14DD7E3272EBDB2845537A62BA227CA8A0A4411EE5A4A1300FDF435C0
+independent payload read-back    17/17
+independent pixel read-back      17/17
+captured opening cards           17/17
+```
+
+Новый экземпляр `Pak` подтвердил неизменность 2127 ID, имён и порядка записей,
+побайтовое совпадение 17 payload и повторное декодирование pixels. 80 кадров с
+интервалом 1200 мс покрыли весь fade-цикл: после последней карточки игра перешла
+в сцену. Пользователь просмотрел установленный вариант и утвердил его
+2026-08-18 (`DEC-0038`, `FND-0084`).
+
 ## Текущее установленное состояние
 
 После теста архив игры восстановлен не в pristine-состояние, а в безопасную

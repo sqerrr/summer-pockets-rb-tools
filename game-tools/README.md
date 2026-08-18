@@ -15,11 +15,27 @@
 | `luca.py` | PAK, байткод, строки, LZW, глобальная релокация и валидация ссылок |
 | `export_luca_sources.py` | Детерминированный каталог `ja`/`en`/`zh-Hans` и безопасный манифест |
 | `build_luca_test.py` | Диагностическая сборка русских строк; **не** release builder |
-| `game_steam.ps1` | Запуск, загрузка тестового сейва, скриншот и штатный UI-выход |
+| `luca_image.py` | Строгий декодер CZ0-CZ3 и lossless encoder CZ0 |
+| `build_luca_opening_images.py` | Сборка одобренных стартовых интертитров из `translation/ui/opening-titles.json` |
+| `game_steam.ps1` | Запуск, загрузка тестового сейва, capture вступления, скриншот и штатный UI-выход |
 
 Полный исходный текст создаётся только в игнорируемом `source/parsed/`.
 Канонический русский хранится прямым Unicode и попадает в PAK только через
 relocation-safe сборку.
+
+Стартовые интертитры собираются отдельно из hash-pinned pristine
+`build/steam/OTHCG.pristine.PAK`. Канонический файл содержит все 17 строк,
+точные entry ID, статус пользовательского одобрения и render profile:
+
+```bash
+python game-tools/build_luca_opening_images.py
+python game-tools/build_luca_opening_images.py --install
+```
+
+Результат: `build/steam/OTHCG.russian-opening.PAK` и
+`build/steam/opening-images-receipt.json`. Перед `--install` игра должна быть
+закрыта; установленный архив можно безопасно вернуть командой
+`python game-tools/build_luca_opening_images.py --restore-installed`.
 
 ## probes/
 
