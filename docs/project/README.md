@@ -10,6 +10,7 @@
 | `findings.jsonl` | Действующие технические факты и ограничения | При каждой проверенной находке |
 | `findings-archive.jsonl` | Опровергнутая, legacy и закрытая техническая история | После утраты ежедневной актуальности |
 | `luca-format.md` | Формат Steam/LUCA: PAK, записи сценария, строки и релокация | При уточнении формата Steam-версии |
+| `external-translator-client-design.md` | Архитектурный черновик Delphi-клиента и безопасного обмена заданиями | При проектировании внешнего переводческого инструмента |
 | `evidence/steam-luca-verification.md` | Воспроизводимый отчёт проверки Steam/LUCA | После новых сборочных или игровых проверок |
 | `../../.agents/skills/vn-engine-luca/SKILL.md` | Рабочие инварианты активного LUCA-адаптера | При изменении build-процесса |
 | `../../.agents/skills/vn-engine-siglus/references/siglus-format.md` | Спецификация legacy Siglus | При уточнении старого формата |
