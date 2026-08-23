@@ -1,0 +1,2314 @@
+{
+  "schema": "manual-deck-transcription-v1",
+  "status": "draft",
+  "scope": {
+    "archive": "MANUAL_DECK.PAK",
+    "requested_names": [
+      "deck_en_manual08",
+      "deck_en_manual09",
+      "deck_en_manual10",
+      "deck_en_manual11",
+      "deck_en_manual12",
+      "deck_en_manual13"
+    ],
+    "overlay_rule": "Include every English Linkto overlay belonging to deck_en_manual08 through deck_en_manual13.",
+    "source_catalog": "build/steam/ui-assets/MANUAL_DECK/catalog.jsonl",
+    "source_images_directory": "build/steam/ui-assets/MANUAL_DECK/images"
+  },
+  "counts": {
+    "entries": 16,
+    "base_pages": 6,
+    "help_pages": 0,
+    "manual_pages": 6,
+    "linkto_overlays": 10,
+    "segments": 174
+  },
+  "translation_conventions": [
+    "Hardware and on-screen button labels remain exactly recognizable in Latin script: A, X, Y, L1, R1, MENU, VIEW, SAVE, LOAD, RECORD, OPTIONS, TITLE, QUICK SAVE, QUICK LOAD, MANUAL, EXIT, START, AUTO, SKIP and Close.",
+    "Page references preserve the original destination number and use the Russian form 'стр.'.",
+    "Product title Summer Pockets REFLECTION BLUE and platform name Steam Deck are not translated.",
+    "Russian is segmented by visible semantic block rather than by raster line wrapping; final typesetting may reflow within each recorded region.",
+    "Font names are not asserted from raster evidence. Notes describe observable class, weight, effects and hierarchy only."
+  ],
+  "global_layout_font_color_notes": {
+    "canvas": "Manual pages are sparse transparent sprites positioned on a nominal white presentation surface; catalog width/height and offsets are authoritative for reconstruction.",
+    "hierarchy": "White display titles with electric-blue outlines/glows; black rounded body copy; royal-blue section labels; bright-green base cross-references replaced by separate blue-and-white Linkto overlays.",
+    "typesetting_risk": "Russian expansion is substantial in dense feature, options and gesture blocks. Preserve hardware labels, destination numerals and screenshot geometry first; use moderate condensation or slightly smaller body size before changing regions. Do not remove the blue outline/glow from title and overlay text."
+  },
+  "entries": [
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 35,
+        "entry_id": 62035,
+        "name": "deck_en_manual08",
+        "offset": 3418112,
+        "size": 104556,
+        "payload_sha256": "sha256:d2fc86b81f0491b3945a0a70e17a6911ef62f013619a4b651dfcbc7bfd84888b",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 830,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 19,
+        "canvas_width": 1824,
+        "canvas_height": 830,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0035-deck_en_manual08.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 8,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "System Menu overview. A screenshot and short invocation instruction occupy the upper-left. Two columns below describe five left-side and four right-side menu commands. Five Linkto overlays replace green cross-references.",
+      "font_notes": "Rounded sans-serif body; bold royal-blue command labels with diamond bullets. Main title uses white rounded display letters with blue outline/glow. Embedded screenshot UI is much smaller and uses the game's mixed serif/display lettering.",
+      "color_notes": "Transparent/white page; black body; royal-blue command labels; green base links; screenshot framed in blue. Linkto overlays use white fill with vivid blue outline and glow.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual08:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "System Menu",
+          "russian": "Системное меню",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 8",
+          "russian": "СТР. 8",
+          "confidence": "exact",
+          "page_references": [
+            8
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:003",
+          "order": 3,
+          "region": "upper intro",
+          "role": "body",
+          "english": "Press the X button, or Flick Up during play to bring up the System Menu.",
+          "russian": "Чтобы открыть системное меню во время игры, нажмите кнопку X или смахните вверх.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "X"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:004",
+          "order": 4,
+          "region": "left commands",
+          "role": "menu item",
+          "english": "SAVE",
+          "russian": "SAVE",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "SAVE"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:005",
+          "order": 5,
+          "region": "left commands",
+          "role": "body",
+          "english": "Save the progress of the game.",
+          "russian": "Сохранить прогресс игры.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:006",
+          "order": 6,
+          "region": "left commands",
+          "role": "cross-reference",
+          "english": "See details on page 13 “Save”",
+          "russian": "Подробнее на стр. 13 «Сохранение».",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:007",
+          "order": 7,
+          "region": "left commands",
+          "role": "menu item",
+          "english": "LOAD",
+          "russian": "LOAD",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "LOAD"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:008",
+          "order": 8,
+          "region": "left commands",
+          "role": "body",
+          "english": "Load a save and continue.",
+          "russian": "Загрузить сохранение и продолжить игру.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:009",
+          "order": 9,
+          "region": "left commands",
+          "role": "cross-reference",
+          "english": "See details on page 13 “Load”",
+          "russian": "Подробнее на стр. 13 «Загрузка».",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:010",
+          "order": 10,
+          "region": "left commands",
+          "role": "menu item",
+          "english": "RECORDS",
+          "russian": "RECORDS",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "RECORDS"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:011",
+          "order": 11,
+          "region": "left commands",
+          "role": "body",
+          "english": "See your game records here.",
+          "russian": "Просмотреть игровые достижения и статистику.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:012",
+          "order": 12,
+          "region": "left commands",
+          "role": "menu item",
+          "english": "OPTIONS",
+          "russian": "OPTIONS",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "OPTIONS"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:013",
+          "order": 13,
+          "region": "left commands",
+          "role": "body",
+          "english": "Open the Options screen to change the settings.",
+          "russian": "Открыть экран настроек.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:014",
+          "order": 14,
+          "region": "left commands",
+          "role": "cross-reference",
+          "english": "See details on page 11 “Options”",
+          "russian": "Подробнее на стр. 11 «Настройки».",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:015",
+          "order": 15,
+          "region": "left commands",
+          "role": "menu item",
+          "english": "TITLE",
+          "russian": "TITLE",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "TITLE"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:016",
+          "order": 16,
+          "region": "left commands",
+          "role": "body",
+          "english": "Suspend the game and return to the title screen.",
+          "russian": "Прервать игру и вернуться на титульный экран.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:017",
+          "order": 17,
+          "region": "left commands",
+          "role": "warning",
+          "english": "Please note that any unsaved progress will be lost.",
+          "russian": "Весь несохранённый прогресс будет потерян.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:018",
+          "order": 18,
+          "region": "right commands",
+          "role": "menu item",
+          "english": "QUICK SAVE",
+          "russian": "QUICK SAVE",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "QUICK SAVE"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:019",
+          "order": 19,
+          "region": "right commands",
+          "role": "body",
+          "english": "Save progress without opening the save screen.",
+          "russian": "Сохранить прогресс, не открывая экран сохранения.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:020",
+          "order": 20,
+          "region": "right commands",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Quick Save”",
+          "russian": "Подробнее на стр. 10 «Быстрое сохранение».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:021",
+          "order": 21,
+          "region": "right commands",
+          "role": "menu item",
+          "english": "QUICK LOAD",
+          "russian": "QUICK LOAD",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "QUICK LOAD"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:022",
+          "order": 22,
+          "region": "right commands",
+          "role": "body",
+          "english": "Resume the game from the Quick Save.",
+          "russian": "Продолжить игру с быстрого сохранения.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:023",
+          "order": 23,
+          "region": "right commands",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Quick Load”",
+          "russian": "Подробнее на стр. 10 «Быстрая загрузка».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:024",
+          "order": 24,
+          "region": "right commands",
+          "role": "menu item",
+          "english": "MANUAL",
+          "russian": "MANUAL",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MANUAL"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:025",
+          "order": 25,
+          "region": "right commands",
+          "role": "body",
+          "english": "Open this Manual.",
+          "russian": "Открыть это руководство.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:026",
+          "order": 26,
+          "region": "right commands",
+          "role": "menu item",
+          "english": "EXIT",
+          "russian": "EXIT",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "EXIT"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:027",
+          "order": 27,
+          "region": "right commands",
+          "role": "body",
+          "english": "Exit the Game.",
+          "russian": "Выйти из игры.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:028",
+          "order": 28,
+          "region": "right commands",
+          "role": "warning",
+          "english": "Please note that any unsaved progress will be lost.",
+          "russian": "Весь несохранённый прогресс будет потерян.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual08:029",
+          "order": 29,
+          "region": "embedded screenshot",
+          "role": "system menu labels",
+          "english": "SAVE / LOAD / RECORD / OPTIONS / TITLE / QUICK SAVE / QUICK LOAD / MANUAL / EXIT",
+          "russian": "SAVE / LOAD / RECORD / OPTIONS / TITLE / QUICK SAVE / QUICK LOAD / MANUAL / EXIT",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "SAVE",
+            "LOAD",
+            "RECORD",
+            "OPTIONS",
+            "TITLE",
+            "QUICK SAVE",
+            "QUICK LOAD",
+            "MANUAL",
+            "EXIT"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual08:030",
+          "order": 30,
+          "region": "embedded screenshot",
+          "role": "dialogue",
+          "english": "“A wounded migratory bird, I guess.”",
+          "russian": "«Похоже, раненая перелётная птица».",
+          "confidence": "exact",
+          "note": "Tiny in-game screenshot text."
+        },
+        {
+          "segment_id": "deck_en_manual08:031",
+          "order": 31,
+          "region": "embedded screenshot",
+          "role": "shortcut labels",
+          "english": "MENU / SKIP / AUTO / Close",
+          "russian": "MENU / SKIP / AUTO / Close",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU",
+            "SKIP",
+            "AUTO",
+            "Close"
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 36,
+        "entry_id": 62036,
+        "name": "deck_en_manual08_Linkto_1_13",
+        "offset": 3524608,
+        "size": 11154,
+        "payload_sha256": "sha256:d6bcfb1c5f4a43dc9ed8246918ac61f028ee2f3396e5fa00201936fc0cda99cc",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 448,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 240,
+        "offset_y": 429,
+        "canvas_width": 448,
+        "canvas_height": 47,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0036-deck_en_manual08_Linkto_1_13.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 8,
+      "parent_name": "deck_en_manual08",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text forms one compact line beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual08_Linkto_1_13:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 13 “Save”",
+          "russian": "Подробнее на стр. 13 «Сохранение».",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 37,
+        "entry_id": 62037,
+        "name": "deck_en_manual08_Linkto_2_13",
+        "offset": 3536896,
+        "size": 11280,
+        "payload_sha256": "sha256:30fcac32ecb61b51a9f70c0f7386bbe9de9b8174521728432cf756e6e580bd7a",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 448,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 240,
+        "offset_y": 535,
+        "canvas_width": 448,
+        "canvas_height": 47,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0037-deck_en_manual08_Linkto_2_13.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 8,
+      "parent_name": "deck_en_manual08",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text forms one compact line beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual08_Linkto_2_13:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 13 “Load”",
+          "russian": "Подробнее на стр. 13 «Загрузка».",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 38,
+        "entry_id": 62038,
+        "name": "deck_en_manual08_Linkto_3_11",
+        "offset": 3549184,
+        "size": 12120,
+        "payload_sha256": "sha256:8cfc8da1fae06d504382bcfeacdf4605818391bd688e526dfb3733207cf43b01",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 480,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 240,
+        "offset_y": 708,
+        "canvas_width": 480,
+        "canvas_height": 47,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0038-deck_en_manual08_Linkto_3_11.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 8,
+      "parent_name": "deck_en_manual08",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text forms one compact line beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual08_Linkto_3_11:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 11 “Options”",
+          "russian": "Подробнее на стр. 11 «Настройки».",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 39,
+        "entry_id": 62039,
+        "name": "deck_en_manual08_Linkto_4_10",
+        "offset": 3561472,
+        "size": 12960,
+        "payload_sha256": "sha256:b9ebecbd4e3db2b5a94d870fead0cc6b712bf16f75a3529ad548601b72c4fa5a",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 528,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 1136,
+        "offset_y": 429,
+        "canvas_width": 528,
+        "canvas_height": 46,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0039-deck_en_manual08_Linkto_4_10.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 8,
+      "parent_name": "deck_en_manual08",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text forms one compact line beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual08_Linkto_4_10:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Quick Save”",
+          "russian": "Подробнее на стр. 10 «Быстрое сохранение».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 40,
+        "entry_id": 62040,
+        "name": "deck_en_manual08_Linkto_5_10",
+        "offset": 3575808,
+        "size": 12978,
+        "payload_sha256": "sha256:78ca363ce8ab107fbc7bdec931d5558b5b493cc338c7b36f0e4e14cd80fb1b0e",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 528,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 1136,
+        "offset_y": 536,
+        "canvas_width": 528,
+        "canvas_height": 45,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0040-deck_en_manual08_Linkto_5_10.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 8,
+      "parent_name": "deck_en_manual08",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text forms one compact line beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual08_Linkto_5_10:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Quick Load”",
+          "russian": "Подробнее на стр. 10 «Быстрая загрузка».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 41,
+        "entry_id": 62041,
+        "name": "deck_en_manual09",
+        "offset": 3590144,
+        "size": 98386,
+        "payload_sha256": "sha256:8e19970b055754996ce3c497e64cb193ae61feba76896815adaea778b8c83f7a",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 718,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 20,
+        "canvas_width": 1824,
+        "canvas_height": 718,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0041-deck_en_manual09.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 9,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Two-column Features page. Skip/Rewind is on the left and Jump on the right; each has a prose block and a pale-blue Touch Gestures panel. Three Linkto overlays replace green references.",
+      "font_notes": "Black bold subsection heads with butterfly ornaments and rules; rounded black body text; royal-blue information headings. Main title and page badge use white lettering with blue outline/glow.",
+      "color_notes": "Transparent/white page; black body and rules; royal-blue info headings; pale powder-blue gesture panels; bright-green base references and blue-and-white overlays.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual09:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "Features",
+          "russian": "Функции",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 9",
+          "russian": "СТР. 9",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual09:003",
+          "order": 3,
+          "region": "left upper",
+          "role": "section heading",
+          "english": "Skip and Rewind — L1•R1 button",
+          "russian": "Пропуск и перемотка — кнопки L1 и R1",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "L1",
+            "R1"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual09:004",
+          "order": 4,
+          "region": "left upper",
+          "role": "body",
+          "english": "Skip or rewind messages.",
+          "russian": "Пропускать или перематывать сообщения.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:005",
+          "order": 5,
+          "region": "left upper",
+          "role": "body",
+          "english": "Previously read messages are skipped while R1 is pressed.",
+          "russian": "Удерживайте R1, чтобы пропускать уже прочитанные сообщения.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "R1"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual09:006",
+          "order": 6,
+          "region": "left upper",
+          "role": "body",
+          "english": "You can also rewind up to 500 messages back by pressing and holding L1. This is possible even after loading your save data.",
+          "russian": "Удерживая L1, можно перемотать назад до 500 сообщений. Это доступно даже после загрузки сохранения.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "L1"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual09:007",
+          "order": 7,
+          "region": "left upper",
+          "role": "body",
+          "english": "Controls can be changed in OPTIONS.",
+          "russian": "Управление можно изменить в OPTIONS.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "OPTIONS"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual09:008",
+          "order": 8,
+          "region": "left upper",
+          "role": "cross-reference",
+          "english": "See details on page 11 “Options”",
+          "russian": "Подробнее на стр. 11 «Настройки».",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual09:009",
+          "order": 9,
+          "region": "left gesture box",
+          "role": "heading",
+          "english": "Touch Gestures",
+          "russian": "Сенсорные жесты",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:010",
+          "order": 10,
+          "region": "left gesture box",
+          "role": "body",
+          "english": "You can skip or rewind messages by dragging or flicking inside the message window.",
+          "russian": "Проводите или смахивайте внутри окна сообщений, чтобы пропускать или перематывать сообщения.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:011",
+          "order": 11,
+          "region": "left gesture box",
+          "role": "gesture/action",
+          "english": "Rewind: Drag Left / Skip: Drag Right — The farther you drag, the faster you'll skip/rewind.",
+          "russian": "Перемотка: провести влево. / Пропуск: провести вправо. Чем дальше проведёте, тем быстрее будет пропуск или перемотка.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:012",
+          "order": 12,
+          "region": "left gesture box",
+          "role": "gesture/action",
+          "english": "Auto Rewind: Flick Left / Auto Skip: Flick Right (Tap to stop.)",
+          "russian": "Автоперемотка: смахнуть влево. / Автопропуск: смахнуть вправо. (Чтобы остановить, коснитесь экрана.)",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:013",
+          "order": 13,
+          "region": "left gesture box",
+          "role": "body",
+          "english": "Directional settings for drag/flick can be changed in OPTIONS.",
+          "russian": "Направления проведения и смахивания можно изменить в OPTIONS.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "OPTIONS"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual09:014",
+          "order": 14,
+          "region": "left gesture box",
+          "role": "cross-reference",
+          "english": "See details on page 12 “Touch”",
+          "russian": "Подробнее на стр. 12 «Сенсорное управление».",
+          "confidence": "exact",
+          "page_references": [
+            12
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual09:015",
+          "order": 15,
+          "region": "right upper",
+          "role": "section heading",
+          "english": "Jump — Left thumbstick Left / Right",
+          "russian": "Переход — левый стик влево / вправо",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:016",
+          "order": 16,
+          "region": "right upper",
+          "role": "body",
+          "english": "Moving the left thumbstick to the right takes you to the next choice, while moving it to the left takes you to the previous choice. Jump to the start of previously read choice.",
+          "russian": "Отклоните левый стик вправо, чтобы перейти к следующему выбору, или влево, чтобы перейти к предыдущему. Переход выполняется к началу уже прочитанного выбора.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:017",
+          "order": 17,
+          "region": "right gesture box",
+          "role": "heading",
+          "english": "Touch Gestures",
+          "russian": "Сенсорные жесты",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:018",
+          "order": 18,
+          "region": "right gesture box",
+          "role": "body",
+          "english": "You can jump by flicking outside the message window.",
+          "russian": "Чтобы переходить между выборами, смахивайте за пределами окна сообщений.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:019",
+          "order": 19,
+          "region": "right gesture box",
+          "role": "gesture/action",
+          "english": "Jump (Backward): Flick Left. Return to previous choice.",
+          "russian": "Переход назад: смахнуть влево. Вернуться к предыдущему выбору.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:020",
+          "order": 20,
+          "region": "right gesture box",
+          "role": "gesture/action",
+          "english": "Jump (Forward): Flick Right. Jump to the next choice, or to your last read message if there are no available choices.",
+          "russian": "Переход вперёд: смахнуть вправо. Перейти к следующему выбору, а если доступных выборов нет — к последнему прочитанному сообщению.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual09:021",
+          "order": 21,
+          "region": "right gesture box",
+          "role": "body",
+          "english": "Directional settings for flick can be changed in OPTIONS.",
+          "russian": "Направления смахивания можно изменить в OPTIONS.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "OPTIONS"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual09:022",
+          "order": 22,
+          "region": "right gesture box",
+          "role": "cross-reference",
+          "english": "See details on page 12 “Touch”",
+          "russian": "Подробнее на стр. 12 «Сенсорное управление».",
+          "confidence": "exact",
+          "page_references": [
+            12
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 42,
+        "entry_id": 62042,
+        "name": "deck_en_manual09_Linkto_3_11",
+        "offset": 3690496,
+        "size": 12142,
+        "payload_sha256": "sha256:e1f88e783843105025d16a1c996f473217f0ee70909901000a7107b52d6eb641",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 496,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 318,
+        "canvas_width": 496,
+        "canvas_height": 45,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0042-deck_en_manual09_Linkto_3_11.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 9,
+      "parent_name": "deck_en_manual09",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text forms one compact line beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual09_Linkto_3_11:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 11 “Options”",
+          "russian": "Подробнее на стр. 11 «Настройки».",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 43,
+        "entry_id": 62043,
+        "name": "deck_en_manual09_Linkto_4_12",
+        "offset": 3702784,
+        "size": 11294,
+        "payload_sha256": "sha256:47e7b679b891aebdad83eb559b2b448bca6c0fcbd37448dc527052b133b016b2",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 464,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 64,
+        "offset_y": 685,
+        "canvas_width": 464,
+        "canvas_height": 45,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0043-deck_en_manual09_Linkto_4_12.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 9,
+      "parent_name": "deck_en_manual09",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text forms one compact line beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual09_Linkto_4_12:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 12 “Touch”",
+          "russian": "Подробнее на стр. 12 «Сенсорное управление».",
+          "confidence": "exact",
+          "page_references": [
+            12
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 44,
+        "entry_id": 62044,
+        "name": "deck_en_manual09_Linkto_5_12",
+        "offset": 3715072,
+        "size": 10982,
+        "payload_sha256": "sha256:86b37d242ee89a0b2fd558ccdd2c5aaa72487bf0f3f7822cd7275d68a6a18502",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 464,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 992,
+        "offset_y": 683,
+        "canvas_width": 464,
+        "canvas_height": 47,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0044-deck_en_manual09_Linkto_5_12.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 9,
+      "parent_name": "deck_en_manual09",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text forms one compact line beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual09_Linkto_5_12:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 12 “Touch”",
+          "russian": "Подробнее на стр. 12 «Сенсорное управление».",
+          "confidence": "exact",
+          "page_references": [
+            12
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 45,
+        "entry_id": 62045,
+        "name": "deck_en_manual10",
+        "offset": 3727360,
+        "size": 232226,
+        "payload_sha256": "sha256:1d1ea415136c792f98c5687bf1b0d5d49a8577c789d37ae01ef635c76ad538a8",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 968,
+        "bpp": 32,
+        "offset_x": 48,
+        "offset_y": 16,
+        "canvas_width": 1824,
+        "canvas_height": 968,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0045-deck_en_manual10.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 10,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Dense two-column Features page. Auto Mode and Quick Save/Quick Load occupy the left; Message Log, its gesture panel and View CGs occupy the right. Two Linkto overlays replace green references.",
+      "font_notes": "Black bold subsection heads with butterfly ornaments and rules; rounded body copy; royal-blue callout labels. Pale-blue gesture panels use bold labels and regular explanations. Main title is white with a blue glow.",
+      "color_notes": "RGBA artwork intended for white compositing. Black text becomes invisible on a black transparency preview. Royal-blue headings, pale-blue gesture panels, green references and a cyan-framed audio icon provide hierarchy.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual10:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "Features",
+          "russian": "Функции",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 10",
+          "russian": "СТР. 10",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:003",
+          "order": 3,
+          "region": "left upper",
+          "role": "section heading",
+          "english": "Auto Mode — View button",
+          "russian": "Авторежим — кнопка VIEW",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "VIEW"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:004",
+          "order": 4,
+          "region": "left upper",
+          "role": "body",
+          "english": "Pressing View button in-game turns on Auto Mode. Pressing View button again turns it off. You can change the Auto Mode speed in OPTIONS.",
+          "russian": "Нажмите кнопку VIEW во время игры, чтобы включить авторежим. Повторное нажатие VIEW его отключает. Скорость авторежима можно изменить в OPTIONS.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "VIEW",
+            "OPTIONS"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:005",
+          "order": 5,
+          "region": "left upper",
+          "role": "cross-reference",
+          "english": "See details on page 12 “Text2”",
+          "russian": "Подробнее на стр. 12 «Текст 2».",
+          "confidence": "exact",
+          "page_references": [
+            12
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:006",
+          "order": 6,
+          "region": "left gesture box",
+          "role": "heading",
+          "english": "Touch Gestures",
+          "russian": "Сенсорные жесты",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:007",
+          "order": 7,
+          "region": "left gesture box",
+          "role": "gesture label",
+          "english": "Turn on Auto Mode:",
+          "russian": "Включить авторежим:",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:008",
+          "order": 8,
+          "region": "left gesture box",
+          "role": "body",
+          "english": "You can enable Auto Mode by tapping and holding inside the message window. (Tap to cancel.)",
+          "russian": "Коснитесь окна сообщений и удерживайте, чтобы включить авторежим. (Чтобы отменить, коснитесь экрана.)",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:009",
+          "order": 9,
+          "region": "left lower",
+          "role": "section heading",
+          "english": "Quick Save — Menu button",
+          "russian": "Быстрое сохранение — кнопка MENU",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:010",
+          "order": 10,
+          "region": "left lower",
+          "role": "body",
+          "english": "You can save your progress without going to the save screen by pressing the Menu button or X button to open up the System Menu and then selecting QUICK SAVE.",
+          "russian": "Чтобы сохранить прогресс, не открывая экран сохранения, нажмите кнопку MENU или X, откройте системное меню и выберите QUICK SAVE.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU",
+            "X",
+            "QUICK SAVE"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:011",
+          "order": 11,
+          "region": "left lower",
+          "role": "body",
+          "english": "There is only one slot available for the Quick Save feature.",
+          "russian": "Для быстрого сохранения доступен только один слот.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:012",
+          "order": 12,
+          "region": "left lower",
+          "role": "body",
+          "english": "Using the Quick Save feature when Quick Save data is already present will overwrite the existing data.",
+          "russian": "Новое быстрое сохранение перезаписывает прежнее.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:013",
+          "order": 13,
+          "region": "left lower",
+          "role": "item heading",
+          "english": "Quick Load",
+          "russian": "Быстрая загрузка",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:014",
+          "order": 14,
+          "region": "left lower",
+          "role": "body",
+          "english": "You can resume the game from the point at which you quick-saved by opening the System Menu and selecting QUICK LOAD.",
+          "russian": "Чтобы продолжить игру с быстрого сохранения, откройте системное меню и выберите QUICK LOAD.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "QUICK LOAD"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:015",
+          "order": 15,
+          "region": "left lower",
+          "role": "cross-reference",
+          "english": "See details on page 13 “Load”",
+          "russian": "Подробнее на стр. 13 «Загрузка».",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:016",
+          "order": 16,
+          "region": "right upper",
+          "role": "section heading",
+          "english": "Message Log — Y button",
+          "russian": "Журнал сообщений — кнопка Y",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Y"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:017",
+          "order": 17,
+          "region": "right upper",
+          "role": "body",
+          "english": "Display the Message Log during the game with the Y button.",
+          "russian": "Нажмите кнопку Y во время игры, чтобы открыть журнал сообщений.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Y"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:018",
+          "order": 18,
+          "region": "right upper",
+          "role": "body",
+          "english": "Up to the last 500 messages are displayed.",
+          "russian": "В журнале отображается до 500 последних сообщений.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:019",
+          "order": 19,
+          "region": "right upper",
+          "role": "body",
+          "english": "The Message Log can be displayed immediately after loading.",
+          "russian": "Журнал сообщений можно открыть сразу после загрузки.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:020",
+          "order": 20,
+          "region": "right upper",
+          "role": "callout label",
+          "english": "Audio Icon",
+          "russian": "Значок звука",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:021",
+          "order": 21,
+          "region": "right upper",
+          "role": "body",
+          "english": "You can replay audio from messages that have the audio icon.",
+          "russian": "Сообщения со значком звука можно прослушать повторно.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:022",
+          "order": 22,
+          "region": "right upper",
+          "role": "callout label",
+          "english": "Resume the Game from a Message",
+          "russian": "Продолжить игру с сообщения",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:023",
+          "order": 23,
+          "region": "right upper",
+          "role": "body",
+          "english": "You can resume the game from the selected message by tapping and holding it, or by pressing X button.",
+          "russian": "Чтобы продолжить игру с выбранного сообщения, коснитесь его и удерживайте или нажмите кнопку X.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "X"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual10:024",
+          "order": 24,
+          "region": "right gesture box",
+          "role": "heading",
+          "english": "Touch Gestures",
+          "russian": "Сенсорные жесты",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:025",
+          "order": 25,
+          "region": "right gesture box",
+          "role": "gesture/action",
+          "english": "Show Message Log: Flick Down",
+          "russian": "Открыть журнал: смахнуть вниз.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:026",
+          "order": 26,
+          "region": "right gesture box",
+          "role": "gesture/action",
+          "english": "Scroll Through Past Messages: Drag Up or Down / Flick Up or Down",
+          "russian": "Просмотреть прошлые сообщения: провести или смахнуть вверх либо вниз.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:027",
+          "order": 27,
+          "region": "right gesture box",
+          "role": "gesture/action",
+          "english": "Play Voices: Tap voiced message",
+          "russian": "Воспроизвести голос: коснуться озвученного сообщения.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:028",
+          "order": 28,
+          "region": "right gesture box",
+          "role": "gesture/action",
+          "english": "Resume the Game From a Message: Tap and hold the messages.",
+          "russian": "Продолжить игру с сообщения: коснуться сообщения и удерживать.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:029",
+          "order": 29,
+          "region": "right gesture box",
+          "role": "gesture/action",
+          "english": "Close: Flick up from the bottom of the screen.",
+          "russian": "Закрыть: смахнуть вверх от нижнего края экрана.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:030",
+          "order": 30,
+          "region": "right lower",
+          "role": "section heading",
+          "english": "View CGs — Left thumbstick Up / Down",
+          "russian": "Просмотр иллюстраций — левый стик вверх / вниз",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual10:031",
+          "order": 31,
+          "region": "right lower",
+          "role": "body",
+          "english": "Moving the Left thumbstick up or down hides the message window and lets you view the CGs.",
+          "russian": "Отклоните левый стик вверх или вниз, чтобы скрыть окно сообщений и рассмотреть иллюстрацию.",
+          "confidence": "exact"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 46,
+        "entry_id": 62046,
+        "name": "deck_en_manual10_Linkto_1_12",
+        "offset": 3960832,
+        "size": 11268,
+        "payload_sha256": "sha256:54a647c6d0b5f11cac7da8192315763f431e0b2e53df20b7c2afb0dba52945ca",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 464,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 304,
+        "offset_y": 220,
+        "canvas_width": 464,
+        "canvas_height": 45,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0046-deck_en_manual10_Linkto_1_12.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 10,
+      "parent_name": "deck_en_manual10",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text forms one compact line beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual10_Linkto_1_12:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 12 “Text2”",
+          "russian": "Подробнее на стр. 12 «Текст 2».",
+          "confidence": "exact",
+          "page_references": [
+            12
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 47,
+        "entry_id": 62047,
+        "name": "deck_en_manual10_Linkto_2_13",
+        "offset": 3973120,
+        "size": 11238,
+        "payload_sha256": "sha256:bfe959674e6aaaa3ccc92304f152fc2b847da920f5e7846dfaa05b4db8c5cafb",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 464,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 272,
+        "offset_y": 885,
+        "canvas_width": 464,
+        "canvas_height": 45,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0047-deck_en_manual10_Linkto_2_13.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 10,
+      "parent_name": "deck_en_manual10",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text forms one compact line beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual10_Linkto_2_13:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 13 “Load”",
+          "russian": "Подробнее на стр. 13 «Загрузка».",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 48,
+        "entry_id": 62048,
+        "name": "deck_en_manual11",
+        "offset": 3985408,
+        "size": 417966,
+        "payload_sha256": "sha256:9a266aee807347a85b15d15a513c5b1db1912600755933607f81c21923af83e5",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 1008,
+        "bpp": 32,
+        "offset_x": 48,
+        "offset_y": 8,
+        "canvas_width": 1824,
+        "canvas_height": 1008,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0048-deck_en_manual11.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 11,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Two-column Options overview. Intro and Basic settings occupy the left, with two embedded choice-position screenshots. Voice, display, cursor, rumble and Text1 settings fill the right. No Linkto overlays belong to this page.",
+      "font_notes": "Rounded sans-serif body with bold royal-blue item labels; black butterfly section heads and rules. Screenshot labels use white text with blue outline. Main title and page badge glow blue.",
+      "color_notes": "RGBA artwork intended for white compositing. Black copy is transparent-preview sensitive. Royal-blue labels and framed screenshots provide structure; no green links are present.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual11:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "Options",
+          "russian": "Настройки",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 11",
+          "russian": "СТР. 11",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual11:003",
+          "order": 3,
+          "region": "intro",
+          "role": "body",
+          "english": "Selecting OPTIONS from the Title Screen or the System Menu will take you to the Options screen. You can configure settings such as gameplay options and audio volume. Align the cursor or use the D-pad to adjust the options you wish to change.",
+          "russian": "Выберите OPTIONS на титульном экране или в системном меню, чтобы открыть настройки. Здесь можно изменить параметры игры и громкость звука. Выберите нужный пункт курсором или крестовиной.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "OPTIONS",
+            "D-pad"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual11:004",
+          "order": 4,
+          "region": "intro",
+          "role": "body",
+          "english": "To restore the default settings on any page, press X button while that page is displayed, and select “Yes” when asked if you're sure.",
+          "russian": "Чтобы вернуть настройки текущей страницы по умолчанию, нажмите кнопку X и подтвердите выбор, нажав «Да».",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "X"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual11:005",
+          "order": 5,
+          "region": "left",
+          "role": "section heading",
+          "english": "Basic",
+          "russian": "Основные",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:006",
+          "order": 6,
+          "region": "left",
+          "role": "item heading",
+          "english": "Shortcut Menu",
+          "russian": "Быстрое меню",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:007",
+          "order": 7,
+          "region": "left",
+          "role": "body",
+          "english": "You can set the Shortcut Menu displayed to the right of the message window to display or hide while playing the game.",
+          "russian": "Показывать или скрывать во время игры быстрое меню справа от окна сообщений.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:008",
+          "order": 8,
+          "region": "left",
+          "role": "item heading",
+          "english": "Skip",
+          "russian": "Пропуск",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:009",
+          "order": 9,
+          "region": "left",
+          "role": "body",
+          "english": "Change skip settings. You can change the skip settings to either “Previously Read Only” or “All”.",
+          "russian": "Выбрать, что пропускать: «Только прочитанное» или «Всё».",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:010",
+          "order": 10,
+          "region": "left",
+          "role": "item heading",
+          "english": "Skip/Rewind Speed",
+          "russian": "Скорость пропуска и перемотки",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:011",
+          "order": 11,
+          "region": "left",
+          "role": "body",
+          "english": "You can change the speed for the Skip/Rewind function.",
+          "russian": "Изменить скорость пропуска и перемотки.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:012",
+          "order": 12,
+          "region": "left",
+          "role": "item heading",
+          "english": "Position of Choices",
+          "russian": "Положение вариантов выбора",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:013",
+          "order": 13,
+          "region": "left",
+          "role": "body",
+          "english": "You can choose to locate branch point choices either in the center of or the bottom of the screen.",
+          "russian": "Размещать варианты выбора по центру или внизу экрана.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:014",
+          "order": 14,
+          "region": "choice examples",
+          "role": "example label",
+          "english": "Center Position",
+          "russian": "По центру",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:015",
+          "order": 15,
+          "region": "choice examples",
+          "role": "example label",
+          "english": "Bottom Position",
+          "russian": "Внизу",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:016",
+          "order": 16,
+          "region": "embedded choice screenshots",
+          "role": "choice",
+          "english": "Give me a new cup of shaved ice, please.",
+          "russian": "Дайте мне ещё одну порцию стружечного льда, пожалуйста.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:017",
+          "order": 17,
+          "region": "embedded choice screenshots",
+          "role": "choice",
+          "english": "Please fling some shaved ice at me.",
+          "russian": "А теперь, пожалуйста, швырните в меня немного стружечного льда.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:018",
+          "order": 18,
+          "region": "right upper",
+          "role": "item heading",
+          "english": "Voice",
+          "russian": "Озвучка",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:019",
+          "order": 19,
+          "region": "right upper",
+          "role": "body",
+          "english": "You can choose to stop playing voices either when the message moves on or when the next voice plays. Voices will stop if there is sound on the next message.",
+          "russian": "Выбрать, когда прерывать реплику: при переходе к следующему сообщению или при начале следующей озвученной реплики. Если в следующем сообщении есть звук, текущая реплика прервётся.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:020",
+          "order": 20,
+          "region": "right upper",
+          "role": "item heading",
+          "english": "Display Date",
+          "russian": "Показывать дату",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:021",
+          "order": 21,
+          "region": "right upper",
+          "role": "body",
+          "english": "You can turn the in-game date displayed on the top left of the screen on or off while playing the game.",
+          "russian": "Включить или отключить дату в левом верхнем углу экрана.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:022",
+          "order": 22,
+          "region": "right upper",
+          "role": "item heading",
+          "english": "Initial Cursor Position",
+          "russian": "Начальное положение курсора",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:023",
+          "order": 23,
+          "region": "right upper",
+          "role": "body",
+          "english": "Sets the initial position of the cursor when a Yes/No choice is available.",
+          "russian": "Задать начальное положение курсора при выборе «Да/Нет».",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:024",
+          "order": 24,
+          "region": "right upper",
+          "role": "item heading",
+          "english": "Controller Rumble Function",
+          "russian": "Вибрация контроллера",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:025",
+          "order": 25,
+          "region": "right upper",
+          "role": "body",
+          "english": "Plug in a controller to use the controller Rumble function. You will also be able to adjust the rumble intensity.",
+          "russian": "Подключите контроллер, чтобы использовать вибрацию и настраивать её интенсивность.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:026",
+          "order": 26,
+          "region": "right upper",
+          "role": "body",
+          "english": "If the rumble function isn't working, please check that it is switched on in your Steam Controller Settings.",
+          "russian": "Если вибрация не работает, проверьте, включена ли она в настройках контроллера Steam.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:027",
+          "order": 27,
+          "region": "right lower",
+          "role": "section heading",
+          "english": "Text1",
+          "russian": "Текст 1",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:028",
+          "order": 28,
+          "region": "right lower",
+          "role": "item heading",
+          "english": "Language",
+          "russian": "Язык",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:029",
+          "order": 29,
+          "region": "right lower",
+          "role": "body",
+          "english": "Select in-game language. (Except for embedded Japanese characters in some of the CGs.)",
+          "russian": "Выбрать язык игры. Японский текст, встроенный в некоторые иллюстрации, не изменяется.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:030",
+          "order": 30,
+          "region": "right lower",
+          "role": "item heading",
+          "english": "Font",
+          "russian": "Шрифт",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:031",
+          "order": 31,
+          "region": "right lower",
+          "role": "body",
+          "english": "Change the in-game font.",
+          "russian": "Изменить игровой шрифт.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:032",
+          "order": 32,
+          "region": "right lower",
+          "role": "item heading",
+          "english": "Window Transparency",
+          "russian": "Прозрачность окна",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:033",
+          "order": 33,
+          "region": "right lower",
+          "role": "body",
+          "english": "Change the message window transparency.",
+          "russian": "Изменить прозрачность окна сообщений.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:034",
+          "order": 34,
+          "region": "right lower",
+          "role": "item heading",
+          "english": "Color of Previously Read Text",
+          "russian": "Цвет прочитанного текста",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:035",
+          "order": 35,
+          "region": "right lower",
+          "role": "body",
+          "english": "Change the color of messages which have already been read.",
+          "russian": "Изменить цвет уже прочитанных сообщений.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:036",
+          "order": 36,
+          "region": "right lower",
+          "role": "item heading",
+          "english": "Read Text Color",
+          "russian": "Цвет отметки прочитанного",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual11:037",
+          "order": 37,
+          "region": "right lower",
+          "role": "body",
+          "english": "Select which color to use for previously read text.",
+          "russian": "Выбрать цвет для ранее прочитанного текста.",
+          "confidence": "exact"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 49,
+        "entry_id": 62049,
+        "name": "deck_en_manual12",
+        "offset": 4405248,
+        "size": 73146,
+        "payload_sha256": "sha256:8c43acf8ba47580edaf53fd35353c41ef5dcc03fd33063d5e160c64ff5354caf",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 743,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 28,
+        "canvas_width": 1824,
+        "canvas_height": 743,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0049-deck_en_manual12.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 12,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Two-column Options continuation. Text2, Sound and Voice settings occupy the left. Touch direction settings occupy the right. There are no Linkto overlays.",
+      "font_notes": "Black butterfly section headings with long rules; royal-blue bold item labels; rounded black body copy. Main title and page badge use white lettering with electric-blue outline/glow.",
+      "color_notes": "Transparent/white page; black body and rules; royal-blue setting names; no screenshots or Linkto layers. The bottom Voice line sits close to the asset edge.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual12:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "Options",
+          "russian": "Настройки",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 12",
+          "russian": "СТР. 12",
+          "confidence": "exact",
+          "page_references": [
+            12
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual12:003",
+          "order": 3,
+          "region": "left upper",
+          "role": "section heading",
+          "english": "Text2",
+          "russian": "Текст 2",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:004",
+          "order": 4,
+          "region": "left upper",
+          "role": "item heading",
+          "english": "Text Speed",
+          "russian": "Скорость текста",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:005",
+          "order": 5,
+          "region": "left upper",
+          "role": "body",
+          "english": "Change how fast text is displayed.",
+          "russian": "Изменить скорость появления текста.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:006",
+          "order": 6,
+          "region": "left upper",
+          "role": "item heading",
+          "english": "Wait Time Per Character",
+          "russian": "Задержка на символ",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:007",
+          "order": 7,
+          "region": "left upper",
+          "role": "body",
+          "english": "Define the amount of time to wait until a message shows up after the previous one is fully visible. This option is set based on the character count.",
+          "russian": "Задать паузу перед следующим сообщением после полного появления предыдущего. Длительность зависит от числа символов.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:008",
+          "order": 8,
+          "region": "left upper",
+          "role": "item heading",
+          "english": "Base Wait Time",
+          "russian": "Базовая задержка",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:009",
+          "order": 9,
+          "region": "left upper",
+          "role": "body",
+          "english": "Define an amount of extra time to wait in addition to Character Wait Time.",
+          "russian": "Добавить фиксированную паузу к задержке на символ.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:010",
+          "order": 10,
+          "region": "left middle",
+          "role": "section heading",
+          "english": "Sound",
+          "russian": "Звук",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:011",
+          "order": 11,
+          "region": "left middle",
+          "role": "body",
+          "english": "Turn the volume up/down.",
+          "russian": "Увеличить или уменьшить громкость.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:012",
+          "order": 12,
+          "region": "left lower",
+          "role": "section heading",
+          "english": "Voice",
+          "russian": "Голоса",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:013",
+          "order": 13,
+          "region": "left lower",
+          "role": "body",
+          "english": "Turn up/down the individual volume of each character. To play a sample voice for a character, press A button or tap them.",
+          "russian": "Настроить громкость каждого персонажа. Чтобы прослушать пример, выберите персонажа и нажмите кнопку A или коснитесь его.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "A"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual12:014",
+          "order": 14,
+          "region": "right",
+          "role": "section heading",
+          "english": "Touch",
+          "russian": "Сенсорное управление",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:015",
+          "order": 15,
+          "region": "right",
+          "role": "item heading",
+          "english": "Skip",
+          "russian": "Пропуск",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:016",
+          "order": 16,
+          "region": "right",
+          "role": "body",
+          "english": "Change flick/drag direction for Skip.",
+          "russian": "Изменить направление смахивания или проведения для пропуска.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:017",
+          "order": 17,
+          "region": "right",
+          "role": "body",
+          "english": "Changing this will also affect the setting for Rewind.",
+          "russian": "Это также изменит настройку перемотки.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:018",
+          "order": 18,
+          "region": "right",
+          "role": "item heading",
+          "english": "Rewind",
+          "russian": "Перемотка",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:019",
+          "order": 19,
+          "region": "right",
+          "role": "body",
+          "english": "Change flick/drag direction for Rewind.",
+          "russian": "Изменить направление смахивания или проведения для перемотки.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:020",
+          "order": 20,
+          "region": "right",
+          "role": "body",
+          "english": "Changing this will also affect the setting for Skip.",
+          "russian": "Это также изменит настройку пропуска.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:021",
+          "order": 21,
+          "region": "right",
+          "role": "item heading",
+          "english": "Jump (Forward)",
+          "russian": "Переход вперёд",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:022",
+          "order": 22,
+          "region": "right",
+          "role": "body",
+          "english": "Change flick direction for jumping forward.",
+          "russian": "Изменить направление смахивания для перехода вперёд.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:023",
+          "order": 23,
+          "region": "right",
+          "role": "body",
+          "english": "Changing this will also affect the setting for Jump (Back).",
+          "russian": "Это также изменит настройку перехода назад.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:024",
+          "order": 24,
+          "region": "right",
+          "role": "item heading",
+          "english": "Jump (Backward)",
+          "russian": "Переход назад",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:025",
+          "order": 25,
+          "region": "right",
+          "role": "body",
+          "english": "Change flick direction for jumping back.",
+          "russian": "Изменить направление смахивания для перехода назад.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual12:026",
+          "order": 26,
+          "region": "right",
+          "role": "body",
+          "english": "Changing this will also affect the setting for Jump (Forward).",
+          "russian": "Это также изменит настройку перехода вперёд.",
+          "confidence": "exact"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 50,
+        "entry_id": 62050,
+        "name": "deck_en_manual13",
+        "offset": 4478976,
+        "size": 642790,
+        "payload_sha256": "sha256:4482fe322e75503f3bd9d654aa2b3c1d40c5cf68feb6740740982e2c5d3d4992",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 984,
+        "bpp": 32,
+        "offset_x": 48,
+        "offset_y": 8,
+        "canvas_width": 1824,
+        "canvas_height": 984,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0050-deck_en_manual13.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 13,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Save & Load guide arranged vertically in the left half of a wide transparent canvas. Save uses a System Menu screenshot and magnified SAVE icon. Load uses Title Screen and System Menu screenshots with magnified LOAD buttons and connector lines. No Linkto overlays belong to this page.",
+      "font_notes": "Black bold subsection heads with butterfly ornaments and rules; rounded black body copy; royal-blue screenshot labels. Main title and page badge use white letters with blue outline/glow. Embedded screenshots retain original mixed UI typography.",
+      "color_notes": "RGBA artwork intended for white compositing. Most body copy is black and disappears on black transparency previews. Screenshots and callouts use blue frames and connector lines.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual13:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "Save & Load",
+          "russian": "Сохранение и загрузка",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual13:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 13",
+          "russian": "СТР. 13",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual13:003",
+          "order": 3,
+          "region": "upper",
+          "role": "section heading",
+          "english": "Save",
+          "russian": "Сохранение",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual13:004",
+          "order": 4,
+          "region": "upper",
+          "role": "body",
+          "english": "Save the progress of the game.",
+          "russian": "Сохранить прогресс игры.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual13:005",
+          "order": 5,
+          "region": "save callout",
+          "role": "callout label",
+          "english": "System Menu",
+          "russian": "Системное меню",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual13:006",
+          "order": 6,
+          "region": "save embedded screenshot",
+          "role": "system menu labels",
+          "english": "SAVE / LOAD / RECORD / OPTIONS / TITLE / QUICK SAVE / QUICK LOAD / MANUAL / EXIT",
+          "russian": "SAVE / LOAD / RECORD / OPTIONS / TITLE / QUICK SAVE / QUICK LOAD / MANUAL / EXIT",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "SAVE",
+            "LOAD",
+            "RECORD",
+            "OPTIONS",
+            "TITLE",
+            "QUICK SAVE",
+            "QUICK LOAD",
+            "MANUAL",
+            "EXIT"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual13:007",
+          "order": 7,
+          "region": "save embedded screenshot",
+          "role": "dialogue",
+          "english": "“A wounded migratory bird, I guess.”",
+          "russian": "«Похоже, раненая перелётная птица».",
+          "confidence": "exact",
+          "note": "Tiny in-game screenshot text."
+        },
+        {
+          "segment_id": "deck_en_manual13:008",
+          "order": 8,
+          "region": "save embedded screenshot",
+          "role": "shortcut labels",
+          "english": "MENU / SKIP / AUTO / Close",
+          "russian": "MENU / SKIP / AUTO / Close",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU",
+            "SKIP",
+            "AUTO",
+            "Close"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual13:009",
+          "order": 9,
+          "region": "middle",
+          "role": "section heading",
+          "english": "Load",
+          "russian": "Загрузка",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual13:010",
+          "order": 10,
+          "region": "middle",
+          "role": "body",
+          "english": "Load a save to continue.",
+          "russian": "Загрузить сохранение и продолжить игру.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual13:011",
+          "order": 11,
+          "region": "load title callout",
+          "role": "callout label",
+          "english": "Title Screen",
+          "russian": "Титульный экран",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual13:012",
+          "order": 12,
+          "region": "title screen screenshot",
+          "role": "product title",
+          "english": "Summer Pockets / REFLECTION BLUE",
+          "russian": "Summer Pockets / REFLECTION BLUE",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual13:013",
+          "order": 13,
+          "region": "title screen screenshot",
+          "role": "menu labels",
+          "english": "START / LOAD / OPTIONS / MANUAL / EXIT",
+          "russian": "START / LOAD / OPTIONS / MANUAL / EXIT",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "START",
+            "LOAD",
+            "OPTIONS",
+            "MANUAL",
+            "EXIT"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual13:014",
+          "order": 14,
+          "region": "load system callout",
+          "role": "callout label",
+          "english": "System Menu",
+          "russian": "Системное меню",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual13:015",
+          "order": 15,
+          "region": "load embedded screenshot",
+          "role": "system menu labels",
+          "english": "SAVE / LOAD / RECORD / OPTIONS / TITLE / QUICK SAVE / QUICK LOAD / MANUAL / EXIT",
+          "russian": "SAVE / LOAD / RECORD / OPTIONS / TITLE / QUICK SAVE / QUICK LOAD / MANUAL / EXIT",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "SAVE",
+            "LOAD",
+            "RECORD",
+            "OPTIONS",
+            "TITLE",
+            "QUICK SAVE",
+            "QUICK LOAD",
+            "MANUAL",
+            "EXIT"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual13:016",
+          "order": 16,
+          "region": "load embedded screenshot",
+          "role": "dialogue",
+          "english": "“A wounded migratory bird, I guess.”",
+          "russian": "«Похоже, раненая перелётная птица».",
+          "confidence": "exact",
+          "note": "Tiny in-game screenshot text."
+        },
+        {
+          "segment_id": "deck_en_manual13:017",
+          "order": 17,
+          "region": "load embedded screenshot",
+          "role": "shortcut labels",
+          "english": "MENU / SKIP / AUTO / Close",
+          "russian": "MENU / SKIP / AUTO / Close",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU",
+            "SKIP",
+            "AUTO",
+            "Close"
+          ]
+        }
+      ]
+    }
+  ],
+  "canonical_asset_id": "manual_deck_08_13",
+  "archive_sha256": "sha256:4da13d20fbc23893466e2c6f26b44931b3b90394b41da4fe78f8093d936bd202",
+  "source_draft_sha256": "sha256:b5a96a410bffcd1f51c8ec67089cfcc07e7ba404cff334df340e669a7b8426c4"
+}

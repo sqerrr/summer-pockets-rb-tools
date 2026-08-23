@@ -1,0 +1,2008 @@
+{
+  "schema_version": 1,
+  "source": {
+    "archive": "MANUAL.PAK",
+    "catalog": "build/steam/ui-assets/MANUAL/catalog.jsonl",
+    "image_directory": "build/steam/ui-assets/MANUAL/images",
+    "language": "English",
+    "scope": "en_help1, en_help2, en_manual01 through en_manual08, and all associated Linkto overlays"
+  },
+  "counts": {
+    "pages": 10,
+    "overlays": 28,
+    "entries": 38
+  },
+  "style_palette": {
+    "body_black": "#111111",
+    "manual_blue": "#2F63D8",
+    "manual_title_outline": "#168CFF",
+    "cross_reference_green": "#00C96B",
+    "hover_fill": "#FFFFFF",
+    "hover_outline": "#128CFF",
+    "help_title_white": "#FFFFFF"
+  },
+  "entries": [
+    {
+      "asset_type": "page",
+      "pak": {
+        "name": "en_help1",
+        "index": 0,
+        "entry_id": 64500
+      },
+      "image": {
+        "file": "0000-en_help1.png",
+        "width": 1920,
+        "height": 1080
+      },
+      "english_transcription": "Keyboard Shortcuts\nThe settings of some keys can be changed from the Keyboard section in OPTIONS.\nEsc — Open the System Menu. Cancel. / Close screen.\nQ — Jump to the previous choice.\nW — Open the System Menu.\nE — Jump to the next choice.\nA — Toggle Auto Mode on/off.\nS — Quick Save.\nZ — Switch page. / Rewind message while pressed.\nX — Cancel. / Close screen. Show the next full message.\nC — Switch page. / Skip message while pressed.\nM — Show Message Log.\nL — Switch language. Switch to the next language in this list each time L is pressed: English, Simplified Chinese, Japanese, back to English.\nF1 — Quick Save.\nF2 — Quick Load.\nH — Open the Manual.\nCtrl — Skip all messages while pressed.\nSpace — Hide the message window.\nAlt+Enter — Full Screen.\nAlt+F4 — Exit the game.\nPage Up — Switch page. (Up or Left)\nPage Down — Switch page. (Down or Right) Hide the message window.\nArrow Keys — Move cursor. Up: Show Message Log. Down: Hide message window. Left: Go back one message. Right: Advance one message.\nEnter — Confirm selected option. Advance messages.\nKeyboard diagram keycaps: Esc, F1–F12, 1–0, Backspace, Insert, Home, Page Up, Tab, Q–P, Enter, Delete, End, Page Down, Caps Lock, A–L, Shift, Z–M, Ctrl, Alt, arrow keys.",
+      "russian_segments": [
+        {
+          "visual_box": "top title",
+          "russian": "Горячие клавиши",
+          "style": {
+            "font_size_px": 50,
+            "alignment": "center",
+            "color": "#FFFFFF",
+            "effect": "blue outer glow"
+          }
+        },
+        {
+          "visual_box": "intro",
+          "russian": "Назначение некоторых клавиш можно изменить в разделе «Клавиатура» меню «Настройки».",
+          "style": {
+            "font_size_px": 28,
+            "alignment": "left",
+            "color": "#111111"
+          }
+        },
+        {
+          "visual_box": "Esc box",
+          "russian": "Esc — открыть системное меню; отменить действие / закрыть экран.",
+          "style": {
+            "font_size_px": 27,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "Q/W/E box",
+          "russian": "Q — перейти к предыдущему выбору.\nW — открыть системное меню.\nE — перейти к следующему выбору.",
+          "style": {
+            "font_size_px": 27,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "A/S box",
+          "russian": "A — включить или выключить автоматический режим.\nS — быстрое сохранение.",
+          "style": {
+            "font_size_px": 27,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "Z/X/C box",
+          "russian": "Z — сменить страницу / перематывать сообщения назад, пока клавиша удерживается.\nX — отменить действие / закрыть экран; показать следующее сообщение целиком.\nC — сменить страницу / пропускать сообщения, пока клавиша удерживается.",
+          "style": {
+            "font_size_px": 26,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "M/L box",
+          "russian": "M — открыть журнал сообщений.\nL — сменить язык. Каждое нажатие переключает язык по кругу: английский, упрощённый китайский, японский, затем снова английский.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "F1/F2 box",
+          "russian": "F1 — быстрое сохранение.\nF2 — быстрая загрузка.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "H box",
+          "russian": "H — открыть руководство.",
+          "style": {
+            "font_size_px": 27,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "Ctrl/Space/Alt box",
+          "russian": "Ctrl — пропускать все сообщения, пока клавиша удерживается.\nSpace — скрыть окно сообщения.\nAlt+Enter — полноэкранный режим.\nAlt+F4 — выйти из игры.",
+          "style": {
+            "font_size_px": 26,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "Page Up/Page Down box",
+          "russian": "Page Up — сменить страницу (вверх или влево).\nPage Down — сменить страницу (вниз или вправо); скрыть окно сообщения.",
+          "style": {
+            "font_size_px": 26,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "Arrow Keys box",
+          "russian": "Стрелки — перемещать курсор.\n↑ — открыть журнал сообщений.\n↓ — скрыть окно сообщения.\n← — вернуться на одно сообщение.\n→ — перейти к следующему сообщению.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "Enter box",
+          "russian": "Enter — подтвердить выбранный пункт; перейти к следующему сообщению.",
+          "style": {
+            "font_size_px": 26,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "keyboard keycaps",
+          "russian": "Названия клавиш оставить без перевода: Esc, F1–F12, Backspace, Insert, Home, Page Up, Tab, Enter, Delete, End, Page Down, Caps Lock, Shift, Ctrl, Alt.",
+          "style": {
+            "font_size_px": 17,
+            "alignment": "center",
+            "color": "#111111"
+          }
+        }
+      ],
+      "suggested_font": "Rounded geometric sans-serif with a broad Cyrillic set; use a bold face for key names and headings.",
+      "link_target_wording": null
+    },
+    {
+      "asset_type": "page",
+      "pak": {
+        "name": "en_help2",
+        "index": 1,
+        "entry_id": 64501
+      },
+      "image": {
+        "file": "0001-en_help2.png",
+        "width": 1920,
+        "height": 1080
+      },
+      "english_transcription": "Mouse Controls / Touch Gestures\nMouse Controls\nOnly certain functions are listed below. Even more functions can be set from the Mouse section in OPTIONS.\nLeft Click — Confirm/Move on to the next message.\nRight Click — Open the System Menu; Cancel; Close screen.\nReturn/Proceed Button — When using a mouse with this button, you can jump between choices.\nMouse Wheel — Scroll Up: Show Message Log.\nTouch Gestures\nThe following gestures can be used on tablets or PCs with touch panel functionality.\nTap — Touch lightly with finger and quickly release.\nTap and Hold — Hold down with finger.\nDrag — Trace with finger without lifting.\nFlick — Gently flick finger.\nEnabling Gestures from the Mouse section in OPTIONS allows you to use left click+pointer movement to perform the same functions as the preceding gestures.\nTap — Select an option. / Move on to the next message.\nFlick Up — Open the System Menu.\nFlick Down — Show Message Log.\nFlick Left/Right — Right: Switch page. / Jump to the next choice. Left: Switch page. / Jump to the previous choice.\nThe following actions may be performed directly on the message window via touch controls.\nMessage window\nDrag/Flick — Right: Skip. Left: Rewind.\nTap and Hold — Turn Auto Mode on/off. (Tap to cancel.)\nEmbedded screenshot: Shizuku; “Heheh! ♪ Tsumugi, this is my new friend.”; MENU; SKIP; AUTO; VOICE.",
+      "russian_segments": [
+        {
+          "visual_box": "top title",
+          "russian": "Мышь и сенсорные жесты",
+          "style": {
+            "font_size_px": 49,
+            "alignment": "center",
+            "color": "#FFFFFF",
+            "effect": "blue outer glow"
+          }
+        },
+        {
+          "visual_box": "Mouse Controls heading and intro",
+          "russian": "Управление мышью\nНиже перечислены только основные функции. Дополнительные действия можно назначить в разделе «Мышь» меню «Настройки».",
+          "style": {
+            "font_size_px": 28,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "mouse diagram",
+          "russian": "Левая кнопка — подтвердить / перейти к следующему сообщению.\nПравая кнопка — открыть системное меню; отменить действие; закрыть экран.\nКнопка «Назад/Вперёд» — переходить между вариантами выбора.\nКолесо мыши — прокрутить вверх, чтобы открыть журнал сообщений.",
+          "style": {
+            "font_size_px": 26,
+            "alignment": "left",
+            "color": "#111111",
+            "labels_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "Touch Gestures heading and examples",
+          "russian": "Сенсорные жесты\nЭти жесты доступны на планшетах и компьютерах с сенсорным экраном.\nКасание — быстро коснуться экрана и убрать палец.\nКасание с удержанием — коснуться экрана и удерживать палец.\nПеретаскивание — провести пальцем, не отрывая его от экрана.\nСмахивание — легко провести пальцем в нужную сторону.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "labels_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "gesture emulation intro",
+          "russian": "Если включить жесты в разделе «Мышь» меню «Настройки», те же действия можно выполнять движением указателя при зажатой левой кнопке мыши.",
+          "style": {
+            "font_size_px": 26,
+            "alignment": "left",
+            "color": "#111111"
+          }
+        },
+        {
+          "visual_box": "gesture table",
+          "russian": "Касание — выбрать пункт / перейти к следующему сообщению.\nСмахивание вверх — открыть системное меню.\nСмахивание вниз — открыть журнал сообщений.\nСмахивание вправо — сменить страницу / перейти к следующему выбору.\nСмахивание влево — сменить страницу / перейти к предыдущему выбору.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "labels_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "message-window touch table",
+          "russian": "Следующие действия можно выполнять прямо в окне сообщения.\nПеретаскивание/смахивание: вправо — пропуск, влево — перемотка назад.\nКасание с удержанием — включить или выключить автоматический режим. Для отмены коснитесь экрана.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "labels_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "screenshot callout",
+          "russian": "Окно сообщения",
+          "style": {
+            "font_size_px": 26,
+            "alignment": "right",
+            "color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "embedded screenshot text",
+          "russian": "Сидзуку\n«Хе-хе! ♪ Цумуги, это моя новая подруга».\nМЕНЮ / ПРОПУСК / АВТО / ГОЛОС",
+          "style": {
+            "font_size_px": 12,
+            "alignment": "as in screenshot",
+            "color": "preserve screenshot UI colors"
+          }
+        }
+      ],
+      "suggested_font": "Rounded geometric sans-serif; bold section labels, regular explanatory copy.",
+      "link_target_wording": null
+    },
+    {
+      "asset_type": "page",
+      "pak": {
+        "name": "en_manual01",
+        "index": 2,
+        "entry_id": 64502
+      },
+      "image": {
+        "file": "0002-en_manual01.png",
+        "width": 1792,
+        "height": 832
+      },
+      "english_transcription": "PAGE 1\nSummer Pockets REFLECTION BLUE\nUser’s Manual\nCONTENTS\nBasic Controls ............ 2\nHow to Start the Game ... 6\nHow to Play the Game .... 7\nSystem Menu ............... 9\nFeatures ..................... 10\nOptions ....................... 12\nSave & Load ................. 16",
+      "russian_segments": [
+        {
+          "visual_box": "page badge",
+          "russian": "СТР. 1",
+          "style": {
+            "font_size_px": 22,
+            "alignment": "right",
+            "color": "#FFFFFF",
+            "effect": "blue outline/glow"
+          }
+        },
+        {
+          "visual_box": "manual title under logo",
+          "russian": "Руководство пользователя",
+          "style": {
+            "font_size_px": 50,
+            "alignment": "center",
+            "color": "#24549B",
+            "font_family": "serif"
+          }
+        },
+        {
+          "visual_box": "contents heading",
+          "russian": "СОДЕРЖАНИЕ",
+          "style": {
+            "font_size_px": 46,
+            "alignment": "left",
+            "color": "#24549B",
+            "font_family": "serif"
+          }
+        },
+        {
+          "visual_box": "contents links",
+          "russian": "Основы управления ............ 2\nЗапуск игры ....................... 6\nКак играть ........................ 7\nСистемное меню ................. 9\nФункции .......................... 10\nНастройки ........................ 12\nСохранение и загрузка ......... 16",
+          "style": {
+            "font_size_px": 43,
+            "alignment": "left with page numbers right-aligned",
+            "color": "#24549B"
+          }
+        }
+      ],
+      "suggested_font": "Keep the logo unchanged; use a classic serif for the manual label and contents heading, and a clean sans-serif for contents entries.",
+      "link_target_wording": [
+        {
+          "page": 2,
+          "english": "Basic Controls",
+          "russian": "Основы управления"
+        },
+        {
+          "page": 6,
+          "english": "How to Start the Game",
+          "russian": "Запуск игры"
+        },
+        {
+          "page": 7,
+          "english": "How to Play the Game",
+          "russian": "Как играть"
+        },
+        {
+          "page": 9,
+          "english": "System Menu",
+          "russian": "Системное меню"
+        },
+        {
+          "page": 10,
+          "english": "Features",
+          "russian": "Функции"
+        },
+        {
+          "page": 12,
+          "english": "Options",
+          "russian": "Настройки"
+        },
+        {
+          "page": 16,
+          "english": "Save & Load",
+          "russian": "Сохранение и загрузка"
+        }
+      ]
+    },
+    {
+      "asset_type": "page",
+      "pak": {
+        "name": "en_manual02",
+        "index": 10,
+        "entry_id": 64510
+      },
+      "image": {
+        "file": "0010-en_manual02.png",
+        "width": 1824,
+        "height": 1008
+      },
+      "english_transcription": "Basic Controls\nPAGE 2\nMouse Controls\nOnly certain functions are listed below. Even more functions can be set from the Mouse section in OPTIONS.\nLeft Click — Confirm/Move on to the next message.\nRight Click — Open the System Menu; Cancel; Close screen.\nReturn/Proceed Button — When using a mouse with this button, you can jump between choices.\nMouse Wheel — Scroll Up: Show Message Log.\nTouch Gestures\nThe following gestures can be used on tablets or PCs with touch panel functionality.\nTap — Touch lightly with finger and quickly release.\nTap and Hold — Hold down with finger.\nDrag — Trace with finger without lifting.\nFlick — Gently flick finger.\nEnabling Gestures from the Mouse section in OPTIONS allows you to use left click+pointer movement to perform the same functions as the preceding gestures.\nTap — Select an option. / Move on to the next message.\nFlick Up — Open the System Menu.\nSee details on page 9 “System Menu”\nFlick Down — Show Message Log.\nSee details on page 11 “Message Log”\nFlick Left/Right — Right: Switch page. / Jump to the next choice. Left: Switch page. / Jump to the previous choice.\nSee details on page 10 “Jump”\nThe following actions may be performed directly on the message window via touch controls.\nMessage window\nDrag/Flick — Right: Skip. Left: Rewind.\nSee details on page 10 “Skip and Rewind”\nTap and Hold — Turn Auto Mode on/off. (Tap to cancel.)\nSee details on page 11 “Auto Mode”\nEmbedded screenshot: Shizuku; “Heheh! ♪ Tsumugi, this is my new friend.”; MENU; SKIP; AUTO; VOICE.",
+      "russian_segments": [
+        {
+          "visual_box": "page title and badge",
+          "russian": "Основы управления\nСТР. 2",
+          "style": {
+            "font_size_px": 47,
+            "alignment": "title left, badge right",
+            "color": "#FFFFFF",
+            "effect": "blue outline/glow"
+          }
+        },
+        {
+          "visual_box": "left mouse panel",
+          "russian": "Управление мышью\nНиже перечислены только основные функции. Дополнительные действия можно назначить в разделе «Мышь» меню «Настройки».\nЛевая кнопка — подтвердить / перейти к следующему сообщению.\nПравая кнопка — открыть системное меню; отменить действие; закрыть экран.\nКнопка «Назад/Вперёд» — переходить между вариантами выбора.\nКолесо мыши — прокрутить вверх, чтобы открыть журнал сообщений.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "touch gesture panel",
+          "russian": "Сенсорные жесты\nЭти жесты доступны на планшетах и компьютерах с сенсорным экраном.\nКасание — быстро коснуться экрана и убрать палец.\nКасание с удержанием — коснуться экрана и удерживать палец.\nПеретаскивание — провести пальцем, не отрывая его от экрана.\nСмахивание — легко провести пальцем в нужную сторону.",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#111111",
+            "labels_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "right gesture table",
+          "russian": "Если включить жесты в разделе «Мышь» меню «Настройки», те же действия можно выполнять движением указателя при зажатой левой кнопке мыши.\nКасание — выбрать пункт / перейти к следующему сообщению.\nСмахивание вверх — открыть системное меню.\nСмахивание вниз — открыть журнал сообщений.\nСмахивание вправо — сменить страницу / перейти к следующему выбору.\nСмахивание влево — сменить страницу / перейти к предыдущему выбору.",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#111111",
+            "labels_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "message-window panel",
+          "russian": "Следующие действия можно выполнять прямо в окне сообщения.\nОкно сообщения\nПеретаскивание/смахивание: вправо — пропуск, влево — перемотка назад.\nКасание с удержанием — включить или выключить автоматический режим. Для отмены коснитесь экрана.",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#111111"
+          }
+        },
+        {
+          "visual_box": "green cross-references",
+          "russian": "См. стр. 9 «Системное меню»\nСм. стр. 11 «Журнал сообщений»\nСм. стр. 10 «Переход»\nСм. стр. 10 «Пропуск и перемотка»\nСм. стр. 11 «Автоматический режим»",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#00C96B"
+          }
+        },
+        {
+          "visual_box": "embedded screenshot text",
+          "russian": "Сидзуку\n«Хе-хе! ♪ Цумуги, это моя новая подруга».\nМЕНЮ / ПРОПУСК / АВТО / ГОЛОС",
+          "style": {
+            "font_size_px": 10,
+            "alignment": "as in screenshot",
+            "color": "preserve screenshot UI colors"
+          }
+        }
+      ],
+      "suggested_font": "Rounded geometric sans-serif; title 47 px, section headings 34 px, body and links 24–25 px.",
+      "link_target_wording": [
+        {
+          "page": 9,
+          "english": "System Menu",
+          "russian": "Системное меню"
+        },
+        {
+          "page": 11,
+          "english": "Message Log",
+          "russian": "Журнал сообщений"
+        },
+        {
+          "page": 10,
+          "english": "Jump",
+          "russian": "Переход"
+        },
+        {
+          "page": 10,
+          "english": "Skip and Rewind",
+          "russian": "Пропуск и перемотка"
+        },
+        {
+          "page": 11,
+          "english": "Auto Mode",
+          "russian": "Автоматический режим"
+        }
+      ]
+    },
+    {
+      "asset_type": "page",
+      "pak": {
+        "name": "en_manual03",
+        "index": 16,
+        "entry_id": 64516
+      },
+      "image": {
+        "file": "0016-en_manual03.png",
+        "width": 1824,
+        "height": 975
+      },
+      "english_transcription": "Basic Controls\nPAGE 3\nKeyboard Shortcuts\nThe settings of some keys can be changed from the Keyboard section in OPTIONS.\nSee details on page 13 “Keyboard”\nEsc — Open the System Menu. Cancel. / Close screen.\nQ — Jump to the previous choice.\nW — Open the System Menu.\nE — Jump to the next choice.\nA — Toggle Auto Mode on/off.\nS — Quick Save.\nZ — Switch page. / Rewind message while pressed.\nX — Cancel. / Close screen. Show the next full message.\nC — Switch page. / Skip message while pressed.\nM — Show Message Log.\nL — Switch language. Switch to the next language in this list each time L is pressed: English, Simplified Chinese, Japanese, back to English.\nF1 — Quick Save.\nF2 — Quick Load.\nH — Open this Manual.\nCtrl — Skip all messages while pressed.\nSpace — Hide the message window.\nAlt+Enter — Full Screen.\nAlt+F4 — Exit the game.\nPage Up — Switch page. (Up or Left)\nPage Down — Switch page. (Down or Right) Hide the message window.\nArrow Keys — Move cursor. Up: Show Message Log. Down: Hide message window. Left: Go back one message. Right: Advance one message.\nEnter — Confirm selected option. Advance messages.\nKeyboard diagram keycaps: Esc, F1–F12, 1–0, Backspace, Insert, Home, Page Up, Tab, Q–P, Enter, Delete, End, Page Down, Caps Lock, A–L, Shift, Z–M, Ctrl, Alt, arrow keys.",
+      "russian_segments": [
+        {
+          "visual_box": "page title and badge",
+          "russian": "Основы управления\nСТР. 3",
+          "style": {
+            "font_size_px": 47,
+            "alignment": "title left, badge right",
+            "color": "#FFFFFF",
+            "effect": "blue outline/glow"
+          }
+        },
+        {
+          "visual_box": "section heading and intro",
+          "russian": "Горячие клавиши\nНазначение некоторых клавиш можно изменить в разделе «Клавиатура» меню «Настройки».\nСм. стр. 13 «Клавиатура»",
+          "style": {
+            "font_size_px": 28,
+            "alignment": "left",
+            "color": "#111111",
+            "link_color": "#00C96B"
+          }
+        },
+        {
+          "visual_box": "left shortcut table",
+          "russian": "Esc — открыть системное меню; отменить действие / закрыть экран.\nQ — перейти к предыдущему выбору.\nW — открыть системное меню.\nE — перейти к следующему выбору.\nA — включить или выключить автоматический режим.\nS — быстрое сохранение.\nZ — сменить страницу / перематывать сообщения назад, пока клавиша удерживается.\nX — отменить действие / закрыть экран; показать следующее сообщение целиком.\nC — сменить страницу / пропускать сообщения, пока клавиша удерживается.\nM — открыть журнал сообщений.\nL — сменить язык. Каждое нажатие переключает язык по кругу: английский, упрощённый китайский, японский, затем снова английский.",
+          "style": {
+            "font_size_px": 23,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "keyboard callouts",
+          "russian": "F1 — быстрое сохранение.\nF2 — быстрая загрузка.\nH — открыть это руководство.\nCtrl — пропускать все сообщения, пока клавиша удерживается.\nSpace — скрыть окно сообщения.\nAlt+Enter — полноэкранный режим.\nAlt+F4 — выйти из игры.\nPage Up — сменить страницу (вверх или влево).\nPage Down — сменить страницу (вниз или вправо); скрыть окно сообщения.\nСтрелки — перемещать курсор; ↑ открыть журнал, ↓ скрыть окно сообщения, ← вернуться на одно сообщение, → перейти к следующему.\nEnter — подтвердить выбранный пункт; перейти к следующему сообщению.",
+          "style": {
+            "font_size_px": 23,
+            "alignment": "left",
+            "color": "#111111",
+            "key_name_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "keyboard keycaps",
+          "russian": "Названия клавиш оставить без перевода.",
+          "style": {
+            "font_size_px": 15,
+            "alignment": "center",
+            "color": "#111111"
+          }
+        }
+      ],
+      "suggested_font": "Rounded geometric sans-serif; preserve Latin key names exactly and use bold labels.",
+      "link_target_wording": [
+        {
+          "page": 13,
+          "english": "Keyboard",
+          "russian": "Клавиатура"
+        }
+      ]
+    },
+    {
+      "asset_type": "page",
+      "pak": {
+        "name": "en_manual04",
+        "index": 18,
+        "entry_id": 64518
+      },
+      "image": {
+        "file": "0018-en_manual04.png",
+        "width": 1824,
+        "height": 928
+      },
+      "english_transcription": "Basic Controls\nPAGE 4\nController\n“Summer Pockets REFLECTION BLUE” can be played with a controller.\nD-pad — Move cursor.\nA / Cross — Confirm selected option. / Advance messages.\nB / Circle — Cancel. / Close screen. Show the next full message.\nX / Triangle — Open the System Menu.\nSee details on page 9 “System Menu”\nY / Square — Show Message Log.\nSee details on page 11 “Message Log”\nR1 / RB — Switch page. / Skip message while pressed.\nL1 / LB — Switch page. / Rewind message while pressed.\nSee details on page 10 “Skip and Rewind”\nTilt the Left stick to the Right. — Jump to the next choice.\nTilt the Left stick to the Left. — Jump to the previous choice.\nSee details on page 10 “Jump”\nPress Right stick. / Press the top area of the right trackpad. — Switch language.\nOPTIONS button / Menu button / Start button — Quick Save.\nSee details on page 11 “Quick Save”\nPress touch pad / View button / Back button — Toggle Auto Mode on/off.\nSee details on page 11 “Auto Mode”",
+      "russian_segments": [
+        {
+          "visual_box": "page title and badge",
+          "russian": "Основы управления\nСТР. 4",
+          "style": {
+            "font_size_px": 47,
+            "alignment": "title left, badge right",
+            "color": "#FFFFFF",
+            "effect": "blue outline/glow"
+          }
+        },
+        {
+          "visual_box": "section heading and intro",
+          "russian": "Контроллер\nВ «Summer Pockets REFLECTION BLUE» можно играть с контроллером.",
+          "style": {
+            "font_size_px": 29,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "left controller table",
+          "russian": "Крестовина — перемещать курсор.\nA / крест — подтвердить выбранный пункт / перейти к следующему сообщению.\nB / круг — отменить действие / закрыть экран; показать следующее сообщение целиком.\nX / треугольник — открыть системное меню.\nY / квадрат — открыть журнал сообщений.\nR1 / RB — сменить страницу / пропускать сообщения, пока кнопка удерживается.\nL1 / LB — сменить страницу / перематывать сообщения назад, пока кнопка удерживается.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111"
+          }
+        },
+        {
+          "visual_box": "right controller table",
+          "russian": "Отклонить левый стик вправо — перейти к следующему выбору.\nОтклонить левый стик влево — перейти к предыдущему выбору.\nНажать правый стик / верхнюю область правого трекпада — сменить язык.\nКнопка OPTIONS / Menu / Start — быстрое сохранение.\nНажать сенсорную панель / кнопку View / кнопку Back — включить или выключить автоматический режим.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111"
+          }
+        },
+        {
+          "visual_box": "green cross-references",
+          "russian": "См. стр. 9 «Системное меню»\nСм. стр. 11 «Журнал сообщений»\nСм. стр. 10 «Пропуск и перемотка»\nСм. стр. 10 «Переход»\nСм. стр. 11 «Быстрое сохранение»\nСм. стр. 11 «Автоматический режим»",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#00C96B"
+          }
+        }
+      ],
+      "suggested_font": "Rounded geometric sans-serif; keep platform button labels OPTIONS, Menu, Start, View, Back, R1/RB and L1/LB unchanged.",
+      "link_target_wording": [
+        {
+          "page": 9,
+          "english": "System Menu",
+          "russian": "Системное меню"
+        },
+        {
+          "page": 11,
+          "english": "Message Log",
+          "russian": "Журнал сообщений"
+        },
+        {
+          "page": 10,
+          "english": "Skip and Rewind",
+          "russian": "Пропуск и перемотка"
+        },
+        {
+          "page": 10,
+          "english": "Jump",
+          "russian": "Переход"
+        },
+        {
+          "page": 11,
+          "english": "Quick Save",
+          "russian": "Быстрое сохранение"
+        },
+        {
+          "page": 11,
+          "english": "Auto Mode",
+          "russian": "Автоматический режим"
+        }
+      ]
+    },
+    {
+      "asset_type": "page",
+      "pak": {
+        "name": "en_manual05",
+        "index": 25,
+        "entry_id": 64525
+      },
+      "image": {
+        "file": "0025-en_manual05.png",
+        "width": 1824,
+        "height": 974
+      },
+      "english_transcription": "Basic Controls\nPAGE 5\nSteam Deck™\n“Summer Pockets REFLECTION BLUE” can be played on Steam Deck.\nD-pad — Move cursor.\nA — Confirm selected option. / Advance messages.\nB — Cancel. / Close screen. Show the next full message.\nX — Open the System Menu.\nSee details on page 9 “System Menu”\nY — Show Message Log.\nSee details on page 11 “Message Log”\nR1 — Switch page. / Skip message while pressed.\nL1 — Switch page. / Rewind message while pressed.\nSee details on page 10 “Skip and Rewind”\nTilt the Left thumbstick to the Right. — Jump to the next choice.\nTilt the Left thumbstick to the Left. — Jump to the previous choice.\nSee details on page 10 “Jump”\nPress Right thumbstick. — Switch language.\nMenu button — Quick Save.\nSee details on page 11 “Quick Save”\nView button — Toggle Auto Mode on/off.\nSee details on page 11 “Auto Mode”\n©2021 Valve Corporation. Steam Deck and the Steam Deck logo are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries. All rights reserved.",
+      "russian_segments": [
+        {
+          "visual_box": "page title and badge",
+          "russian": "Основы управления\nСТР. 5",
+          "style": {
+            "font_size_px": 47,
+            "alignment": "title left, badge right",
+            "color": "#FFFFFF",
+            "effect": "blue outline/glow"
+          }
+        },
+        {
+          "visual_box": "section heading and intro",
+          "russian": "Steam Deck™\nВ «Summer Pockets REFLECTION BLUE» можно играть на Steam Deck.",
+          "style": {
+            "font_size_px": 29,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "left Steam Deck table",
+          "russian": "Крестовина — перемещать курсор.\nA — подтвердить выбранный пункт / перейти к следующему сообщению.\nB — отменить действие / закрыть экран; показать следующее сообщение целиком.\nX — открыть системное меню.\nY — открыть журнал сообщений.\nR1 — сменить страницу / пропускать сообщения, пока кнопка удерживается.\nL1 — сменить страницу / перематывать сообщения назад, пока кнопка удерживается.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111"
+          }
+        },
+        {
+          "visual_box": "right Steam Deck table",
+          "russian": "Отклонить левый стик вправо — перейти к следующему выбору.\nОтклонить левый стик влево — перейти к предыдущему выбору.\nНажать правый стик — сменить язык.\nКнопка Menu — быстрое сохранение.\nКнопка View — включить или выключить автоматический режим.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111"
+          }
+        },
+        {
+          "visual_box": "green cross-references",
+          "russian": "См. стр. 9 «Системное меню»\nСм. стр. 11 «Журнал сообщений»\nСм. стр. 10 «Пропуск и перемотка»\nСм. стр. 10 «Переход»\nСм. стр. 11 «Быстрое сохранение»\nСм. стр. 11 «Автоматический режим»",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#00C96B"
+          }
+        },
+        {
+          "visual_box": "legal notice",
+          "russian": "© Valve Corporation, 2021. Steam Deck и логотип Steam Deck являются товарными знаками и/или зарегистрированными товарными знаками Valve Corporation в США и/или других странах. Все права защищены.",
+          "style": {
+            "font_size_px": 19,
+            "alignment": "left",
+            "color": "#111111"
+          }
+        }
+      ],
+      "suggested_font": "Rounded geometric sans-serif; preserve Steam Deck™, Menu, View, R1 and L1 exactly.",
+      "link_target_wording": [
+        {
+          "page": 9,
+          "english": "System Menu",
+          "russian": "Системное меню"
+        },
+        {
+          "page": 11,
+          "english": "Message Log",
+          "russian": "Журнал сообщений"
+        },
+        {
+          "page": 10,
+          "english": "Skip and Rewind",
+          "russian": "Пропуск и перемотка"
+        },
+        {
+          "page": 10,
+          "english": "Jump",
+          "russian": "Переход"
+        },
+        {
+          "page": 11,
+          "english": "Quick Save",
+          "russian": "Быстрое сохранение"
+        },
+        {
+          "page": 11,
+          "english": "Auto Mode",
+          "russian": "Автоматический режим"
+        }
+      ]
+    },
+    {
+      "asset_type": "page",
+      "pak": {
+        "name": "en_manual06",
+        "index": 32,
+        "entry_id": 64532
+      },
+      "image": {
+        "file": "0032-en_manual06.png",
+        "width": 1824,
+        "height": 752
+      },
+      "english_transcription": "How to Start the Game\nPAGE 6\n“Summer Pockets REFLECTION BLUE” is a 1 player game.\nThe title screen and menus show up a few seconds after the game starts up. Left-click or tap the screen to choose.\nTitle Screen\nSTART — Play the game from the beginning.\nLOAD — Load a save and continue.\nSee details on page 16 “Load”\nOPTIONS — Open the Options screen to change the settings.\nSee details on page 12 “Options”\nMANUAL — Open this manual. You can also open it from the System Menu.\nEXIT — Exit the game.\nGALLERY — View the CGs already seen while playing the game. Press W to select and play a BGM track from “MUSIC”.\nCG Viewing Controls\nView variants: Left-click / Tap / Z or C / Flick Left or Right\nScroll: Up or Down arrows / Drag Up or Down\nZoom In/Out: Mouse Wheel Up or Down / Page Up or Page Down / Pinch In or Pinch Out\nMUSIC — Listen to music played during the game.\nRECORDS — See your game records here.",
+      "russian_segments": [
+        {
+          "visual_box": "page title and badge",
+          "russian": "Запуск игры\nСТР. 6",
+          "style": {
+            "font_size_px": 49,
+            "alignment": "title left, badge right",
+            "color": "#FFFFFF",
+            "effect": "blue outline/glow"
+          }
+        },
+        {
+          "visual_box": "intro",
+          "russian": "«Summer Pockets REFLECTION BLUE» — игра для одного игрока.\nЧерез несколько секунд после запуска появятся титульный экран и меню. Для выбора щёлкните левой кнопкой мыши или коснитесь экрана.",
+          "style": {
+            "font_size_px": 27,
+            "alignment": "left",
+            "color": "#111111"
+          }
+        },
+        {
+          "visual_box": "Title Screen heading",
+          "russian": "Титульный экран",
+          "style": {
+            "font_size_px": 34,
+            "alignment": "left",
+            "color": "#111111",
+            "weight": "bold"
+          }
+        },
+        {
+          "visual_box": "left menu list",
+          "russian": "START — начать игру с начала.\nLOAD — загрузить сохранение и продолжить игру.\nOPTIONS — открыть экран настроек.\nMANUAL — открыть руководство; оно также доступно из системного меню.\nEXIT — выйти из игры.",
+          "style": {
+            "font_size_px": 26,
+            "alignment": "left",
+            "color": "#111111",
+            "menu_label_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "right menu list",
+          "russian": "GALLERY — просмотреть уже открытые иллюстрации. Нажмите W, чтобы выбрать и воспроизвести композицию из раздела MUSIC.\nMUSIC — слушать музыку из игры.\nRECORDS — просмотреть игровые достижения и статистику.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "menu_label_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "CG Viewing Controls box",
+          "russian": "Управление просмотром CG\nВарианты: левая кнопка мыши / касание / Z или C / смахивание влево или вправо\nПрокрутка: ↑ или ↓ / перетаскивание вверх или вниз\nМасштаб: колесо мыши вверх или вниз / Page Up или Page Down / свести или развести пальцы",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "green cross-references",
+          "russian": "См. стр. 16 «Загрузка»\nСм. стр. 12 «Настройки»",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#00C96B"
+          }
+        }
+      ],
+      "suggested_font": "Rounded geometric sans-serif; keep title-screen labels START, LOAD, OPTIONS, MANUAL, EXIT, GALLERY, MUSIC and RECORDS in Latin uppercase if the game UI remains English-shaped.",
+      "link_target_wording": [
+        {
+          "page": 16,
+          "english": "Load",
+          "russian": "Загрузка"
+        },
+        {
+          "page": 12,
+          "english": "Options",
+          "russian": "Настройки"
+        }
+      ]
+    },
+    {
+      "asset_type": "page",
+      "pak": {
+        "name": "en_manual07",
+        "index": 35,
+        "entry_id": 64535
+      },
+      "image": {
+        "file": "0035-en_manual07.png",
+        "width": 1824,
+        "height": 960
+      },
+      "english_transcription": "How to Play the Game\nPAGE 7\n“Summer Pockets REFLECTION BLUE” is an adventure game where you read through dialogue displayed on the game screen. Choices are given in the process, and the story develops differently depending on your decisions.\nChoices\nTo select the choices, left-click or tap them.\nMap\nAs you progress through the game, new locations will be added to the map screen. Select an icon on the map to choose your destination. Left click with the mouse, tap, or use your controller's confirm button to select the icon for where you want to go.\nSHORTCUT MENU\nThe Shortcut Menu is displayed to the right of the message window. The Shortcut Menu can be set to “Hide” from the “Basic” section in the OPTIONS screen.\nSee details on page 12 “Shortcut Menu”\nMENU — Opens the System Menu screen.\nSKIP — Fast-forwards text that has already been read. Can be disabled by clicking or tapping the icon again.\nAUTO — Automatically advances text. Can be disabled by clicking or tapping the icon again.\nVOICE — Replays voiced dialogue. This option is not available for unvoiced text.\nEmbedded top screenshot: Shizuku; “Heheh! ♪ Tsumugi, this is my new friend.”; MENU; SKIP; AUTO; VOICE.\nEmbedded choice screenshot: “Give me a new cup of shaved ice, please.”; “Please fling some shaved ice at me.”; MENU; SKIP; AUTO; VOICE.\nEmbedded map screenshot: AM; 7; 30; Secret Base; SELECT; TORISHIROJIMA MAP.",
+      "russian_segments": [
+        {
+          "visual_box": "page title and badge",
+          "russian": "Как играть\nСТР. 7",
+          "style": {
+            "font_size_px": 49,
+            "alignment": "title left, badge right",
+            "color": "#FFFFFF",
+            "effect": "blue outline/glow"
+          }
+        },
+        {
+          "visual_box": "intro",
+          "russian": "«Summer Pockets REFLECTION BLUE» — приключенческая игра, в которой вы читаете диалоги на экране. По ходу игры вам предстоит делать выборы, от которых зависит развитие сюжета.",
+          "style": {
+            "font_size_px": 27,
+            "alignment": "left",
+            "color": "#111111"
+          }
+        },
+        {
+          "visual_box": "Choices section",
+          "russian": "Выборы\nЧтобы выбрать вариант, щёлкните по нему левой кнопкой мыши или коснитесь его.",
+          "style": {
+            "font_size_px": 27,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "Map section",
+          "russian": "Карта\nПо мере прохождения на карте будут появляться новые места. Чтобы выбрать пункт назначения, нажмите его значок левой кнопкой мыши, коснитесь его или используйте кнопку подтверждения на контроллере.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "Shortcut Menu section",
+          "russian": "ПАНЕЛЬ БЫСТРЫХ КОМАНД\nПанель быстрых команд находится справа от окна сообщения. Её можно скрыть в разделе «Основные» экрана «Настройки».\nСм. стр. 12 «Панель быстрых команд»",
+          "style": {
+            "font_size_px": 26,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_color": "#2F63D8",
+            "link_color": "#00C96B"
+          }
+        },
+        {
+          "visual_box": "shortcut command list",
+          "russian": "MENU — открыть системное меню.\nSKIP — быстро проматывать уже прочитанный текст; повторное нажатие отключает режим.\nAUTO — автоматически перелистывать текст; повторное нажатие отключает режим.\nVOICE — повторно воспроизвести озвученную реплику; для неозвученного текста команда недоступна.",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "labels_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "embedded top screenshot",
+          "russian": "Сидзуку\n«Хе-хе! ♪ Цумуги, это моя новая подруга».\nМЕНЮ / ПРОПУСК / АВТО / ГОЛОС",
+          "style": {
+            "font_size_px": 12,
+            "alignment": "as in screenshot",
+            "color": "preserve screenshot UI colors"
+          }
+        },
+        {
+          "visual_box": "embedded choice screenshot",
+          "russian": "«Дай мне ещё стаканчик колотого льда, пожалуйста».\n«А теперь брось в меня немного колотого льда».\nМЕНЮ / ПРОПУСК / АВТО / ГОЛОС",
+          "style": {
+            "font_size_px": 11,
+            "alignment": "center choices; right-align shortcut labels",
+            "color": "preserve screenshot UI colors"
+          }
+        },
+        {
+          "visual_box": "embedded map screenshot",
+          "russian": "AM / 7 / 30\nСекретная база\nВЫБОР\nКАРТА ТОРИСИРОДЗИМЫ",
+          "style": {
+            "font_size_px": 12,
+            "alignment": "as in screenshot",
+            "color": "preserve screenshot UI colors"
+          }
+        }
+      ],
+      "suggested_font": "Rounded geometric sans-serif; use blue bold labels for section names and command names, black body copy, green cross-reference text.",
+      "link_target_wording": [
+        {
+          "page": 12,
+          "english": "Shortcut Menu",
+          "russian": "Панель быстрых команд"
+        }
+      ]
+    },
+    {
+      "asset_type": "page",
+      "pak": {
+        "name": "en_manual08",
+        "index": 37,
+        "entry_id": 64537
+      },
+      "image": {
+        "file": "0037-en_manual08.png",
+        "width": 1824,
+        "height": 960
+      },
+      "english_transcription": "Minigame\nPAGE 8\nAs you progress through the game, you'll unlock the “Table Tennis”, “Islamon Battle”, and “Islapong Battle” minigames. Select the icons below from the map screen to start. (If you choose not to play, it will not affect the main story.)\nSecret Base (Table tennis)\nIslamon Battle\nIslapong Battle\n*Depending on how far you've progressed in the game, selecting the “Secret Base” may move you forward in the main story.\n*You can only play either Islamon Battle or Islapong Battle.\n*During the minigames, with some exceptions, you are unable to rewind scenes.\nTable tennis\nDo some table tennis training with Tenzen. Hit the ball to return shots at the right timing when it meets the icon on screen.\nReturn ball: Left Click / Enter / Tap / Controller's confirm button\nIntensity gauge\nThis will increase more the better you return shots. When this reaches its maximum, Tenzen will be in the zone and his shots will become harder to return.\nIcon\nThe icon's level changes when you successfully return a shot. When it reaches its maximum level, a special icon will appear, and you will be able to acquire more points and use killer shots. (If you start the Table Tennis minigame with the “a rally with a fixed number of hits” setting, the level will not increase.)\nIslamon Battle\nCatch the Islamons living on the island and use them to battle your rivals for the highest rank!\nHelp button\nCheck the rules and controls for the Islamon Battle.\nIslapong Battle\nPlay table tennis against your rivals on the island. In the qualifier singles rallies, you can select an opponent from the map screen. They will become a potential doubles partner when you defeat them. Compete through the main doubles tournament after that in order to win the top spot.\nHelp button\nCheck the rules and controls for the Islapong Battle.\nEmbedded table-tennis screenshot: INTENSITY GAUGE; SCORE; 150; 1 combo; “What's the matter?”; Pause; Icon.",
+      "russian_segments": [
+        {
+          "visual_box": "page title and badge",
+          "russian": "Мини-игры\nСТР. 8",
+          "style": {
+            "font_size_px": 49,
+            "alignment": "title left, badge right",
+            "color": "#FFFFFF",
+            "effect": "blue outline/glow"
+          }
+        },
+        {
+          "visual_box": "intro and map icons",
+          "russian": "По мере прохождения откроются мини-игры «Настольный теннис», «Битва исламонов» и «Ислапонг». Чтобы начать, выберите соответствующий значок на карте. Отказ от мини-игр не влияет на основной сюжет.\nСекретная база (настольный теннис)\nБитва исламонов\nИслапонг",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "icon_label_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "notice box",
+          "russian": "*В зависимости от текущего этапа игры выбор «Секретной базы» может продвинуть основной сюжет.\n*Можно проходить только одну из двух мини-игр: «Битву исламонов» или «Ислапонг».\n*Во время мини-игр, за редкими исключениями, перемотка сцен назад недоступна.",
+          "style": {
+            "font_size_px": 23,
+            "alignment": "left",
+            "color": "#111111",
+            "background": "pale blue"
+          }
+        },
+        {
+          "visual_box": "Table tennis section",
+          "russian": "Настольный теннис\nТренируйтесь с Тэндзэном. Отбивайте мяч в тот момент, когда он совпадает со значком на экране.\nОтбить мяч: левая кнопка мыши / Enter / касание / кнопка подтверждения на контроллере",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_weight": "bold"
+          }
+        },
+        {
+          "visual_box": "Intensity gauge callout",
+          "russian": "Шкала азарта\nЧем точнее вы отбиваете мячи, тем быстрее заполняется шкала. Когда она достигнет максимума, Тэндзэн войдёт в раж и его удары станет сложнее отбивать.",
+          "style": {
+            "font_size_px": 23,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "Icon callout",
+          "russian": "Значок\nУровень значка повышается после каждого успешно отбитого мяча. На максимальном уровне появится особый значок, позволяющий получать больше очков и выполнять мощные удары. Если начать мини-игру в режиме «розыгрыш с заданным числом ударов», уровень повышаться не будет.",
+          "style": {
+            "font_size_px": 23,
+            "alignment": "left",
+            "color": "#111111",
+            "heading_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "Islamon Battle section",
+          "russian": "Битва исламонов\nЛовите живущих на острове исламонов и сражайтесь с соперниками за первое место!\nКнопка справки\nОткрывает правила и управление «Битвы исламонов».",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#111111",
+            "help_label_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "Islapong Battle section",
+          "russian": "Ислапонг\nИграйте в настольный теннис против соперников с острова. В одиночных отборочных матчах соперника можно выбрать на карте. Победив его, вы сможете взять его в пару. Затем пройдите основной парный турнир и завоюйте первое место.\nКнопка справки\nОткрывает правила и управление «Ислапонга».",
+          "style": {
+            "font_size_px": 23,
+            "alignment": "left",
+            "color": "#111111",
+            "help_label_color": "#2F63D8"
+          }
+        },
+        {
+          "visual_box": "embedded table-tennis screenshot",
+          "russian": "ШКАЛА АЗАРТА\nСЧЁТ: 150\nКОМБО: 1\n«Что такое?»\nПауза\nЗначок",
+          "style": {
+            "font_size_px": 11,
+            "alignment": "as in screenshot",
+            "color": "preserve screenshot UI colors"
+          }
+        }
+      ],
+      "suggested_font": "Rounded geometric sans-serif; title 49 px, section headings 31–34 px, body 23–25 px, blue callout labels.",
+      "link_target_wording": null
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual01_Linkto_1_2",
+        "index": 3,
+        "entry_id": 64503
+      },
+      "image": {
+        "file": "0003-en_manual01_Linkto_1_2.png",
+        "width": 656,
+        "height": 58
+      },
+      "english_transcription": "Basic Controls    2",
+      "russian_segments": [
+        {
+          "visual_box": "contents hover link",
+          "russian": "Основы управления    2",
+          "style": {
+            "font_size_px": 38,
+            "alignment": "label left, page number right",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 2,
+        "english": "Basic Controls",
+        "russian": "Основы управления"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual01_Linkto_2_6",
+        "index": 4,
+        "entry_id": 64504
+      },
+      "image": {
+        "file": "0004-en_manual01_Linkto_2_6.png",
+        "width": 656,
+        "height": 59
+      },
+      "english_transcription": "How to Start the Game    6",
+      "russian_segments": [
+        {
+          "visual_box": "contents hover link",
+          "russian": "Запуск игры    6",
+          "style": {
+            "font_size_px": 38,
+            "alignment": "label left, page number right",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 6,
+        "english": "How to Start the Game",
+        "russian": "Запуск игры"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual01_Linkto_3_7",
+        "index": 5,
+        "entry_id": 64505
+      },
+      "image": {
+        "file": "0005-en_manual01_Linkto_3_7.png",
+        "width": 656,
+        "height": 62
+      },
+      "english_transcription": "How to Play the Game    7",
+      "russian_segments": [
+        {
+          "visual_box": "contents hover link",
+          "russian": "Как играть    7",
+          "style": {
+            "font_size_px": 38,
+            "alignment": "label left, page number right",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 7,
+        "english": "How to Play the Game",
+        "russian": "Как играть"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual01_Linkto_4_9",
+        "index": 6,
+        "entry_id": 64506
+      },
+      "image": {
+        "file": "0006-en_manual01_Linkto_4_9.png",
+        "width": 656,
+        "height": 63
+      },
+      "english_transcription": "System Menu    9",
+      "russian_segments": [
+        {
+          "visual_box": "contents hover link",
+          "russian": "Системное меню    9",
+          "style": {
+            "font_size_px": 38,
+            "alignment": "label left, page number right",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 9,
+        "english": "System Menu",
+        "russian": "Системное меню"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual01_Linkto_5_10",
+        "index": 7,
+        "entry_id": 64507
+      },
+      "image": {
+        "file": "0007-en_manual01_Linkto_5_10.png",
+        "width": 656,
+        "height": 59
+      },
+      "english_transcription": "Features    10",
+      "russian_segments": [
+        {
+          "visual_box": "contents hover link",
+          "russian": "Функции    10",
+          "style": {
+            "font_size_px": 38,
+            "alignment": "label left, page number right",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 10,
+        "english": "Features",
+        "russian": "Функции"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual01_Linkto_6_12",
+        "index": 8,
+        "entry_id": 64508
+      },
+      "image": {
+        "file": "0008-en_manual01_Linkto_6_12.png",
+        "width": 656,
+        "height": 63
+      },
+      "english_transcription": "Options    12",
+      "russian_segments": [
+        {
+          "visual_box": "contents hover link",
+          "russian": "Настройки    12",
+          "style": {
+            "font_size_px": 38,
+            "alignment": "label left, page number right",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 12,
+        "english": "Options",
+        "russian": "Настройки"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual01_Linkto_7_16",
+        "index": 9,
+        "entry_id": 64509
+      },
+      "image": {
+        "file": "0009-en_manual01_Linkto_7_16.png",
+        "width": 656,
+        "height": 59
+      },
+      "english_transcription": "Save & Load    16",
+      "russian_segments": [
+        {
+          "visual_box": "contents hover link",
+          "russian": "Сохранение и загрузка    16",
+          "style": {
+            "font_size_px": 36,
+            "alignment": "label left, page number right",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif; reduce to 34–36 px if needed to retain the original right margin.",
+      "link_target_wording": {
+        "page": 16,
+        "english": "Save & Load",
+        "russian": "Сохранение и загрузка"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual02_Linkto_1_9",
+        "index": 11,
+        "entry_id": 64511
+      },
+      "image": {
+        "file": "0011-en_manual02_Linkto_1_9.png",
+        "width": 544,
+        "height": 46
+      },
+      "english_transcription": "➜See details on page 9 “System Menu”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 9 «Системное меню»",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 9,
+        "english": "System Menu",
+        "russian": "Системное меню"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual02_Linkto_2_11",
+        "index": 12,
+        "entry_id": 64512
+      },
+      "image": {
+        "file": "0012-en_manual02_Linkto_2_11.png",
+        "width": 560,
+        "height": 47
+      },
+      "english_transcription": "➜See details on page 11 “Message Log”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 11 «Журнал сообщений»",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif; 24 px keeps the Russian label within the source width.",
+      "link_target_wording": {
+        "page": 11,
+        "english": "Message Log",
+        "russian": "Журнал сообщений"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual02_Linkto_3_10",
+        "index": 13,
+        "entry_id": 64513
+      },
+      "image": {
+        "file": "0013-en_manual02_Linkto_3_10.png",
+        "width": 464,
+        "height": 47
+      },
+      "english_transcription": "➜See details on page 10 “Jump”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 10 «Переход»",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 10,
+        "english": "Jump",
+        "russian": "Переход"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual02_Linkto_4_10",
+        "index": 14,
+        "entry_id": 64514
+      },
+      "image": {
+        "file": "0014-en_manual02_Linkto_4_10.png",
+        "width": 592,
+        "height": 46
+      },
+      "english_transcription": "➜See details on page 10 “Skip and Rewind”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 10 «Пропуск и перемотка»",
+          "style": {
+            "font_size_px": 23,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif; use 23 px to avoid clipping.",
+      "link_target_wording": {
+        "page": 10,
+        "english": "Skip and Rewind",
+        "russian": "Пропуск и перемотка"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual02_Linkto_5_11",
+        "index": 15,
+        "entry_id": 64515
+      },
+      "image": {
+        "file": "0015-en_manual02_Linkto_5_11.png",
+        "width": 528,
+        "height": 46
+      },
+      "english_transcription": "➜See details on page 11 “Auto Mode”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 11 «Автоматический режим»",
+          "style": {
+            "font_size_px": 22,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif; use 22 px for the longer Russian wording.",
+      "link_target_wording": {
+        "page": 11,
+        "english": "Auto Mode",
+        "russian": "Автоматический режим"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual03_Linkto_1_13",
+        "index": 17,
+        "entry_id": 64517
+      },
+      "image": {
+        "file": "0017-en_manual03_Linkto_1_13.png",
+        "width": 512,
+        "height": 46
+      },
+      "english_transcription": "➜See details on page 13 “Keyboard”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 13 «Клавиатура»",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 13,
+        "english": "Keyboard",
+        "russian": "Клавиатура"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual04_Linkto_1_9",
+        "index": 19,
+        "entry_id": 64519
+      },
+      "image": {
+        "file": "0019-en_manual04_Linkto_1_9.png",
+        "width": 560,
+        "height": 47
+      },
+      "english_transcription": "➜See details on page 9 “System Menu”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 9 «Системное меню»",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 9,
+        "english": "System Menu",
+        "russian": "Системное меню"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual04_Linkto_2_11",
+        "index": 20,
+        "entry_id": 64520
+      },
+      "image": {
+        "file": "0020-en_manual04_Linkto_2_11.png",
+        "width": 576,
+        "height": 47
+      },
+      "english_transcription": "➜See details on page 11 “Message Log”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 11 «Журнал сообщений»",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 11,
+        "english": "Message Log",
+        "russian": "Журнал сообщений"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual04_Linkto_3_10",
+        "index": 21,
+        "entry_id": 64521
+      },
+      "image": {
+        "file": "0021-en_manual04_Linkto_3_10.png",
+        "width": 608,
+        "height": 47
+      },
+      "english_transcription": "➜See details on page 10 “Skip and Rewind”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 10 «Пропуск и перемотка»",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 10,
+        "english": "Skip and Rewind",
+        "russian": "Пропуск и перемотка"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual04_Linkto_4_10",
+        "index": 22,
+        "entry_id": 64522
+      },
+      "image": {
+        "file": "0022-en_manual04_Linkto_4_10.png",
+        "width": 464,
+        "height": 47
+      },
+      "english_transcription": "➜See details on page 10 “Jump”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 10 «Переход»",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 10,
+        "english": "Jump",
+        "russian": "Переход"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual04_Linkto_5_11",
+        "index": 23,
+        "entry_id": 64523
+      },
+      "image": {
+        "file": "0023-en_manual04_Linkto_5_11.png",
+        "width": 368,
+        "height": 75
+      },
+      "english_transcription": "➜See details on page 11\n“Quick Save”",
+      "russian_segments": [
+        {
+          "visual_box": "two-line cross-reference hover",
+          "russian": "➜См. стр. 11\n«Быстрое сохранение»",
+          "style": {
+            "font_size_px": 23,
+            "alignment": "first line left, second line centered",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif; retain the two-line layout.",
+      "link_target_wording": {
+        "page": 11,
+        "english": "Quick Save",
+        "russian": "Быстрое сохранение"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual04_Linkto_6_11",
+        "index": 24,
+        "entry_id": 64524
+      },
+      "image": {
+        "file": "0024-en_manual04_Linkto_6_11.png",
+        "width": 368,
+        "height": 73
+      },
+      "english_transcription": "➜See details on page 11\n“Auto Mode”",
+      "russian_segments": [
+        {
+          "visual_box": "two-line cross-reference hover",
+          "russian": "➜См. стр. 11\n«Автоматический режим»",
+          "style": {
+            "font_size_px": 20,
+            "alignment": "first line left, second line centered",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif; use 20 px on the second line to fit.",
+      "link_target_wording": {
+        "page": 11,
+        "english": "Auto Mode",
+        "russian": "Автоматический режим"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual05_Linkto_1_9",
+        "index": 26,
+        "entry_id": 64526
+      },
+      "image": {
+        "file": "0026-en_manual05_Linkto_1_9.png",
+        "width": 544,
+        "height": 46
+      },
+      "english_transcription": "➜See details on page 9 “System Menu”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 9 «Системное меню»",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 9,
+        "english": "System Menu",
+        "russian": "Системное меню"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual05_Linkto_2_11",
+        "index": 27,
+        "entry_id": 64527
+      },
+      "image": {
+        "file": "0027-en_manual05_Linkto_2_11.png",
+        "width": 560,
+        "height": 47
+      },
+      "english_transcription": "➜See details on page 11 “Message Log”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 11 «Журнал сообщений»",
+          "style": {
+            "font_size_px": 24,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 11,
+        "english": "Message Log",
+        "russian": "Журнал сообщений"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual05_Linkto_3_10",
+        "index": 28,
+        "entry_id": 64528
+      },
+      "image": {
+        "file": "0028-en_manual05_Linkto_3_10.png",
+        "width": 592,
+        "height": 46
+      },
+      "english_transcription": "➜See details on page 10 “Skip and Rewind”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 10 «Пропуск и перемотка»",
+          "style": {
+            "font_size_px": 23,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif; use 23 px to avoid clipping.",
+      "link_target_wording": {
+        "page": 10,
+        "english": "Skip and Rewind",
+        "russian": "Пропуск и перемотка"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual05_Linkto_4_10",
+        "index": 29,
+        "entry_id": 64529
+      },
+      "image": {
+        "file": "0029-en_manual05_Linkto_4_10.png",
+        "width": 464,
+        "height": 45
+      },
+      "english_transcription": "➜See details on page 10 “Jump”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 10 «Переход»",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 10,
+        "english": "Jump",
+        "russian": "Переход"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual05_Linkto_5_11",
+        "index": 30,
+        "entry_id": 64530
+      },
+      "image": {
+        "file": "0030-en_manual05_Linkto_5_11.png",
+        "width": 368,
+        "height": 73
+      },
+      "english_transcription": "➜See details on page 11\n“Quick Save”",
+      "russian_segments": [
+        {
+          "visual_box": "two-line cross-reference hover",
+          "russian": "➜См. стр. 11\n«Быстрое сохранение»",
+          "style": {
+            "font_size_px": 23,
+            "alignment": "first line left, second line centered",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif; retain the two-line layout.",
+      "link_target_wording": {
+        "page": 11,
+        "english": "Quick Save",
+        "russian": "Быстрое сохранение"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual05_Linkto_6_11",
+        "index": 31,
+        "entry_id": 64531
+      },
+      "image": {
+        "file": "0031-en_manual05_Linkto_6_11.png",
+        "width": 368,
+        "height": 72
+      },
+      "english_transcription": "➜See details on page 11\n“Auto Mode”",
+      "russian_segments": [
+        {
+          "visual_box": "two-line cross-reference hover",
+          "russian": "➜См. стр. 11\n«Автоматический режим»",
+          "style": {
+            "font_size_px": 20,
+            "alignment": "first line left, second line centered",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif; use 20 px on the second line to fit.",
+      "link_target_wording": {
+        "page": 11,
+        "english": "Auto Mode",
+        "russian": "Автоматический режим"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual06_Linkto_1_16",
+        "index": 33,
+        "entry_id": 64533
+      },
+      "image": {
+        "file": "0033-en_manual06_Linkto_1_16.png",
+        "width": 464,
+        "height": 45
+      },
+      "english_transcription": "➜See details on page 16 “Load”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 16 «Загрузка»",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 16,
+        "english": "Load",
+        "russian": "Загрузка"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual06_Linkto_2_12",
+        "index": 34,
+        "entry_id": 64534
+      },
+      "image": {
+        "file": "0034-en_manual06_Linkto_2_12.png",
+        "width": 496,
+        "height": 45
+      },
+      "english_transcription": "➜See details on page 12 “Options”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 12 «Настройки»",
+          "style": {
+            "font_size_px": 25,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif.",
+      "link_target_wording": {
+        "page": 12,
+        "english": "Options",
+        "russian": "Настройки"
+      }
+    },
+    {
+      "asset_type": "overlay",
+      "pak": {
+        "name": "en_manual07_Linkto_1_12",
+        "index": 36,
+        "entry_id": 64536
+      },
+      "image": {
+        "file": "0036-en_manual07_Linkto_1_12.png",
+        "width": 592,
+        "height": 46
+      },
+      "english_transcription": "➜See details on page 12 “Shortcut Menu”",
+      "russian_segments": [
+        {
+          "visual_box": "cross-reference hover",
+          "russian": "➜См. стр. 12 «Панель быстрых команд»",
+          "style": {
+            "font_size_px": 22,
+            "alignment": "left",
+            "color": "#FFFFFF",
+            "outline": "#128CFF",
+            "effect": "soft blue glow"
+          }
+        }
+      ],
+      "suggested_font": "Bold rounded sans-serif; use 22 px for the longer Russian wording.",
+      "link_target_wording": {
+        "page": 12,
+        "english": "Shortcut Menu",
+        "russian": "Панель быстрых команд"
+      }
+    }
+  ],
+  "status": "draft",
+  "canonical_asset_id": "manual_main_01_08",
+  "archive_sha256": "sha256:058bc1bd51b4138660e0197a3f631486b2d7a2ac0f945cda24b706595a31e85b",
+  "source_draft_sha256": "sha256:1e4370c5584abe5626d41f70a45f6fab37d566d2ebdc18d4b22847907f3dd274"
+}

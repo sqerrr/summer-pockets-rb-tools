@@ -1,0 +1,2332 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "archive": "MANUAL.PAK",
+    "language": "English",
+    "pages": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "page_count": 8,
+    "overlay_count": 10,
+    "entry_count": 18,
+    "source_directory": "build/steam/ui-assets/MANUAL/images",
+    "notes": [
+      "Transcription includes page furniture and legible English text inside embedded screenshots.",
+      "Physical key names are retained in Latin script in the Russian copy.",
+      "Font sizes are target raster sizes at the original asset dimensions and may be reduced by 1-3 px where Russian copy needs extra width.",
+      "Pages 12 and 16 are RGBA assets; suggested black text assumes the manual's light compositing background, not a black transparency preview."
+    ]
+  },
+  "entries": [
+    {
+      "archive": "MANUAL.PAK",
+      "index": 38,
+      "entry_id": 64538,
+      "name": "en_manual09",
+      "asset_type": "page",
+      "page": 9,
+      "source_png": "0038-en_manual09.png",
+      "dimensions": {
+        "width": 1824,
+        "height": 830,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 19
+      },
+      "full_english_transcription": [
+        "System Menu",
+        "PAGE 9",
+        "[Embedded System Menu screenshot] SAVE | LOAD | RECORD | OPTIONS | TITLE | QUICK SAVE | QUICK LOAD | MANUAL | EXIT | \"A wounded migratory bird, I guess.\" | MENU | SKIP | AUTO | Close",
+        "Right-click, press W, or Flick Up during play to bring up the System Menu.",
+        "SAVE",
+        "Save the progress of the game.",
+        "See details on page 16 \"Save\"",
+        "LOAD",
+        "Load a save and continue.",
+        "See details on page 16 \"Load\"",
+        "RECORDS",
+        "See your game records here.",
+        "OPTIONS",
+        "Open the Options screen to change the settings.",
+        "See details on page 12 \"Options\"",
+        "TITLE",
+        "Suspend the game and return to the title screen.",
+        "Please note that any unsaved progress will be lost.",
+        "QUICK SAVE",
+        "Save progress without opening the save screen.",
+        "See details on page 11 \"Quick Save\"",
+        "QUICK LOAD",
+        "Resume the game from the Quick Save.",
+        "See details on page 11 \"Quick Load\"",
+        "MANUAL",
+        "Open this Manual.",
+        "EXIT",
+        "Exit the Game.",
+        "Please note that any unsaved progress will be lost."
+      ],
+      "russian_segments": [
+        {
+          "region": "page_title",
+          "source_english": "System Menu",
+          "russian": [
+            "Системное меню"
+          ],
+          "style_role": "page_title"
+        },
+        {
+          "region": "page_number",
+          "source_english": "PAGE 9",
+          "russian": [
+            "СТР. 9"
+          ],
+          "style_role": "page_number"
+        },
+        {
+          "region": "intro",
+          "source_english": "Right-click, press W, or Flick Up during play to bring up the System Menu.",
+          "russian": [
+            "Чтобы открыть системное меню во время игры, щёлкните правой кнопкой мыши, нажмите W или сделайте свайп вверх."
+          ],
+          "style_role": "body"
+        },
+        {
+          "region": "left_box_save",
+          "source_english": "SAVE / Save the progress of the game. / See details on page 16 \"Save\"",
+          "russian": [
+            "СОХРАНИТЬ",
+            "Сохранить прогресс игры.",
+            "Подробнее на стр. 16, раздел \"Сохранение\""
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "link"
+          ]
+        },
+        {
+          "region": "left_box_load",
+          "source_english": "LOAD / Load a save and continue. / See details on page 16 \"Load\"",
+          "russian": [
+            "ЗАГРУЗИТЬ",
+            "Загрузить сохранение и продолжить игру.",
+            "Подробнее на стр. 16, раздел \"Загрузка\""
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "link"
+          ]
+        },
+        {
+          "region": "left_box_records",
+          "source_english": "RECORDS / See your game records here.",
+          "russian": [
+            "ЗАПИСИ",
+            "Просмотреть игровые записи."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_box_options",
+          "source_english": "OPTIONS / Open the Options screen to change the settings. / See details on page 12 \"Options\"",
+          "russian": [
+            "НАСТРОЙКИ",
+            "Открыть экран настроек.",
+            "Подробнее на стр. 12, раздел \"Настройки\""
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "link"
+          ]
+        },
+        {
+          "region": "left_box_title",
+          "source_english": "TITLE / Suspend the game and return to the title screen. / Please note that any unsaved progress will be lost.",
+          "russian": [
+            "ТИТУЛЬНЫЙ ЭКРАН",
+            "Прервать игру и вернуться на титульный экран.",
+            "Весь несохранённый прогресс будет потерян."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "body"
+          ]
+        },
+        {
+          "region": "right_box_quick_save",
+          "source_english": "QUICK SAVE / Save progress without opening the save screen. / See details on page 11 \"Quick Save\"",
+          "russian": [
+            "БЫСТРОЕ СОХРАНЕНИЕ",
+            "Сохранить прогресс, не открывая экран сохранения.",
+            "Подробнее на стр. 11, раздел \"Быстрое сохранение\""
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "link"
+          ]
+        },
+        {
+          "region": "right_box_quick_load",
+          "source_english": "QUICK LOAD / Resume the game from the Quick Save. / See details on page 11 \"Quick Load\"",
+          "russian": [
+            "БЫСТРАЯ ЗАГРУЗКА",
+            "Продолжить игру с быстрого сохранения.",
+            "Подробнее на стр. 11, раздел \"Быстрая загрузка\""
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "link"
+          ]
+        },
+        {
+          "region": "right_box_manual",
+          "source_english": "MANUAL / Open this Manual.",
+          "russian": [
+            "РУКОВОДСТВО",
+            "Открыть это руководство."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_box_exit",
+          "source_english": "EXIT / Exit the Game. / Please note that any unsaved progress will be lost.",
+          "russian": [
+            "ВЫЙТИ",
+            "Выйти из игры.",
+            "Весь несохранённый прогресс будет потерян."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "body"
+          ]
+        },
+        {
+          "region": "embedded_screenshot",
+          "source_english": "SAVE | LOAD | RECORD | OPTIONS | TITLE | QUICK SAVE | QUICK LOAD | MANUAL | EXIT | \"A wounded migratory bird, I guess.\" | MENU | SKIP | AUTO | Close",
+          "russian": [
+            "СОХРАНИТЬ | ЗАГРУЗИТЬ | ЗАПИСИ | НАСТРОЙКИ | ТИТУЛЬНЫЙ ЭКРАН | БЫСТРОЕ СОХРАНЕНИЕ | БЫСТРАЯ ЗАГРУЗКА | РУКОВОДСТВО | ВЫЙТИ",
+            "\"Похоже, раненая перелётная птица\".",
+            "МЕНЮ | ПРОПУСК | АВТО | Закрыть"
+          ],
+          "style_role": "screenshot_text"
+        }
+      ],
+      "suggested_typography": {
+        "page_title": {
+          "font_size_px": 58,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "6-8 px bright-blue outline and soft cyan glow"
+        },
+        "page_number": {
+          "font_size_px": 28,
+          "alignment": "right",
+          "color": "#FFFFFF",
+          "effects": "blue plaque; number may be 48 px"
+        },
+        "item_heading": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#3567D9",
+          "effects": "bold; retain blue diamond bullet"
+        },
+        "body": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "regular"
+        },
+        "link": {
+          "font_size_px": 25,
+          "alignment": "left",
+          "color": "#00C865",
+          "effects": "bold; green arrow icon"
+        },
+        "screenshot_text": {
+          "font_size_px": "match embedded source",
+          "alignment": "as shown",
+          "color": "#DDF5FF",
+          "effects": "do not redraw unless screenshot itself is localized"
+        }
+      },
+      "link_targets": [
+        {
+          "page": 16,
+          "english_label": "Save",
+          "russian_label": "Сохранение",
+          "russian_wording": "Подробнее на стр. 16, раздел \"Сохранение\""
+        },
+        {
+          "page": 16,
+          "english_label": "Load",
+          "russian_label": "Загрузка",
+          "russian_wording": "Подробнее на стр. 16, раздел \"Загрузка\""
+        },
+        {
+          "page": 12,
+          "english_label": "Options",
+          "russian_label": "Настройки",
+          "russian_wording": "Подробнее на стр. 12, раздел \"Настройки\""
+        },
+        {
+          "page": 11,
+          "english_label": "Quick Save",
+          "russian_label": "Быстрое сохранение",
+          "russian_wording": "Подробнее на стр. 11, раздел \"Быстрое сохранение\""
+        },
+        {
+          "page": 11,
+          "english_label": "Quick Load",
+          "russian_label": "Быстрая загрузка",
+          "russian_wording": "Подробнее на стр. 11, раздел \"Быстрая загрузка\""
+        }
+      ]
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 39,
+      "entry_id": 64539,
+      "name": "en_manual09_Linkto_1_16",
+      "asset_type": "link_overlay",
+      "page": 9,
+      "source_png": "0039-en_manual09_Linkto_1_16.png",
+      "dimensions": {
+        "width": 448,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 240,
+        "offset_y": 431
+      },
+      "full_english_transcription": [
+        "See details on page 16 \"Save\""
+      ],
+      "russian_segments": [
+        {
+          "region": "overlay_label",
+          "source_english": "See details on page 16 \"Save\"",
+          "russian": [
+            "Подробнее на стр. 16: \"Сохранение\""
+          ],
+          "style_role": "hover_link"
+        }
+      ],
+      "suggested_typography": {
+        "hover_link": {
+          "font_size_px": 24,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bold; 3-4 px #0A8DFF outline; blue arrow icon"
+        }
+      },
+      "link_target": {
+        "page": 16,
+        "english_label": "Save",
+        "russian_label": "Сохранение",
+        "russian_wording": "Подробнее на стр. 16: \"Сохранение\""
+      }
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 40,
+      "entry_id": 64540,
+      "name": "en_manual09_Linkto_2_16",
+      "asset_type": "link_overlay",
+      "page": 9,
+      "source_png": "0040-en_manual09_Linkto_2_16.png",
+      "dimensions": {
+        "width": 448,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 240,
+        "offset_y": 536
+      },
+      "full_english_transcription": [
+        "See details on page 16 \"Load\""
+      ],
+      "russian_segments": [
+        {
+          "region": "overlay_label",
+          "source_english": "See details on page 16 \"Load\"",
+          "russian": [
+            "Подробнее на стр. 16: \"Загрузка\""
+          ],
+          "style_role": "hover_link"
+        }
+      ],
+      "suggested_typography": {
+        "hover_link": {
+          "font_size_px": 24,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bold; 3-4 px #0A8DFF outline; blue arrow icon"
+        }
+      },
+      "link_target": {
+        "page": 16,
+        "english_label": "Load",
+        "russian_label": "Загрузка",
+        "russian_wording": "Подробнее на стр. 16: \"Загрузка\""
+      }
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 41,
+      "entry_id": 64541,
+      "name": "en_manual09_Linkto_3_12",
+      "asset_type": "link_overlay",
+      "page": 9,
+      "source_png": "0041-en_manual09_Linkto_3_12.png",
+      "dimensions": {
+        "width": 480,
+        "height": 44,
+        "bpp": 8,
+        "offset_x": 240,
+        "offset_y": 711
+      },
+      "full_english_transcription": [
+        "See details on page 12 \"Options\""
+      ],
+      "russian_segments": [
+        {
+          "region": "overlay_label",
+          "source_english": "See details on page 12 \"Options\"",
+          "russian": [
+            "Подробнее на стр. 12: \"Настройки\""
+          ],
+          "style_role": "hover_link"
+        }
+      ],
+      "suggested_typography": {
+        "hover_link": {
+          "font_size_px": 24,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bold; 3-4 px #0A8DFF outline; blue arrow icon"
+        }
+      },
+      "link_target": {
+        "page": 12,
+        "english_label": "Options",
+        "russian_label": "Настройки",
+        "russian_wording": "Подробнее на стр. 12: \"Настройки\""
+      }
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 42,
+      "entry_id": 64542,
+      "name": "en_manual09_Linkto_4_11",
+      "asset_type": "link_overlay",
+      "page": 9,
+      "source_png": "0042-en_manual09_Linkto_4_11.png",
+      "dimensions": {
+        "width": 528,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 1136,
+        "offset_y": 429
+      },
+      "full_english_transcription": [
+        "See details on page 11 \"Quick Save\""
+      ],
+      "russian_segments": [
+        {
+          "region": "overlay_label",
+          "source_english": "See details on page 11 \"Quick Save\"",
+          "russian": [
+            "Подробнее на стр. 11: \"Быстрое сохранение\""
+          ],
+          "style_role": "hover_link"
+        }
+      ],
+      "suggested_typography": {
+        "hover_link": {
+          "font_size_px": 22,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bold condensed if needed; 3-4 px #0A8DFF outline; blue arrow icon"
+        }
+      },
+      "link_target": {
+        "page": 11,
+        "english_label": "Quick Save",
+        "russian_label": "Быстрое сохранение",
+        "russian_wording": "Подробнее на стр. 11: \"Быстрое сохранение\""
+      }
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 43,
+      "entry_id": 64543,
+      "name": "en_manual09_Linkto_5_11",
+      "asset_type": "link_overlay",
+      "page": 9,
+      "source_png": "0043-en_manual09_Linkto_5_11.png",
+      "dimensions": {
+        "width": 528,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 1136,
+        "offset_y": 536
+      },
+      "full_english_transcription": [
+        "See details on page 11 \"Quick Load\""
+      ],
+      "russian_segments": [
+        {
+          "region": "overlay_label",
+          "source_english": "See details on page 11 \"Quick Load\"",
+          "russian": [
+            "Подробнее на стр. 11: \"Быстрая загрузка\""
+          ],
+          "style_role": "hover_link"
+        }
+      ],
+      "suggested_typography": {
+        "hover_link": {
+          "font_size_px": 22,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bold condensed if needed; 3-4 px #0A8DFF outline; blue arrow icon"
+        }
+      },
+      "link_target": {
+        "page": 11,
+        "english_label": "Quick Load",
+        "russian_label": "Быстрая загрузка",
+        "russian_wording": "Подробнее на стр. 11: \"Быстрая загрузка\""
+      }
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 44,
+      "entry_id": 64544,
+      "name": "en_manual10",
+      "asset_type": "page",
+      "page": 10,
+      "source_png": "0044-en_manual10.png",
+      "dimensions": {
+        "width": 1824,
+        "height": 718,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 20
+      },
+      "full_english_transcription": [
+        "Features",
+        "PAGE 10",
+        "Skip and Rewind [C]・[Z]keys",
+        "Skip or rewind messages.",
+        "Previously read messages are skipped while C is pressed.",
+        "You can also rewind up to 500 messages back by pressing and holding Z. This is possible even after loading your save data.",
+        "Controls can be changed in OPTIONS.",
+        "See details on page 12 \"Options\"",
+        "Mouse Controls & Touch Gestures",
+        "You can skip or rewind messages by dragging or flicking inside the message window.",
+        "Rewind : Drag Left (The farther you drag,",
+        "Skip : Drag Right the faster you'll skip/rewind.)",
+        "Auto Rewind : Flick Left (Left-click or tap to stop.)",
+        "Auto Skip : Flick Right",
+        "Directional settings for drag/flick can be changed in OPTIONS.",
+        "See details on page 15 \"Touch\"",
+        "Jump [E]・[Q]keys",
+        "Pressing E in the game takes you to the next choice, and pressing Q takes you to the previous one.",
+        "Jump to the start of previously read choice.",
+        "Mouse Controls & Touch Gestures",
+        "You can jump by flicking outside the message window.",
+        "Jump (Backward) : Flick Left",
+        "Return to previous choice.",
+        "Jump (Forward) : Flick Right",
+        "Jump to the next choice, or to your last read message if there are no available choices.",
+        "Directional settings for flick can be changed in OPTIONS.",
+        "See details on page 15 \"Touch\""
+      ],
+      "russian_segments": [
+        {
+          "region": "page_title",
+          "source_english": "Features",
+          "russian": [
+            "Возможности"
+          ],
+          "style_role": "page_title"
+        },
+        {
+          "region": "page_number",
+          "source_english": "PAGE 10",
+          "russian": [
+            "СТР. 10"
+          ],
+          "style_role": "page_number"
+        },
+        {
+          "region": "left_heading",
+          "source_english": "Skip and Rewind [C]・[Z]keys",
+          "russian": [
+            "Пропуск и перемотка [C]・[Z]"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "left_body",
+          "source_english": "Skip or rewind messages. Previously read messages are skipped while C is pressed. You can also rewind up to 500 messages back by pressing and holding Z. This is possible even after loading your save data. Controls can be changed in OPTIONS.",
+          "russian": [
+            "Пропуск или перемотка сообщений.",
+            "Удерживайте C, чтобы пропускать уже прочитанные сообщения.",
+            "Удерживая Z, можно перемотать назад до 500 сообщений, в том числе после загрузки сохранения.",
+            "Назначение клавиш меняется в НАСТРОЙКАХ."
+          ],
+          "style_role": "body"
+        },
+        {
+          "region": "left_options_link",
+          "source_english": "See details on page 12 \"Options\"",
+          "russian": [
+            "Подробнее на стр. 12, раздел \"Настройки\""
+          ],
+          "style_role": "link"
+        },
+        {
+          "region": "left_gesture_box",
+          "source_english": "Mouse Controls & Touch Gestures ... See details on page 15 \"Touch\"",
+          "russian": [
+            "Мышь и сенсорные жесты",
+            "Сообщения можно пропускать и перематывать, проводя или делая свайп внутри окна сообщений.",
+            "Перемотка: провести влево",
+            "Пропуск: провести вправо",
+            "Чем дальше провести, тем быстрее пропуск или перемотка.",
+            "Автоперемотка: свайп влево",
+            "Автопропуск: свайп вправо",
+            "Для остановки щёлкните левой кнопкой мыши или коснитесь экрана.",
+            "Направления жестов можно изменить в НАСТРОЙКАХ.",
+            "Подробнее на стр. 15, раздел \"Сенсорное управление\""
+          ],
+          "style_roles": [
+            "info_heading",
+            "info_body",
+            "info_body",
+            "info_body",
+            "info_body",
+            "info_body",
+            "info_body",
+            "info_body",
+            "info_body",
+            "link"
+          ]
+        },
+        {
+          "region": "right_heading",
+          "source_english": "Jump [E]・[Q]keys",
+          "russian": [
+            "Переход [E]・[Q]"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "right_body",
+          "source_english": "Pressing E in the game takes you to the next choice, and pressing Q takes you to the previous one. Jump to the start of previously read choice.",
+          "russian": [
+            "Нажмите E, чтобы перейти к следующему выбору, или Q, чтобы вернуться к предыдущему.",
+            "Переход выполняется к началу уже прочитанного выбора."
+          ],
+          "style_role": "body"
+        },
+        {
+          "region": "right_gesture_box",
+          "source_english": "Mouse Controls & Touch Gestures ... See details on page 15 \"Touch\"",
+          "russian": [
+            "Мышь и сенсорные жесты",
+            "Для перехода сделайте свайп за пределами окна сообщений.",
+            "Назад: свайп влево",
+            "Вернуться к предыдущему выбору.",
+            "Вперёд: свайп вправо",
+            "Перейти к следующему выбору, а если его нет — к последнему прочитанному сообщению.",
+            "Направления свайпов можно изменить в НАСТРОЙКАХ.",
+            "Подробнее на стр. 15, раздел \"Сенсорное управление\""
+          ],
+          "style_roles": [
+            "info_heading",
+            "info_body",
+            "info_body",
+            "info_body",
+            "info_body",
+            "info_body",
+            "info_body",
+            "link"
+          ]
+        }
+      ],
+      "suggested_typography": {
+        "page_title": {
+          "font_size_px": 58,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bright-blue outline/glow"
+        },
+        "page_number": {
+          "font_size_px": 28,
+          "alignment": "right",
+          "color": "#FFFFFF",
+          "effects": "blue plaque; number 48 px"
+        },
+        "section_heading": {
+          "font_size_px": 36,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "bold; butterfly icon and rule"
+        },
+        "body": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "regular"
+        },
+        "info_heading": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#3567D9",
+          "effects": "bold"
+        },
+        "info_body": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "labels bold, actions regular; pale-blue box #DCE7FA"
+        },
+        "link": {
+          "font_size_px": 25,
+          "alignment": "left",
+          "color": "#00C865",
+          "effects": "bold; green arrow icon"
+        }
+      },
+      "link_targets": [
+        {
+          "page": 12,
+          "english_label": "Options",
+          "russian_label": "Настройки",
+          "russian_wording": "Подробнее на стр. 12, раздел \"Настройки\""
+        },
+        {
+          "page": 15,
+          "english_label": "Touch",
+          "russian_label": "Сенсорное управление",
+          "russian_wording": "Подробнее на стр. 15, раздел \"Сенсорное управление\""
+        }
+      ]
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 45,
+      "entry_id": 64545,
+      "name": "en_manual10_Linkto_1_15",
+      "asset_type": "link_overlay",
+      "page": 10,
+      "source_png": "0045-en_manual10_Linkto_1_15.png",
+      "dimensions": {
+        "width": 464,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 992,
+        "offset_y": 683
+      },
+      "full_english_transcription": [
+        "See details on page 15 \"Touch\""
+      ],
+      "russian_segments": [
+        {
+          "region": "overlay_label",
+          "source_english": "See details on page 15 \"Touch\"",
+          "russian": [
+            "Подробнее на стр. 15: \"Сенсорное управление\""
+          ],
+          "style_role": "hover_link"
+        }
+      ],
+      "suggested_typography": {
+        "hover_link": {
+          "font_size_px": 21,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bold condensed; 3-4 px #0A8DFF outline; blue arrow icon"
+        }
+      },
+      "link_target": {
+        "page": 15,
+        "english_label": "Touch",
+        "russian_label": "Сенсорное управление",
+        "russian_wording": "Подробнее на стр. 15: \"Сенсорное управление\""
+      }
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 46,
+      "entry_id": 64546,
+      "name": "en_manual10_Linkto_3_12",
+      "asset_type": "link_overlay",
+      "page": 10,
+      "source_png": "0046-en_manual10_Linkto_3_12.png",
+      "dimensions": {
+        "width": 496,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 318
+      },
+      "full_english_transcription": [
+        "See details on page 12 \"Options\""
+      ],
+      "russian_segments": [
+        {
+          "region": "overlay_label",
+          "source_english": "See details on page 12 \"Options\"",
+          "russian": [
+            "Подробнее на стр. 12: \"Настройки\""
+          ],
+          "style_role": "hover_link"
+        }
+      ],
+      "suggested_typography": {
+        "hover_link": {
+          "font_size_px": 24,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bold; 3-4 px #0A8DFF outline; blue arrow icon"
+        }
+      },
+      "link_target": {
+        "page": 12,
+        "english_label": "Options",
+        "russian_label": "Настройки",
+        "russian_wording": "Подробнее на стр. 12: \"Настройки\""
+      }
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 47,
+      "entry_id": 64547,
+      "name": "en_manual10_Linkto_4_15",
+      "asset_type": "link_overlay",
+      "page": 10,
+      "source_png": "0047-en_manual10_Linkto_4_15.png",
+      "dimensions": {
+        "width": 464,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 64,
+        "offset_y": 685
+      },
+      "full_english_transcription": [
+        "See details on page 15 \"Touch\""
+      ],
+      "russian_segments": [
+        {
+          "region": "overlay_label",
+          "source_english": "See details on page 15 \"Touch\"",
+          "russian": [
+            "Подробнее на стр. 15: \"Сенсорное управление\""
+          ],
+          "style_role": "hover_link"
+        }
+      ],
+      "suggested_typography": {
+        "hover_link": {
+          "font_size_px": 21,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bold condensed; 3-4 px #0A8DFF outline; blue arrow icon"
+        }
+      },
+      "link_target": {
+        "page": 15,
+        "english_label": "Touch",
+        "russian_label": "Сенсорное управление",
+        "russian_wording": "Подробнее на стр. 15: \"Сенсорное управление\""
+      }
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 48,
+      "entry_id": 64548,
+      "name": "en_manual11",
+      "asset_type": "page",
+      "page": 11,
+      "source_png": "0048-en_manual11.png",
+      "dimensions": {
+        "width": 1824,
+        "height": 950,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 28
+      },
+      "full_english_transcription": [
+        "Features",
+        "PAGE 11",
+        "Auto Mode [A]key",
+        "Pressing A in-game turns on Auto Mode. Pressing A again turns it off. You can change the Auto Mode speed in OPTIONS.",
+        "See details on page 13 \"Text2\"",
+        "Mouse Controls & Touch Gestures",
+        "Turn on Auto Mode :",
+        "You can enable Auto Mode by tapping and holding inside the message window. Left-click or tap to cancel.",
+        "Quick Save [F1]key",
+        "You can save your progress without going to the save screen by pressing the F1 key or W to open up the System Menu and then selecting QUICK SAVE.",
+        "There is only one slot available for the Quick Save feature.",
+        "Using the Quick Save feature when Quick Save data is already present will overwrite the existing data.",
+        "Quick Load",
+        "You can resume the game from the point at which you quick-saved by pressing the F2 key or W to open the System Menu, then selecting QUICK LOAD.",
+        "See details on page 16 \"Load\"",
+        "Message Log [M]key",
+        "Display the Message Log during the game with the M key or the Up Arrow. Up to the last 500 messages are displayed.",
+        "The Message Log can be displayed immediately after loading.",
+        "Audio Icon",
+        "You can replay audio from messages that have the audio icon.",
+        "Resume the Game from a Message",
+        "You can resume the game from the selected message by tapping and holding it, or by pressing Enter.",
+        "Mouse Controls & Touch Gestures",
+        "Show Message Log : Flick Down",
+        "Scroll Through Past Messages : Drag Up or Down / Flick Up or Down",
+        "Play Voices : Tap voiced message",
+        "Resume the Game From a Message : Tap and hold the messages.",
+        "Close : Flick up from the bottom of the screen.",
+        "View CGs [Space]key",
+        "Pressing Space hides the message window and lets you view the CGs. Press Space again to unhide it."
+      ],
+      "russian_segments": [
+        {
+          "region": "page_title",
+          "source_english": "Features",
+          "russian": [
+            "Возможности"
+          ],
+          "style_role": "page_title"
+        },
+        {
+          "region": "page_number",
+          "source_english": "PAGE 11",
+          "russian": [
+            "СТР. 11"
+          ],
+          "style_role": "page_number"
+        },
+        {
+          "region": "left_auto_heading",
+          "source_english": "Auto Mode [A]key",
+          "russian": [
+            "Авторежим [A]"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "left_auto_body",
+          "source_english": "Pressing A in-game turns on Auto Mode. Pressing A again turns it off. You can change the Auto Mode speed in OPTIONS.",
+          "russian": [
+            "Нажмите A во время игры, чтобы включить авторежим. Повторное нажатие A его отключает. Скорость авторежима меняется в НАСТРОЙКАХ."
+          ],
+          "style_role": "body"
+        },
+        {
+          "region": "left_auto_link",
+          "source_english": "See details on page 13 \"Text2\"",
+          "russian": [
+            "Подробнее на стр. 13, раздел \"Текст 2\""
+          ],
+          "style_role": "link"
+        },
+        {
+          "region": "left_auto_gesture_box",
+          "source_english": "Mouse Controls & Touch Gestures / Turn on Auto Mode : / You can enable Auto Mode by tapping and holding inside the message window. Left-click or tap to cancel.",
+          "russian": [
+            "Мышь и сенсорные жесты",
+            "Включить авторежим:",
+            "Коснитесь окна сообщений и удерживайте. Чтобы отменить, щёлкните левой кнопкой мыши или коснитесь экрана."
+          ],
+          "style_roles": [
+            "info_heading",
+            "info_body",
+            "info_body"
+          ]
+        },
+        {
+          "region": "left_quick_save_heading",
+          "source_english": "Quick Save [F1]key",
+          "russian": [
+            "Быстрое сохранение [F1]"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "left_quick_save_body",
+          "source_english": "You can save your progress without going to the save screen by pressing the F1 key or W to open up the System Menu and then selecting QUICK SAVE. There is only one slot available for the Quick Save feature. Using the Quick Save feature when Quick Save data is already present will overwrite the existing data.",
+          "russian": [
+            "Чтобы сохранить прогресс, не открывая экран сохранения, нажмите F1. Также можно нажать W, открыть системное меню и выбрать БЫСТРОЕ СОХРАНЕНИЕ.",
+            "Для быстрого сохранения доступен один слот.",
+            "Новое быстрое сохранение перезаписывает прежнее."
+          ],
+          "style_role": "body"
+        },
+        {
+          "region": "left_quick_load_subsection",
+          "source_english": "Quick Load / You can resume the game from the point at which you quick-saved by pressing the F2 key or W to open the System Menu, then selecting QUICK LOAD. / See details on page 16 \"Load\"",
+          "russian": [
+            "Быстрая загрузка",
+            "Чтобы продолжить с быстрого сохранения, нажмите F2. Также можно нажать W, открыть системное меню и выбрать БЫСТРУЮ ЗАГРУЗКУ.",
+            "Подробнее на стр. 16, раздел \"Загрузка\""
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "link"
+          ]
+        },
+        {
+          "region": "right_log_heading",
+          "source_english": "Message Log [M]key",
+          "russian": [
+            "Журнал сообщений [M]"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "right_log_body",
+          "source_english": "Display the Message Log during the game with the M key or the Up Arrow. Up to the last 500 messages are displayed. The Message Log can be displayed immediately after loading.",
+          "russian": [
+            "Во время игры нажмите M или Up Arrow, чтобы открыть журнал последних 500 сообщений.",
+            "Журнал можно открыть сразу после загрузки."
+          ],
+          "style_role": "body"
+        },
+        {
+          "region": "right_audio_icon",
+          "source_english": "Audio Icon / You can replay audio from messages that have the audio icon.",
+          "russian": [
+            "Значок звука",
+            "Сообщения со значком звука можно прослушать повторно."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_resume_message",
+          "source_english": "Resume the Game from a Message / You can resume the game from the selected message by tapping and holding it, or by pressing Enter.",
+          "russian": [
+            "Продолжить игру с выбранного сообщения",
+            "Коснитесь сообщения и удерживайте или нажмите Enter."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_log_gesture_box",
+          "source_english": "Mouse Controls & Touch Gestures ... Close : Flick up from the bottom of the screen.",
+          "russian": [
+            "Мышь и сенсорные жесты",
+            "Открыть журнал: свайп вниз",
+            "Просмотреть прошлые сообщения: провести или сделать свайп вверх/вниз",
+            "Воспроизвести голос: коснуться озвученного сообщения",
+            "Продолжить игру с сообщения: коснуться сообщения и удерживать",
+            "Закрыть: свайп вверх от нижнего края экрана"
+          ],
+          "style_roles": [
+            "info_heading",
+            "info_body",
+            "info_body",
+            "info_body",
+            "info_body",
+            "info_body"
+          ]
+        },
+        {
+          "region": "right_view_cgs",
+          "source_english": "View CGs [Space]key / Pressing Space hides the message window and lets you view the CGs. Press Space again to unhide it.",
+          "russian": [
+            "Просмотр иллюстраций [Space]",
+            "Нажмите Space, чтобы скрыть окно сообщений и рассмотреть иллюстрацию. Повторное нажатие Space вернёт окно."
+          ],
+          "style_roles": [
+            "section_heading",
+            "body"
+          ]
+        }
+      ],
+      "suggested_typography": {
+        "page_title": {
+          "font_size_px": 58,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bright-blue outline/glow"
+        },
+        "page_number": {
+          "font_size_px": 28,
+          "alignment": "right",
+          "color": "#FFFFFF",
+          "effects": "blue plaque; number 48 px"
+        },
+        "section_heading": {
+          "font_size_px": 36,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "bold; butterfly icon and rule"
+        },
+        "item_heading": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#3567D9",
+          "effects": "bold; blue diamond bullet"
+        },
+        "body": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "regular"
+        },
+        "info_heading": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#3567D9",
+          "effects": "bold"
+        },
+        "info_body": {
+          "font_size_px": 26,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "labels bold; pale-blue box #DCE7FA"
+        },
+        "link": {
+          "font_size_px": 25,
+          "alignment": "left",
+          "color": "#00C865",
+          "effects": "bold; green arrow icon"
+        }
+      },
+      "link_targets": [
+        {
+          "page": 13,
+          "english_label": "Text2",
+          "russian_label": "Текст 2",
+          "russian_wording": "Подробнее на стр. 13, раздел \"Текст 2\""
+        },
+        {
+          "page": 16,
+          "english_label": "Load",
+          "russian_label": "Загрузка",
+          "russian_wording": "Подробнее на стр. 16, раздел \"Загрузка\""
+        }
+      ]
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 49,
+      "entry_id": 64549,
+      "name": "en_manual11_Linkto_1_16",
+      "asset_type": "link_overlay",
+      "page": 11,
+      "source_png": "0049-en_manual11_Linkto_1_16.png",
+      "dimensions": {
+        "width": 464,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 96,
+        "offset_y": 922
+      },
+      "full_english_transcription": [
+        "See details on page 16 \"Load\""
+      ],
+      "russian_segments": [
+        {
+          "region": "overlay_label",
+          "source_english": "See details on page 16 \"Load\"",
+          "russian": [
+            "Подробнее на стр. 16: \"Загрузка\""
+          ],
+          "style_role": "hover_link"
+        }
+      ],
+      "suggested_typography": {
+        "hover_link": {
+          "font_size_px": 24,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bold; 3-4 px #0A8DFF outline; blue arrow icon"
+        }
+      },
+      "link_target": {
+        "page": 16,
+        "english_label": "Load",
+        "russian_label": "Загрузка",
+        "russian_wording": "Подробнее на стр. 16: \"Загрузка\""
+      }
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 50,
+      "entry_id": 64550,
+      "name": "en_manual11_Linkto_2_13",
+      "asset_type": "link_overlay",
+      "page": 11,
+      "source_png": "0050-en_manual11_Linkto_2_13.png",
+      "dimensions": {
+        "width": 464,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 223
+      },
+      "full_english_transcription": [
+        "See details on page 13 \"Text2\""
+      ],
+      "russian_segments": [
+        {
+          "region": "overlay_label",
+          "source_english": "See details on page 13 \"Text2\"",
+          "russian": [
+            "Подробнее на стр. 13: \"Текст 2\""
+          ],
+          "style_role": "hover_link"
+        }
+      ],
+      "suggested_typography": {
+        "hover_link": {
+          "font_size_px": 24,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bold; 3-4 px #0A8DFF outline; blue arrow icon"
+        }
+      },
+      "link_target": {
+        "page": 13,
+        "english_label": "Text2",
+        "russian_label": "Текст 2",
+        "russian_wording": "Подробнее на стр. 13: \"Текст 2\""
+      }
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 51,
+      "entry_id": 64551,
+      "name": "en_manual12",
+      "asset_type": "page",
+      "page": 12,
+      "source_png": "0051-en_manual12.png",
+      "dimensions": {
+        "width": 1824,
+        "height": 1008,
+        "bpp": 32,
+        "offset_x": 48,
+        "offset_y": 8
+      },
+      "full_english_transcription": [
+        "Options",
+        "PAGE 12",
+        "Selecting OPTIONS from the Title Screen or the System Menu will take you to the Options screen. You can configure settings such as gameplay options and audio volume. Align the cursor or use the Arrow keys to adjust the options you wish to change.",
+        "To restore the default settings on any page, press W while that page is displayed, and select “Yes” when asked if you're sure.",
+        "Basic",
+        "Shortcut Menu",
+        "You can set the Shortcut Menu displayed to the right of the message window to display or hide while playing the game.",
+        "Skip",
+        "Change skip settings. You can change the skip settings to either “Previously Read Only” or “All”.",
+        "Skip/Rewind Speed",
+        "Sets the skip/rewind speed for the C and Z keys and the controller. Pressing CTRL will always skip/rewind at maximum speed.",
+        "Position of Choices",
+        "You can choose to locate branch point choices either in the center of or the bottom of the screen.",
+        "Center Position",
+        "Bottom Position",
+        "[Embedded choice screenshots] Give me a new cup of shaved ice, please. | Please fling some shaved ice at me.",
+        "Voice",
+        "You can choose to stop playing voices either when the message moves on or when the next voice plays. Voices will stop if there is sound on the next message.",
+        "Display Date",
+        "You can turn the in-game date displayed on the top left of the screen on or off while playing the game.",
+        "Initial Cursor Position",
+        "Sets the initial position of the cursor when a Yes/No choice is available.",
+        "Controller Rumble Function",
+        "Plug in a controller to use the controller Rumble function. You will also be able to adjust the rumble intensity.",
+        "If the rumble function isn't working, please check that it is switched on in your Steam Controller Settings.",
+        "Text1",
+        "Language",
+        "Select in-game language. (Except for embedded Japanese characters in some of the CGs.)",
+        "Font",
+        "Change the in-game font.",
+        "Window Transparency",
+        "Change the message window transparency.",
+        "Color of Previously Read Text",
+        "Change the color of messages which have already been read.",
+        "Read Text Color",
+        "Select which color to use for previously read text."
+      ],
+      "russian_segments": [
+        {
+          "region": "page_title",
+          "source_english": "Options",
+          "russian": [
+            "Настройки"
+          ],
+          "style_role": "page_title"
+        },
+        {
+          "region": "page_number",
+          "source_english": "PAGE 12",
+          "russian": [
+            "СТР. 12"
+          ],
+          "style_role": "page_number"
+        },
+        {
+          "region": "intro",
+          "source_english": "Selecting OPTIONS from the Title Screen or the System Menu will take you to the Options screen...",
+          "russian": [
+            "Выберите НАСТРОЙКИ на титульном экране или в системном меню. Здесь можно изменить параметры игры и громкость звука. Выберите нужный пункт курсором или клавишами Arrow.",
+            "Чтобы вернуть настройки текущей страницы по умолчанию, нажмите W и подтвердите выбор, нажав \"Да\"."
+          ],
+          "style_role": "body"
+        },
+        {
+          "region": "left_basic_heading",
+          "source_english": "Basic",
+          "russian": [
+            "Основные"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "left_shortcut_menu",
+          "source_english": "Shortcut Menu / You can set the Shortcut Menu displayed to the right of the message window to display or hide while playing the game.",
+          "russian": [
+            "Панель быстрого доступа",
+            "Показывать или скрывать во время игры панель быстрого доступа справа от окна сообщений."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_skip",
+          "source_english": "Skip / Change skip settings. You can change the skip settings to either “Previously Read Only” or “All”.",
+          "russian": [
+            "Пропуск",
+            "Выбрать, что пропускать: \"Только прочитанное\" или \"Всё\"."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_skip_rewind_speed",
+          "source_english": "Skip/Rewind Speed / Sets the skip/rewind speed for the C and Z keys and the controller. Pressing CTRL will always skip/rewind at maximum speed.",
+          "russian": [
+            "Скорость пропуска и перемотки",
+            "Задать скорость для клавиш C и Z и контроллера. При нажатии Ctrl всегда используется максимальная скорость."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_choice_position",
+          "source_english": "Position of Choices / You can choose to locate branch point choices either in the center of or the bottom of the screen.",
+          "russian": [
+            "Положение вариантов выбора",
+            "Размещать варианты выбора по центру или внизу экрана."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_choice_examples",
+          "source_english": "Center Position / Bottom Position / Give me a new cup of shaved ice, please. / Please fling some shaved ice at me.",
+          "russian": [
+            "По центру",
+            "Внизу",
+            "Дайте мне ещё порцию какигори, пожалуйста.",
+            "Пожалуйста, бросьте в меня немного какигори."
+          ],
+          "style_roles": [
+            "example_label",
+            "example_label",
+            "screenshot_text",
+            "screenshot_text"
+          ]
+        },
+        {
+          "region": "right_voice",
+          "source_english": "Voice / You can choose to stop playing voices either when the message moves on or when the next voice plays. Voices will stop if there is sound on the next message.",
+          "russian": [
+            "Озвучка",
+            "Выбрать, когда прерывать реплику: при переходе к следующему сообщению или при начале следующей озвученной реплики. Если в следующем сообщении есть звук, текущая реплика прервётся."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_display_date",
+          "source_english": "Display Date / You can turn the in-game date displayed on the top left of the screen on or off while playing the game.",
+          "russian": [
+            "Показывать дату",
+            "Включить или отключить дату в левом верхнем углу экрана."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_initial_cursor",
+          "source_english": "Initial Cursor Position / Sets the initial position of the cursor when a Yes/No choice is available.",
+          "russian": [
+            "Начальное положение курсора",
+            "Задать начальное положение курсора при выборе \"Да/Нет\"."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_rumble",
+          "source_english": "Controller Rumble Function / Plug in a controller to use the controller Rumble function...",
+          "russian": [
+            "Вибрация контроллера",
+            "Подключите контроллер, чтобы использовать вибрацию и настраивать её интенсивность.",
+            "Если вибрация не работает, проверьте, включена ли она в настройках контроллера Steam."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "body"
+          ]
+        },
+        {
+          "region": "right_text1_heading",
+          "source_english": "Text1",
+          "russian": [
+            "Текст 1"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "right_language",
+          "source_english": "Language / Select in-game language. (Except for embedded Japanese characters in some of the CGs.)",
+          "russian": [
+            "Язык",
+            "Выбрать язык игры. Японский текст, встроенный в некоторые иллюстрации, не изменяется."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_font",
+          "source_english": "Font / Change the in-game font.",
+          "russian": [
+            "Шрифт",
+            "Изменить игровой шрифт."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_window_transparency",
+          "source_english": "Window Transparency / Change the message window transparency.",
+          "russian": [
+            "Прозрачность окна",
+            "Изменить прозрачность окна сообщений."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_previous_read_color",
+          "source_english": "Color of Previously Read Text / Change the color of messages which have already been read.",
+          "russian": [
+            "Цвет прочитанного текста",
+            "Изменить цвет уже прочитанных сообщений."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_read_text_color",
+          "source_english": "Read Text Color / Select which color to use for previously read text.",
+          "russian": [
+            "Цвет отметки прочитанного",
+            "Выбрать цвет для ранее прочитанного текста."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        }
+      ],
+      "suggested_typography": {
+        "page_title": {
+          "font_size_px": 58,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bright-blue outline/glow"
+        },
+        "page_number": {
+          "font_size_px": 28,
+          "alignment": "right",
+          "color": "#FFFFFF",
+          "effects": "blue plaque; number 48 px"
+        },
+        "section_heading": {
+          "font_size_px": 37,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "bold; butterfly icon and rule"
+        },
+        "item_heading": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#3567D9",
+          "effects": "bold; blue diamond bullet"
+        },
+        "body": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "regular"
+        },
+        "example_label": {
+          "font_size_px": 27,
+          "alignment": "center",
+          "color": "#3567D9",
+          "effects": "white outline over screenshot"
+        },
+        "screenshot_text": {
+          "font_size_px": "match embedded source",
+          "alignment": "center",
+          "color": "match embedded source",
+          "effects": "only redraw if localizing screenshot"
+        }
+      },
+      "link_targets": []
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 52,
+      "entry_id": 64552,
+      "name": "en_manual13",
+      "asset_type": "page",
+      "page": 13,
+      "source_png": "0052-en_manual13.png",
+      "dimensions": {
+        "width": 1824,
+        "height": 883,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 28
+      },
+      "full_english_transcription": [
+        "Options",
+        "PAGE 13",
+        "Text2",
+        "Text Speed",
+        "Change how fast text is displayed.",
+        "Wait Time Per Character",
+        "Define the amount of time to wait until a message shows up after the previous one is fully visible. This option is set based on the character count.",
+        "Base Wait Time",
+        "Define an amount of extra time to wait in addition to Character Wait Time.",
+        "Sound",
+        "Turn the volume up/down.",
+        "Voice",
+        "Turn up/down the individual volume of each character. To play a sample voice for a character, press Space, left-click, or tap them.",
+        "Keyboard",
+        "C (Skip)",
+        "While Pressed : Skip only while pressed.",
+        "Start/Stop : Push to Skip. Push again to stop.",
+        "Z (Rewind)",
+        "While Pressed : Rewind only while pressed.",
+        "Start/Stop : Push to Rewind. Push again to stop.",
+        "S",
+        "Controls behavior of the S key.",
+        "L",
+        "Controls behavior of the L key.",
+        "The L can be assigned to “Quick Load” or “Switch Language”.",
+        "Press Space while the L key entry is selected to view a list of available languages. If the check mark is removed from any entry on this list, that language will no longer be cycled through when switching languages.",
+        "For example, if Japanese is unchecked, language switching will only toggle between English and Simplified Chinese.",
+        "Up Arrow",
+        "Controls behavior of the Up Arrow key."
+      ],
+      "russian_segments": [
+        {
+          "region": "page_title",
+          "source_english": "Options",
+          "russian": [
+            "Настройки"
+          ],
+          "style_role": "page_title"
+        },
+        {
+          "region": "page_number",
+          "source_english": "PAGE 13",
+          "russian": [
+            "СТР. 13"
+          ],
+          "style_role": "page_number"
+        },
+        {
+          "region": "left_text2_heading",
+          "source_english": "Text2",
+          "russian": [
+            "Текст 2"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "left_text_speed",
+          "source_english": "Text Speed / Change how fast text is displayed.",
+          "russian": [
+            "Скорость текста",
+            "Изменить скорость появления текста."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_character_wait",
+          "source_english": "Wait Time Per Character / Define the amount of time to wait until a message shows up after the previous one is fully visible. This option is set based on the character count.",
+          "russian": [
+            "Задержка на символ",
+            "Задать паузу перед следующим сообщением после полного появления предыдущего. Длительность зависит от числа символов."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_base_wait",
+          "source_english": "Base Wait Time / Define an amount of extra time to wait in addition to Character Wait Time.",
+          "russian": [
+            "Базовая задержка",
+            "Добавить фиксированную паузу к задержке на символ."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_sound",
+          "source_english": "Sound / Turn the volume up/down.",
+          "russian": [
+            "Звук",
+            "Увеличить или уменьшить громкость."
+          ],
+          "style_roles": [
+            "section_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_voice",
+          "source_english": "Voice / Turn up/down the individual volume of each character. To play a sample voice for a character, press Space, left-click, or tap them.",
+          "russian": [
+            "Голоса",
+            "Настроить громкость каждого персонажа. Чтобы прослушать пример, выберите персонажа и нажмите Space, щёлкните левой кнопкой мыши или коснитесь экрана."
+          ],
+          "style_roles": [
+            "section_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_keyboard_heading",
+          "source_english": "Keyboard",
+          "russian": [
+            "Клавиатура"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "right_c",
+          "source_english": "C (Skip) / While Pressed : Skip only while pressed. / Start/Stop : Push to Skip. Push again to stop.",
+          "russian": [
+            "C (пропуск)",
+            "При удержании: пропускать, пока клавиша нажата.",
+            "Старт/стоп: нажать для запуска, нажать ещё раз для остановки."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "body"
+          ]
+        },
+        {
+          "region": "right_z",
+          "source_english": "Z (Rewind) / While Pressed : Rewind only while pressed. / Start/Stop : Push to Rewind. Push again to stop.",
+          "russian": [
+            "Z (перемотка)",
+            "При удержании: перематывать, пока клавиша нажата.",
+            "Старт/стоп: нажать для запуска, нажать ещё раз для остановки."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "body"
+          ]
+        },
+        {
+          "region": "right_s",
+          "source_english": "S / Controls behavior of the S key.",
+          "russian": [
+            "S",
+            "Настроить действие клавиши S."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_l",
+          "source_english": "L / Controls behavior of the L key...",
+          "russian": [
+            "L",
+            "Настроить действие клавиши L.",
+            "Для L можно назначить \"Быструю загрузку\" или \"Смену языка\".",
+            "Выберите пункт L и нажмите Space, чтобы открыть список языков. Снимите отметку с языка, чтобы исключить его из переключения.",
+            "Например, если отключить японский, переключение будет происходить только между английским и упрощённым китайским."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body",
+            "body",
+            "body",
+            "body"
+          ]
+        },
+        {
+          "region": "right_up_arrow",
+          "source_english": "Up Arrow / Controls behavior of the Up Arrow key.",
+          "russian": [
+            "Up Arrow",
+            "Настроить действие клавиши Up Arrow."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        }
+      ],
+      "suggested_typography": {
+        "page_title": {
+          "font_size_px": 58,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bright-blue outline/glow"
+        },
+        "page_number": {
+          "font_size_px": 28,
+          "alignment": "right",
+          "color": "#FFFFFF",
+          "effects": "blue plaque; number 48 px"
+        },
+        "section_heading": {
+          "font_size_px": 36,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "bold; butterfly icon and rule"
+        },
+        "item_heading": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#3567D9",
+          "effects": "bold; blue diamond bullet"
+        },
+        "body": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "regular; action labels may be bold"
+        }
+      },
+      "link_targets": []
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 53,
+      "entry_id": 64553,
+      "name": "en_manual14",
+      "asset_type": "page",
+      "page": 14,
+      "source_png": "0053-en_manual14.png",
+      "dimensions": {
+        "width": 1824,
+        "height": 836,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 28
+      },
+      "full_english_transcription": [
+        "Options",
+        "PAGE 14",
+        "Mouse",
+        "Right Click",
+        "Controls behavior of the Right Click. The Right Click can be assigned to “Hide Window” or “System Menu”.",
+        "Left+Right Click",
+        "Controls what happens when you hold left button and right click. It can be disabled or assigned to “Switch Language”.",
+        "Mouse Wheel Button",
+        "Controls behavior of the Mouse Wheel Button.",
+        "The Mouse Wheel Button can be assigned to “Hide Window” or “System Menu”.",
+        "Wheel Up",
+        "Controls behavior of the Mouse Wheel when scrolled up.",
+        "Wheel up can be assigned to “Message Log” or “Rewind Once” function.",
+        "Wheel Down",
+        "Controls behavior of the Mouse Wheel when scrolled down.",
+        "Wheel down can be assigned to “Hide Window” or “Forward Once” function.",
+        "Return/Proceed Button",
+        "When using a mouse with this button, you can Jump and switch pages.",
+        "Gestures",
+        "Turn on to allow for dragging and flicking gestures to be usable through mouse inputs.",
+        "Snap Pointer",
+        "Change the scope of the mouse pointer's auto-snapping function. Select “Dialogue and Choices” to snap the pointer into position whenever any choice is displayed, dialogue or otherwise."
+      ],
+      "russian_segments": [
+        {
+          "region": "page_title",
+          "source_english": "Options",
+          "russian": [
+            "Настройки"
+          ],
+          "style_role": "page_title"
+        },
+        {
+          "region": "page_number",
+          "source_english": "PAGE 14",
+          "russian": [
+            "СТР. 14"
+          ],
+          "style_role": "page_number"
+        },
+        {
+          "region": "mouse_heading",
+          "source_english": "Mouse",
+          "russian": [
+            "Мышь"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "left_right_click",
+          "source_english": "Right Click / Controls behavior of the Right Click. The Right Click can be assigned to “Hide Window” or “System Menu”.",
+          "russian": [
+            "Правая кнопка",
+            "Настроить действие правой кнопки мыши: \"Скрыть окно\" или \"Системное меню\"."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_combo_click",
+          "source_english": "Left+Right Click / Controls what happens when you hold left button and right click. It can be disabled or assigned to “Switch Language”.",
+          "russian": [
+            "Левая + правая кнопки",
+            "Настроить действие при удержании левой кнопки и щелчке правой: отключить или назначить \"Смену языка\"."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_wheel_button",
+          "source_english": "Mouse Wheel Button / Controls behavior of the Mouse Wheel Button. The Mouse Wheel Button can be assigned to “Hide Window” or “System Menu”.",
+          "russian": [
+            "Кнопка колеса мыши",
+            "Настроить действие кнопки колеса: \"Скрыть окно\" или \"Системное меню\"."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_wheel_up",
+          "source_english": "Wheel Up / Controls behavior of the Mouse Wheel when scrolled up. Wheel up can be assigned to “Message Log” or “Rewind Once” function.",
+          "russian": [
+            "Колесо вверх",
+            "Настроить прокрутку вверх: \"Журнал сообщений\" или \"Перемотать на одно сообщение\"."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_wheel_down",
+          "source_english": "Wheel Down / Controls behavior of the Mouse Wheel when scrolled down. Wheel down can be assigned to “Hide Window” or “Forward Once” function.",
+          "russian": [
+            "Колесо вниз",
+            "Настроить прокрутку вниз: \"Скрыть окно\" или \"Вперёд на одно сообщение\"."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_return_button",
+          "source_english": "Return/Proceed Button / When using a mouse with this button, you can Jump and switch pages.",
+          "russian": [
+            "Кнопка назад/вперёд",
+            "Если мышь оснащена этой кнопкой, её можно использовать для переходов и перелистывания страниц."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_gestures",
+          "source_english": "Gestures / Turn on to allow for dragging and flicking gestures to be usable through mouse inputs.",
+          "russian": [
+            "Жесты",
+            "Разрешить жесты проведения и свайпа с помощью мыши."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_snap_pointer",
+          "source_english": "Snap Pointer / Change the scope of the mouse pointer's auto-snapping function. Select “Dialogue and Choices” to snap the pointer into position whenever any choice is displayed, dialogue or otherwise.",
+          "russian": [
+            "Привязка указателя",
+            "Настроить автоматическое перемещение указателя. Выберите \"Диалоги и варианты\", чтобы указатель перемещался к нужной позиции при появлении вариантов выбора или диалога."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        }
+      ],
+      "suggested_typography": {
+        "page_title": {
+          "font_size_px": 58,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bright-blue outline/glow"
+        },
+        "page_number": {
+          "font_size_px": 28,
+          "alignment": "right",
+          "color": "#FFFFFF",
+          "effects": "blue plaque; number 48 px"
+        },
+        "section_heading": {
+          "font_size_px": 36,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "bold; butterfly icon and rule"
+        },
+        "item_heading": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#3567D9",
+          "effects": "bold; blue diamond bullet"
+        },
+        "body": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "regular"
+        }
+      },
+      "link_targets": []
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 54,
+      "entry_id": 64554,
+      "name": "en_manual15",
+      "asset_type": "page",
+      "page": 15,
+      "source_png": "0054-en_manual15.png",
+      "dimensions": {
+        "width": 1824,
+        "height": 619,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 28
+      },
+      "full_english_transcription": [
+        "Options",
+        "PAGE 15",
+        "Touch",
+        "Skip",
+        "Change flick/drag direction for Skip.",
+        "Changing this will also affect the setting for Rewind.",
+        "Rewind",
+        "Change flick/drag direction for Rewind.",
+        "Changing this will also affect the setting for Skip.",
+        "Jump (Forward)",
+        "Change flick direction for jumping forward.",
+        "Changing this will also affect the setting for Jump (Back).",
+        "Jump (Backward)",
+        "Change flick direction for jumping back.",
+        "Changing this will also affect the setting for Jump (Forward).",
+        "System",
+        "Screen Mode",
+        "Choose “Window” or “Full Screen”.",
+        "Window Size",
+        "Change the size of the game window for the “Window” option.",
+        "Select “Auto” to have a size automatically chosen to suit your current operating environment."
+      ],
+      "russian_segments": [
+        {
+          "region": "page_title",
+          "source_english": "Options",
+          "russian": [
+            "Настройки"
+          ],
+          "style_role": "page_title"
+        },
+        {
+          "region": "page_number",
+          "source_english": "PAGE 15",
+          "russian": [
+            "СТР. 15"
+          ],
+          "style_role": "page_number"
+        },
+        {
+          "region": "left_touch_heading",
+          "source_english": "Touch",
+          "russian": [
+            "Сенсорное управление"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "left_skip",
+          "source_english": "Skip / Change flick/drag direction for Skip. Changing this will also affect the setting for Rewind.",
+          "russian": [
+            "Пропуск",
+            "Изменить направление свайпа или проведения для пропуска. Это также изменит направление перемотки."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_rewind",
+          "source_english": "Rewind / Change flick/drag direction for Rewind. Changing this will also affect the setting for Skip.",
+          "russian": [
+            "Перемотка",
+            "Изменить направление свайпа или проведения для перемотки. Это также изменит направление пропуска."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_jump_forward",
+          "source_english": "Jump (Forward) / Change flick direction for jumping forward. Changing this will also affect the setting for Jump (Back).",
+          "russian": [
+            "Переход вперёд",
+            "Изменить направление свайпа для перехода вперёд. Это также изменит направление перехода назад."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "left_jump_backward",
+          "source_english": "Jump (Backward) / Change flick direction for jumping back. Changing this will also affect the setting for Jump (Forward).",
+          "russian": [
+            "Переход назад",
+            "Изменить направление свайпа для перехода назад. Это также изменит направление перехода вперёд."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_system_heading",
+          "source_english": "System",
+          "russian": [
+            "Система"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "right_screen_mode",
+          "source_english": "Screen Mode / Choose “Window” or “Full Screen”.",
+          "russian": [
+            "Режим экрана",
+            "Выбрать \"Оконный\" или \"Полноэкранный\" режим."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        },
+        {
+          "region": "right_window_size",
+          "source_english": "Window Size / Change the size of the game window for the “Window” option. Select “Auto” to have a size automatically chosen to suit your current operating environment.",
+          "russian": [
+            "Размер окна",
+            "Изменить размер игрового окна в оконном режиме. Выберите \"Авто\", чтобы игра подобрала размер под текущую систему."
+          ],
+          "style_roles": [
+            "item_heading",
+            "body"
+          ]
+        }
+      ],
+      "suggested_typography": {
+        "page_title": {
+          "font_size_px": 58,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bright-blue outline/glow"
+        },
+        "page_number": {
+          "font_size_px": 28,
+          "alignment": "right",
+          "color": "#FFFFFF",
+          "effects": "blue plaque; number 48 px"
+        },
+        "section_heading": {
+          "font_size_px": 36,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "bold; butterfly icon and rule"
+        },
+        "item_heading": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#3567D9",
+          "effects": "bold; blue diamond bullet"
+        },
+        "body": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "regular"
+        }
+      },
+      "link_targets": []
+    },
+    {
+      "archive": "MANUAL.PAK",
+      "index": 55,
+      "entry_id": 64555,
+      "name": "en_manual16",
+      "asset_type": "page",
+      "page": 16,
+      "source_png": "0055-en_manual16.png",
+      "dimensions": {
+        "width": 1824,
+        "height": 984,
+        "bpp": 32,
+        "offset_x": 48,
+        "offset_y": 8
+      },
+      "full_english_transcription": [
+        "Save & Load",
+        "PAGE 16",
+        "Save",
+        "Save the progress of the game.",
+        "System Menu",
+        "[Embedded System Menu screenshot] SAVE | LOAD | RECORD | OPTIONS | TITLE | QUICK SAVE | QUICK LOAD | MANUAL | EXIT | \"A wounded migratory bird, I guess.\" | MENU | SKIP | AUTO | Close",
+        "Load",
+        "Load a save to continue.",
+        "Title Screen",
+        "[Embedded Title Screen screenshot] Summer Pockets | REFLECTION BLUE | START | LOAD | OPTIONS | MANUAL | EXIT",
+        "System Menu",
+        "[Embedded System Menu screenshot] SAVE | LOAD | RECORD | OPTIONS | TITLE | QUICK SAVE | QUICK LOAD | MANUAL | EXIT | \"A wounded migratory bird, I guess.\" | MENU | SKIP | AUTO | Close"
+      ],
+      "russian_segments": [
+        {
+          "region": "page_title",
+          "source_english": "Save & Load",
+          "russian": [
+            "Сохранение и загрузка"
+          ],
+          "style_role": "page_title"
+        },
+        {
+          "region": "page_number",
+          "source_english": "PAGE 16",
+          "russian": [
+            "СТР. 16"
+          ],
+          "style_role": "page_number"
+        },
+        {
+          "region": "save_heading",
+          "source_english": "Save",
+          "russian": [
+            "Сохранение"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "save_body",
+          "source_english": "Save the progress of the game.",
+          "russian": [
+            "Сохранить прогресс игры."
+          ],
+          "style_role": "body"
+        },
+        {
+          "region": "save_system_menu_label",
+          "source_english": "System Menu",
+          "russian": [
+            "Системное меню"
+          ],
+          "style_role": "item_heading"
+        },
+        {
+          "region": "save_embedded_screenshot",
+          "source_english": "SAVE | LOAD | RECORD | OPTIONS | TITLE | QUICK SAVE | QUICK LOAD | MANUAL | EXIT | \"A wounded migratory bird, I guess.\" | MENU | SKIP | AUTO | Close",
+          "russian": [
+            "СОХРАНИТЬ | ЗАГРУЗИТЬ | ЗАПИСИ | НАСТРОЙКИ | ТИТУЛЬНЫЙ ЭКРАН | БЫСТРОЕ СОХРАНЕНИЕ | БЫСТРАЯ ЗАГРУЗКА | РУКОВОДСТВО | ВЫЙТИ",
+            "\"Похоже, раненая перелётная птица\".",
+            "МЕНЮ | ПРОПУСК | АВТО | Закрыть"
+          ],
+          "style_role": "screenshot_text"
+        },
+        {
+          "region": "load_heading",
+          "source_english": "Load",
+          "russian": [
+            "Загрузка"
+          ],
+          "style_role": "section_heading"
+        },
+        {
+          "region": "load_body",
+          "source_english": "Load a save to continue.",
+          "russian": [
+            "Загрузить сохранение и продолжить игру."
+          ],
+          "style_role": "body"
+        },
+        {
+          "region": "load_title_screen_label",
+          "source_english": "Title Screen",
+          "russian": [
+            "Титульный экран"
+          ],
+          "style_role": "item_heading"
+        },
+        {
+          "region": "load_title_screenshot",
+          "source_english": "Summer Pockets | REFLECTION BLUE | START | LOAD | OPTIONS | MANUAL | EXIT",
+          "russian": [
+            "Summer Pockets | REFLECTION BLUE | НАЧАТЬ | ЗАГРУЗИТЬ | НАСТРОЙКИ | РУКОВОДСТВО | ВЫЙТИ"
+          ],
+          "style_role": "screenshot_text"
+        },
+        {
+          "region": "load_system_menu_label",
+          "source_english": "System Menu",
+          "russian": [
+            "Системное меню"
+          ],
+          "style_role": "item_heading"
+        },
+        {
+          "region": "load_embedded_screenshot",
+          "source_english": "SAVE | LOAD | RECORD | OPTIONS | TITLE | QUICK SAVE | QUICK LOAD | MANUAL | EXIT | \"A wounded migratory bird, I guess.\" | MENU | SKIP | AUTO | Close",
+          "russian": [
+            "СОХРАНИТЬ | ЗАГРУЗИТЬ | ЗАПИСИ | НАСТРОЙКИ | ТИТУЛЬНЫЙ ЭКРАН | БЫСТРОЕ СОХРАНЕНИЕ | БЫСТРАЯ ЗАГРУЗКА | РУКОВОДСТВО | ВЫЙТИ",
+            "\"Похоже, раненая перелётная птица\".",
+            "МЕНЮ | ПРОПУСК | АВТО | Закрыть"
+          ],
+          "style_role": "screenshot_text"
+        }
+      ],
+      "suggested_typography": {
+        "page_title": {
+          "font_size_px": 58,
+          "alignment": "left",
+          "color": "#FFFFFF",
+          "effects": "bright-blue outline/glow"
+        },
+        "page_number": {
+          "font_size_px": 28,
+          "alignment": "right",
+          "color": "#FFFFFF",
+          "effects": "blue plaque; number 48 px"
+        },
+        "section_heading": {
+          "font_size_px": 38,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "bold; butterfly icon and rule"
+        },
+        "item_heading": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#3567D9",
+          "effects": "bold; blue diamond bullet"
+        },
+        "body": {
+          "font_size_px": 27,
+          "alignment": "left",
+          "color": "#000000",
+          "effects": "regular"
+        },
+        "screenshot_text": {
+          "font_size_px": "match embedded source",
+          "alignment": "as shown",
+          "color": "match embedded source",
+          "effects": "retain callout borders and connector lines"
+        }
+      },
+      "link_targets": []
+    }
+  ],
+  "status": "draft",
+  "canonical_asset_id": "manual_main_09_16",
+  "archive_sha256": "sha256:058bc1bd51b4138660e0197a3f631486b2d7a2ac0f945cda24b706595a31e85b",
+  "source_draft_sha256": "sha256:c656ef26b23106714402618902ac3a289f1c346041e4a1a3d65e49fe361ce7a8"
+}

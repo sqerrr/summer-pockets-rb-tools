@@ -1,0 +1,3276 @@
+{
+  "schema": "manual-deck-transcription-v1",
+  "scope": {
+    "archive": "MANUAL_DECK.PAK",
+    "requested_names": [
+      "deck_en_help",
+      "deck_en_manual01",
+      "deck_en_manual02",
+      "deck_en_manual03",
+      "deck_en_manual04",
+      "deck_en_manual05",
+      "deck_en_manual06",
+      "deck_en_manual07"
+    ],
+    "overlay_rule": "Include every English Linkto overlay belonging to deck_en_manual01 through deck_en_manual07.",
+    "source_catalog": "build/steam/ui-assets/MANUAL_DECK/catalog.jsonl",
+    "source_images_directory": "build/steam/ui-assets/MANUAL_DECK/images"
+  },
+  "counts": {
+    "entries": 35,
+    "base_pages": 8,
+    "help_pages": 1,
+    "manual_pages": 7,
+    "linkto_overlays": 27,
+    "segments": 200
+  },
+  "translation_conventions": [
+    "Hardware and on-screen button labels remain exactly recognizable in Latin script: A, B, X, Y, L1, R1, LB, RB, MENU, VIEW, BACK, START, OPTIONS, SKIP, AUTO, VOICE, LOAD, MANUAL, EXIT, GALLERY, MUSIC, RECORDS and Help.",
+    "Page references preserve the original destination number and use the Russian form 'стр.'.",
+    "Product title Summer Pockets REFLECTION BLUE and platform name Steam Deck are not translated.",
+    "Russian is segmented by visible semantic block rather than by raster line wrapping; final typesetting may reflow within each recorded region.",
+    "Font names are not asserted from raster evidence. Notes describe observable class, weight, effects and hierarchy only."
+  ],
+  "global_layout_font_color_notes": {
+    "canvas": "Manual pages are sparse transparent sprites positioned on a nominal white presentation surface; catalog width/height and offsets are authoritative for reconstruction.",
+    "hierarchy": "White display titles with electric-blue outlines/glows; black rounded body copy; royal-blue section labels; bright-green base cross-references replaced by separate blue-and-white Linkto overlays.",
+    "typesetting_risk": "Russian expansion is substantial in tables and Linkto strips. Preserve button labels and destination numerals first; use moderate condensation or slightly smaller body size before changing geometry. Do not remove the blue outline/glow from title and overlay text."
+  },
+  "entries": [
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 0,
+        "entry_id": 62000,
+        "name": "deck_en_help",
+        "offset": 8192,
+        "size": 551790,
+        "payload_sha256": "sha256:e5eea08935a74bdb563fe6e5898ca32da6b7bf71a42a92eff533b1b257e13af8",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1920,
+        "height": 1080,
+        "bpp": 32,
+        "offset_x": 0,
+        "offset_y": 0,
+        "canvas_width": 1920,
+        "canvas_height": 1080,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0000-deck_en_help.png"
+      },
+      "entry_type": "help_page",
+      "page_number": null,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Standalone 1920x1080 touch-control help sheet. Blue sky-and-butterfly banner across the top; two-column body; gesture diagrams in the upper-left; bordered control tables below and at right; embedded message-window screenshot at upper-right.",
+      "font_notes": "Raster identification only: rounded geometric sans-serif throughout, with bold labels and section heads; title uses a tall rounded display sans with white fill and blue glow. Table copy is regular/bold sans-serif.",
+      "color_notes": "Opaque white page; black body copy and rules; saturated royal-blue title/section labels; gesture tiles use gray gradients; screenshot callout uses blue outline. No Linkto layers are attached to this entry.",
+      "segments": [
+        {
+          "segment_id": "deck_en_help:001",
+          "order": 1,
+          "region": "top banner",
+          "role": "title",
+          "english": "Touch Controls",
+          "russian": "Сенсорное управление",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:002",
+          "order": 2,
+          "region": "intro",
+          "role": "body",
+          "english": "The game can also be played using the Steam Deck's touchscreen.",
+          "russian": "В игру также можно играть с помощью сенсорного экрана Steam Deck.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:003",
+          "order": 3,
+          "region": "left upper",
+          "role": "section heading",
+          "english": "Basic Controls",
+          "russian": "Основные жесты",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:004",
+          "order": 4,
+          "region": "left upper",
+          "role": "gesture label",
+          "english": "Tap",
+          "russian": "Касание",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:005",
+          "order": 5,
+          "region": "left upper",
+          "role": "gesture explanation",
+          "english": "Touch lightly with finger and quickly release.",
+          "russian": "Слегка коснитесь экрана пальцем и сразу отпустите.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:006",
+          "order": 6,
+          "region": "left upper",
+          "role": "gesture label",
+          "english": "Tap and Hold",
+          "russian": "Касание с удержанием",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:007",
+          "order": 7,
+          "region": "left upper",
+          "role": "gesture explanation",
+          "english": "Hold down with finger.",
+          "russian": "Коснитесь экрана пальцем и удерживайте.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:008",
+          "order": 8,
+          "region": "left upper",
+          "role": "gesture label",
+          "english": "Drag",
+          "russian": "Перетаскивание",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:009",
+          "order": 9,
+          "region": "left upper",
+          "role": "gesture explanation",
+          "english": "Trace with finger without lifting.",
+          "russian": "Ведите пальцем по экрану, не отрывая его.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:010",
+          "order": 10,
+          "region": "left upper",
+          "role": "gesture label",
+          "english": "Flick",
+          "russian": "Смахивание",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:011",
+          "order": 11,
+          "region": "left upper",
+          "role": "gesture explanation",
+          "english": "Gently flick finger.",
+          "russian": "Легко смахните пальцем по экрану.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:012",
+          "order": 12,
+          "region": "left lower",
+          "role": "section heading",
+          "english": "Touchscreen Controls",
+          "russian": "Управление с сенсорного экрана",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:013",
+          "order": 13,
+          "region": "left table",
+          "role": "gesture/action",
+          "english": "Tap — Select an option. / Move on to the next message.",
+          "russian": "Касание — выбрать пункт. / Перейти к следующей реплике.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:014",
+          "order": 14,
+          "region": "left table",
+          "role": "gesture/action",
+          "english": "Flick Up — Open the System Menu.",
+          "russian": "Смахивание вверх — открыть системное меню.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:015",
+          "order": 15,
+          "region": "left table",
+          "role": "gesture/action",
+          "english": "Flick Down — Show Message Log.",
+          "russian": "Смахивание вниз — открыть журнал сообщений.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:016",
+          "order": 16,
+          "region": "left table",
+          "role": "gesture/action",
+          "english": "Flick Left/Right — Right: Switch page. / Jump to the next choice. Left: Switch page. / Jump to the previous choice.",
+          "russian": "Смахивание влево/вправо — вправо: сменить страницу. / Перейти к следующему выбору. Влево: сменить страницу. / Перейти к предыдущему выбору.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:017",
+          "order": 17,
+          "region": "right upper",
+          "role": "section heading",
+          "english": "Inside the Message Window",
+          "russian": "В окне сообщений",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:018",
+          "order": 18,
+          "region": "right upper",
+          "role": "body",
+          "english": "The following actions may be performed directly on the message window via touch gestures.",
+          "russian": "Следующие действия можно выполнять жестами прямо в окне сообщений.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:019",
+          "order": 19,
+          "region": "right upper",
+          "role": "callout label",
+          "english": "Message window",
+          "russian": "Окно сообщений",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:020",
+          "order": 20,
+          "region": "right table",
+          "role": "gesture/action",
+          "english": "Drag/Flick — Right: Skip. Left: Rewind.",
+          "russian": "Перетаскивание/смахивание — вправо: пропуск. Влево: перемотка назад.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:021",
+          "order": 21,
+          "region": "right table",
+          "role": "gesture/action",
+          "english": "Tap and Hold — Turn Auto Mode on/off. (Tap to cancel.)",
+          "russian": "Касание с удержанием — включить или выключить авторежим. (Для отмены коснитесь экрана.)",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_help:022",
+          "order": 22,
+          "region": "embedded screenshot",
+          "role": "speaker name",
+          "english": "Shizuku",
+          "russian": "Сидзуку",
+          "confidence": "exact",
+          "note": "Tiny in-game screenshot text."
+        },
+        {
+          "segment_id": "deck_en_help:023",
+          "order": 23,
+          "region": "embedded screenshot",
+          "role": "dialogue",
+          "english": "“Haeri!? Tsumugi, this is my new friend!”",
+          "russian": "«Хаири?! Цумуги, это моя новая подруга!»",
+          "confidence": "exact",
+          "note": "The raster visibly spells the protagonist's name as 'Haeri'; Russian uses the established natural name form."
+        },
+        {
+          "segment_id": "deck_en_help:024",
+          "order": 24,
+          "region": "embedded screenshot",
+          "role": "shortcut labels",
+          "english": "MENU / SKIP / AUTO / VOICE",
+          "russian": "MENU / SKIP / AUTO / VOICE",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU",
+            "SKIP",
+            "AUTO",
+            "VOICE"
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 1,
+        "entry_id": 62001,
+        "name": "deck_en_manual01",
+        "offset": 561152,
+        "size": 101976,
+        "payload_sha256": "sha256:ad9a8e652c454933e47ff39eda8a8eb5d0d20c3d5df46baf2411b5f75fbf4a84",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1792,
+        "height": 832,
+        "bpp": 32,
+        "offset_x": 80,
+        "offset_y": 24,
+        "canvas_width": 1792,
+        "canvas_height": 832,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0001-deck_en_manual01.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 1,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Manual cover and contents page. Product logo occupies the left half; contents list is a right-column stack with dot leaders and large page numerals. Linkto overlays replace the seven contents rows.",
+      "font_notes": "Product logo and 'User's Manual' use serif/display lettering; contents heading is a high-contrast serif; contents rows are bold sans-serif. Page badge is a serif label inside a cyan glow.",
+      "color_notes": "Transparent page artwork intended for white compositing. Logo uses muted slate-blue, cyan, white, and dark blue. Contents copy is dark navy; page badge and Linkto replacements are white with vivid blue outline/glow.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual01:001",
+          "order": 1,
+          "region": "upper right",
+          "role": "page badge",
+          "english": "PAGE 1",
+          "russian": "СТР. 1",
+          "confidence": "exact",
+          "page_references": [
+            1
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual01:002",
+          "order": 2,
+          "region": "left logo",
+          "role": "product title",
+          "english": "Summer Pockets",
+          "russian": "Summer Pockets",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual01:003",
+          "order": 3,
+          "region": "left logo",
+          "role": "product subtitle",
+          "english": "REFLECTION BLUE",
+          "russian": "REFLECTION BLUE",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual01:004",
+          "order": 4,
+          "region": "left logo",
+          "role": "document title",
+          "english": "User's Manual",
+          "russian": "Руководство пользователя",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual01:005",
+          "order": 5,
+          "region": "right",
+          "role": "heading",
+          "english": "CONTENTS",
+          "russian": "СОДЕРЖАНИЕ",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual01:006",
+          "order": 6,
+          "region": "right contents",
+          "role": "contents row",
+          "english": "Basic Controls — 2",
+          "russian": "Основное управление — 2",
+          "confidence": "exact",
+          "page_references": [
+            2
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual01:007",
+          "order": 7,
+          "region": "right contents",
+          "role": "contents row",
+          "english": "How to Start the Game — 5",
+          "russian": "Как начать игру — 5",
+          "confidence": "exact",
+          "page_references": [
+            5
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual01:008",
+          "order": 8,
+          "region": "right contents",
+          "role": "contents row",
+          "english": "How to Play the Game — 6",
+          "russian": "Как играть — 6",
+          "confidence": "exact",
+          "page_references": [
+            6
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual01:009",
+          "order": 9,
+          "region": "right contents",
+          "role": "contents row",
+          "english": "System Menu — 8",
+          "russian": "Системное меню — 8",
+          "confidence": "exact",
+          "page_references": [
+            8
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual01:010",
+          "order": 10,
+          "region": "right contents",
+          "role": "contents row",
+          "english": "Features — 9",
+          "russian": "Функции — 9",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual01:011",
+          "order": 11,
+          "region": "right contents",
+          "role": "contents row",
+          "english": "Options — 11",
+          "russian": "Настройки — 11",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual01:012",
+          "order": 12,
+          "region": "right contents",
+          "role": "contents row",
+          "english": "Save & Load — 13",
+          "russian": "Сохранение и загрузка — 13",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 2,
+        "entry_id": 62002,
+        "name": "deck_en_manual01_Linkto_1_2",
+        "offset": 663552,
+        "size": 11790,
+        "payload_sha256": "sha256:359654938b7c55401a8730b21235bbc53f2614696a52bc62e5ce21c7e39f27b5",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 640,
+        "height": 58,
+        "bpp": 8,
+        "offset_x": 1104,
+        "offset_y": 281,
+        "canvas_width": 640,
+        "canvas_height": 58,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0002-deck_en_manual01_Linkto_1_2.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 1,
+      "parent_name": "deck_en_manual01",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual01_Linkto_1_2:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "contents link",
+          "english": "Basic Controls — 2",
+          "russian": "Основное управление — 2",
+          "confidence": "exact",
+          "page_references": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 3,
+        "entry_id": 62003,
+        "name": "deck_en_manual01_Linkto_2_5",
+        "offset": 675840,
+        "size": 15250,
+        "payload_sha256": "sha256:c7ad0d83976e69e8940c7955bb07b9f44104cc17d678ae24778d28291f5e6e7b",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 640,
+        "height": 58,
+        "bpp": 8,
+        "offset_x": 1104,
+        "offset_y": 368,
+        "canvas_width": 640,
+        "canvas_height": 58,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0003-deck_en_manual01_Linkto_2_5.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 1,
+      "parent_name": "deck_en_manual01",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual01_Linkto_2_5:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "contents link",
+          "english": "How to Start the Game — 5",
+          "russian": "Как начать игру — 5",
+          "confidence": "exact",
+          "page_references": [
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 4,
+        "entry_id": 62004,
+        "name": "deck_en_manual01_Linkto_3_6",
+        "offset": 692224,
+        "size": 15608,
+        "payload_sha256": "sha256:73747ddbc91d3f028816c953975a54984ba793c44c2e06ce22e2a4b955298160",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 640,
+        "height": 63,
+        "bpp": 8,
+        "offset_x": 1104,
+        "offset_y": 453,
+        "canvas_width": 640,
+        "canvas_height": 63,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0004-deck_en_manual01_Linkto_3_6.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 1,
+      "parent_name": "deck_en_manual01",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual01_Linkto_3_6:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "contents link",
+          "english": "How to Play the Game — 6",
+          "russian": "Как играть — 6",
+          "confidence": "exact",
+          "page_references": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 5,
+        "entry_id": 62005,
+        "name": "deck_en_manual01_Linkto_4_8",
+        "offset": 708608,
+        "size": 11698,
+        "payload_sha256": "sha256:1a778a79a502bab4edd3ef21b44bb3be8feb7ef61539f855914119edb4a091df",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 640,
+        "height": 64,
+        "bpp": 8,
+        "offset_x": 1104,
+        "offset_y": 539,
+        "canvas_width": 640,
+        "canvas_height": 64,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0005-deck_en_manual01_Linkto_4_8.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 1,
+      "parent_name": "deck_en_manual01",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual01_Linkto_4_8:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "contents link",
+          "english": "System Menu — 8",
+          "russian": "Системное меню — 8",
+          "confidence": "exact",
+          "page_references": [
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 6,
+        "entry_id": 62006,
+        "name": "deck_en_manual01_Linkto_5_9",
+        "offset": 720896,
+        "size": 9154,
+        "payload_sha256": "sha256:033bb589c25487abfe2a5d05834013202014e7c528b1315d2618b6f709b3d934",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 640,
+        "height": 59,
+        "bpp": 8,
+        "offset_x": 1104,
+        "offset_y": 625,
+        "canvas_width": 640,
+        "canvas_height": 59,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0006-deck_en_manual01_Linkto_5_9.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 1,
+      "parent_name": "deck_en_manual01",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual01_Linkto_5_9:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "contents link",
+          "english": "Features — 9",
+          "russian": "Функции — 9",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 7,
+        "entry_id": 62007,
+        "name": "deck_en_manual01_Linkto_6_11",
+        "offset": 731136,
+        "size": 8852,
+        "payload_sha256": "sha256:960ba23fab26329c1b84165aa9c462e0642f6877e282f554265befc904e7aa9e",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 624,
+        "height": 62,
+        "bpp": 8,
+        "offset_x": 1104,
+        "offset_y": 712,
+        "canvas_width": 624,
+        "canvas_height": 62,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0007-deck_en_manual01_Linkto_6_11.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 1,
+      "parent_name": "deck_en_manual01",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual01_Linkto_6_11:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "contents link",
+          "english": "Options — 11",
+          "russian": "Настройки — 11",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 8,
+        "entry_id": 62008,
+        "name": "deck_en_manual01_Linkto_7_13",
+        "offset": 741376,
+        "size": 12152,
+        "payload_sha256": "sha256:f706b749fa46292a31900ce8997ab18b4e188b3ee0f8487ee4637729b24c598b",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 640,
+        "height": 59,
+        "bpp": 8,
+        "offset_x": 1104,
+        "offset_y": 798,
+        "canvas_width": 640,
+        "canvas_height": 59,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0008-deck_en_manual01_Linkto_7_13.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 1,
+      "parent_name": "deck_en_manual01",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual01_Linkto_7_13:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "contents link",
+          "english": "Save & Load — 13",
+          "russian": "Сохранение и загрузка — 13",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 9,
+        "entry_id": 62009,
+        "name": "deck_en_manual02",
+        "offset": 753664,
+        "size": 93546,
+        "payload_sha256": "sha256:1c70de4e8598d71184237c4422f2bd54dfc08512322c08e0526165232e36a323",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 983,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 19,
+        "canvas_width": 1824,
+        "canvas_height": 983,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0009-deck_en_manual02.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 2,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Two-column Steam Deck control reference. Each column is a ruled table pairing hardware glyphs with actions. Green cross-references sit under related actions; legal copy is below the right table. Six Linkto overlays replace green references.",
+      "font_notes": "Rounded sans-serif body; bold condensed/rounded sans for title and button/action emphasis. Hardware labels are drawn glyphs rather than editable text.",
+      "color_notes": "Transparent/white page; black rules and copy; title/page badge white with electric-blue outline and glow; cross-references bright green in the base and white with blue outline in overlays.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual02:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "Basic Controls",
+          "russian": "Основное управление",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual02:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 2",
+          "russian": "СТР. 2",
+          "confidence": "exact",
+          "page_references": [
+            2
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:003",
+          "order": 3,
+          "region": "intro",
+          "role": "section heading",
+          "english": "Steam Deck™",
+          "russian": "Steam Deck™",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual02:004",
+          "order": 4,
+          "region": "intro",
+          "role": "body",
+          "english": "“Summer Pockets REFLECTION BLUE” can be played on Steam Deck.",
+          "russian": "В Summer Pockets REFLECTION BLUE можно играть на Steam Deck.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual02:005",
+          "order": 5,
+          "region": "left table",
+          "role": "control",
+          "english": "D-pad — Move cursor.",
+          "russian": "Крестовина — перемещать курсор.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "D-pad"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:006",
+          "order": 6,
+          "region": "left table",
+          "role": "control",
+          "english": "A — Confirm selected option. / Advance messages.",
+          "russian": "A — подтвердить выбранный пункт. / Перейти к следующей реплике.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "A"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:007",
+          "order": 7,
+          "region": "left table",
+          "role": "control",
+          "english": "B — Cancel. / Close screen. Show the next full message.",
+          "russian": "B — отмена. / Закрыть экран. Показать следующую реплику целиком.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "B"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:008",
+          "order": 8,
+          "region": "left table",
+          "role": "control",
+          "english": "X — Open the System Menu.",
+          "russian": "X — открыть системное меню.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "X"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:009",
+          "order": 9,
+          "region": "left table",
+          "role": "cross-reference",
+          "english": "See details on page 8 “System Menu”",
+          "russian": "Подробнее на стр. 8 «Системное меню».",
+          "confidence": "exact",
+          "page_references": [
+            8
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:010",
+          "order": 10,
+          "region": "left table",
+          "role": "control",
+          "english": "Y — Show Message Log.",
+          "russian": "Y — открыть журнал сообщений.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Y"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:011",
+          "order": 11,
+          "region": "left table",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Message Log”",
+          "russian": "Подробнее на стр. 10 «Журнал сообщений».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:012",
+          "order": 12,
+          "region": "left table",
+          "role": "control",
+          "english": "R1 — Switch page. / Skip message while pressed.",
+          "russian": "R1 — сменить страницу. / Удерживать для пропуска реплик.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "R1"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:013",
+          "order": 13,
+          "region": "left table",
+          "role": "control",
+          "english": "L1 — Switch page. / Rewind message while pressed.",
+          "russian": "L1 — сменить страницу. / Удерживать для перемотки реплик назад.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "L1"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:014",
+          "order": 14,
+          "region": "left table",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Skip and Rewind”",
+          "russian": "Подробнее на стр. 9 «Пропуск и перемотка назад».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:015",
+          "order": 15,
+          "region": "right table",
+          "role": "control",
+          "english": "Tilt the Left thumbstick to the Right. — Jump to the next choice.",
+          "russian": "Отклонить левый стик вправо — перейти к следующему выбору.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Left thumbstick"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:016",
+          "order": 16,
+          "region": "right table",
+          "role": "control",
+          "english": "Tilt the Left thumbstick to the Left. — Jump to the previous choice.",
+          "russian": "Отклонить левый стик влево — перейти к предыдущему выбору.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Left thumbstick"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:017",
+          "order": 17,
+          "region": "right table",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Jump”",
+          "russian": "Подробнее на стр. 9 «Переход между выборами».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:018",
+          "order": 18,
+          "region": "right table",
+          "role": "control",
+          "english": "Press Right thumbstick. — Switch language.",
+          "russian": "Нажать правый стик — сменить язык.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Right thumbstick"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:019",
+          "order": 19,
+          "region": "right table",
+          "role": "control",
+          "english": "Menu button — Quick Save.",
+          "russian": "Кнопка MENU — быстрое сохранение.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:020",
+          "order": 20,
+          "region": "right table",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Quick Save”",
+          "russian": "Подробнее на стр. 10 «Быстрое сохранение».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:021",
+          "order": 21,
+          "region": "right table",
+          "role": "control",
+          "english": "View button — Toggle Auto Mode on/off.",
+          "russian": "Кнопка VIEW — включить или выключить авторежим.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "VIEW"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:022",
+          "order": 22,
+          "region": "right table",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Auto Mode”",
+          "russian": "Подробнее на стр. 10 «Авторежим».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual02:023",
+          "order": 23,
+          "region": "bottom right",
+          "role": "legal",
+          "english": "©2021 Valve Corporation. Steam Deck and the Steam Deck logo are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries. All rights reserved.",
+          "russian": "© Valve Corporation, 2021. Steam Deck и логотип Steam Deck являются товарными знаками и/или зарегистрированными товарными знаками Valve Corporation в США и/или других странах. Все права защищены.",
+          "confidence": "exact"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 10,
+        "entry_id": 62010,
+        "name": "deck_en_manual02_Linkto_1_8",
+        "offset": 847872,
+        "size": 13128,
+        "payload_sha256": "sha256:fe7daed2475ca3cbedc89629d3569569a674c90d94d590f0bb3093e2b64e2f76",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 544,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 192,
+        "offset_y": 549,
+        "canvas_width": 544,
+        "canvas_height": 46,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0010-deck_en_manual02_Linkto_1_8.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 2,
+      "parent_name": "deck_en_manual02",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual02_Linkto_1_8:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 8 “System Menu”",
+          "russian": "Подробнее на стр. 8 «Системное меню».",
+          "confidence": "exact",
+          "page_references": [
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 11,
+        "entry_id": 62011,
+        "name": "deck_en_manual02_Linkto_2_10",
+        "offset": 862208,
+        "size": 13386,
+        "payload_sha256": "sha256:4ab56cb35d267865dbcb9dcf66acf21c1256d7d327cc27f477a499f1daeb3273",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 560,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 192,
+        "offset_y": 663,
+        "canvas_width": 560,
+        "canvas_height": 47,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0011-deck_en_manual02_Linkto_2_10.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 2,
+      "parent_name": "deck_en_manual02",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual02_Linkto_2_10:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Message Log”",
+          "russian": "Подробнее на стр. 10 «Журнал сообщений».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 12,
+        "entry_id": 62012,
+        "name": "deck_en_manual02_Linkto_3_9",
+        "offset": 876544,
+        "size": 13770,
+        "payload_sha256": "sha256:a95220f3aa5bf4857ae2d4db7a8efb1baf2ccb66e8d949b8f72138a69f540c48",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 576,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 192,
+        "offset_y": 861,
+        "canvas_width": 576,
+        "canvas_height": 46,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0012-deck_en_manual02_Linkto_3_9.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 2,
+      "parent_name": "deck_en_manual02",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual02_Linkto_3_9:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Skip and Rewind”",
+          "russian": "Подробнее на стр. 9 «Пропуск и перемотка назад».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 13,
+        "entry_id": 62013,
+        "name": "deck_en_manual02_Linkto_4_9",
+        "offset": 890880,
+        "size": 11006,
+        "payload_sha256": "sha256:f28f214926ead13cb1d41a531a55bac4347f0d4658bda2d278346607ec862bae",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 448,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 1408,
+        "offset_y": 356,
+        "canvas_width": 448,
+        "canvas_height": 46,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0013-deck_en_manual02_Linkto_4_9.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 2,
+      "parent_name": "deck_en_manual02",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual02_Linkto_4_9:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Jump”",
+          "russian": "Подробнее на стр. 9 «Переход между выборами».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 14,
+        "entry_id": 62014,
+        "name": "deck_en_manual02_Linkto_5_10",
+        "offset": 903168,
+        "size": 12148,
+        "payload_sha256": "sha256:6639911f58c7024d3511b18dbe928252daf43bf48cb22d93661e63b650a78b7b",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 368,
+        "height": 73,
+        "bpp": 8,
+        "offset_x": 1408,
+        "offset_y": 578,
+        "canvas_width": 368,
+        "canvas_height": 73,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0014-deck_en_manual02_Linkto_5_10.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 2,
+      "parent_name": "deck_en_manual02",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual02_Linkto_5_10:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Quick Save”",
+          "russian": "Подробнее на стр. 10 «Быстрое сохранение».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 15,
+        "entry_id": 62015,
+        "name": "deck_en_manual02_Linkto_6_10",
+        "offset": 915456,
+        "size": 12090,
+        "payload_sha256": "sha256:f1aa3cb9365c03b20c398ff04a36b93ee98ec7a59bb17aac022b62a393b6a3cc",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 368,
+        "height": 71,
+        "bpp": 8,
+        "offset_x": 1408,
+        "offset_y": 708,
+        "canvas_width": 368,
+        "canvas_height": 71,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0015-deck_en_manual02_Linkto_6_10.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 2,
+      "parent_name": "deck_en_manual02",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual02_Linkto_6_10:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Auto Mode”",
+          "russian": "Подробнее на стр. 10 «Авторежим».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 16,
+        "entry_id": 62016,
+        "name": "deck_en_manual03",
+        "offset": 927744,
+        "size": 398844,
+        "payload_sha256": "sha256:95e42bab369f4b01ee70bc46a3bd9a7ddae583d8d74dbda7e89d45b1060c18d2",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 992,
+        "bpp": 32,
+        "offset_x": 48,
+        "offset_y": 16,
+        "canvas_width": 1824,
+        "canvas_height": 992,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0016-deck_en_manual03.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 3,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Two-column touchscreen guide. Gesture illustrations and labels occupy the upper-left; a large touchscreen table is below. Right column contains an explanatory block, screenshot callout, and a two-row message-window gesture table. Five Linkto overlays replace green references.",
+      "font_notes": "Rounded sans-serif; bold labels for gestures and table row names. Main title uses white rounded display letters with blue outline/glow.",
+      "color_notes": "Transparent/white page; black body and table rules; royal-blue section headings/callouts; green references in base; overlays use white fill with blue outline.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual03:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "Basic Controls",
+          "russian": "Основное управление",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 3",
+          "russian": "СТР. 3",
+          "confidence": "exact",
+          "page_references": [
+            3
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual03:003",
+          "order": 3,
+          "region": "intro",
+          "role": "section heading",
+          "english": "Touch Gestures",
+          "russian": "Сенсорные жесты",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:004",
+          "order": 4,
+          "region": "intro",
+          "role": "body",
+          "english": "The game can also be played using the Steam Deck's touchscreen.",
+          "russian": "В игру также можно играть с помощью сенсорного экрана Steam Deck.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:005",
+          "order": 5,
+          "region": "left upper",
+          "role": "section heading",
+          "english": "Basic Controls",
+          "russian": "Основные жесты",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:006",
+          "order": 6,
+          "region": "left upper",
+          "role": "gesture",
+          "english": "Tap — Touch lightly with finger and quickly release.",
+          "russian": "Касание — слегка коснитесь экрана пальцем и сразу отпустите.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:007",
+          "order": 7,
+          "region": "left upper",
+          "role": "gesture",
+          "english": "Tap and Hold — Hold down with finger.",
+          "russian": "Касание с удержанием — коснитесь экрана пальцем и удерживайте.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:008",
+          "order": 8,
+          "region": "left upper",
+          "role": "gesture",
+          "english": "Drag — Trace with finger without lifting.",
+          "russian": "Перетаскивание — ведите пальцем по экрану, не отрывая его.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:009",
+          "order": 9,
+          "region": "left upper",
+          "role": "gesture",
+          "english": "Flick — Gently flick finger.",
+          "russian": "Смахивание — легко смахните пальцем по экрану.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:010",
+          "order": 10,
+          "region": "left lower",
+          "role": "section heading",
+          "english": "Touchscreen Controls",
+          "russian": "Управление с сенсорного экрана",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:011",
+          "order": 11,
+          "region": "left table",
+          "role": "gesture/action",
+          "english": "Tap — Select an option. / Move on to the next message.",
+          "russian": "Касание — выбрать пункт. / Перейти к следующей реплике.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:012",
+          "order": 12,
+          "region": "left table",
+          "role": "gesture/action",
+          "english": "Flick Up — Open the System Menu.",
+          "russian": "Смахивание вверх — открыть системное меню.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:013",
+          "order": 13,
+          "region": "left table",
+          "role": "cross-reference",
+          "english": "See details on page 8 “System Menu”",
+          "russian": "Подробнее на стр. 8 «Системное меню».",
+          "confidence": "exact",
+          "page_references": [
+            8
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual03:014",
+          "order": 14,
+          "region": "left table",
+          "role": "gesture/action",
+          "english": "Flick Down — Show Message Log.",
+          "russian": "Смахивание вниз — открыть журнал сообщений.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:015",
+          "order": 15,
+          "region": "left table",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Message Log”",
+          "russian": "Подробнее на стр. 10 «Журнал сообщений».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual03:016",
+          "order": 16,
+          "region": "left table",
+          "role": "gesture/action",
+          "english": "Flick Left/Right — Right: Switch page. / Jump to the next choice. Left: Switch page. / Jump to the previous choice.",
+          "russian": "Смахивание влево/вправо — вправо: сменить страницу. / Перейти к следующему выбору. Влево: сменить страницу. / Перейти к предыдущему выбору.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:017",
+          "order": 17,
+          "region": "left table",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Jump”",
+          "russian": "Подробнее на стр. 9 «Переход между выборами».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual03:018",
+          "order": 18,
+          "region": "right upper",
+          "role": "section heading",
+          "english": "Inside the Message Window",
+          "russian": "В окне сообщений",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:019",
+          "order": 19,
+          "region": "right upper",
+          "role": "body",
+          "english": "The following actions may be performed directly on the message window via touch gestures.",
+          "russian": "Следующие действия можно выполнять жестами прямо в окне сообщений.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:020",
+          "order": 20,
+          "region": "right upper",
+          "role": "callout label",
+          "english": "Message window",
+          "russian": "Окно сообщений",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:021",
+          "order": 21,
+          "region": "right table",
+          "role": "gesture/action",
+          "english": "Drag/Flick — Right: Skip. Left: Rewind.",
+          "russian": "Перетаскивание/смахивание — вправо: пропуск. Влево: перемотка назад.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:022",
+          "order": 22,
+          "region": "right table",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Skip and Rewind”",
+          "russian": "Подробнее на стр. 9 «Пропуск и перемотка назад».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual03:023",
+          "order": 23,
+          "region": "right table",
+          "role": "gesture/action",
+          "english": "Tap and Hold — Turn Auto Mode on/off. (Tap to cancel.)",
+          "russian": "Касание с удержанием — включить или выключить авторежим. (Для отмены коснитесь экрана.)",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:024",
+          "order": 24,
+          "region": "right table",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Auto Mode”",
+          "russian": "Подробнее на стр. 10 «Авторежим».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual03:025",
+          "order": 25,
+          "region": "embedded screenshot",
+          "role": "speaker name",
+          "english": "Shizuku",
+          "russian": "Сидзуку",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual03:026",
+          "order": 26,
+          "region": "embedded screenshot",
+          "role": "dialogue",
+          "english": "“Haeri!? Tsumugi, this is my new friend!”",
+          "russian": "«Хаири?! Цумуги, это моя новая подруга!»",
+          "confidence": "exact",
+          "note": "The raster visibly spells 'Haeri'."
+        },
+        {
+          "segment_id": "deck_en_manual03:027",
+          "order": 27,
+          "region": "embedded screenshot",
+          "role": "shortcut labels",
+          "english": "MENU / SKIP / AUTO / VOICE",
+          "russian": "MENU / SKIP / AUTO / VOICE",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU",
+            "SKIP",
+            "AUTO",
+            "VOICE"
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 17,
+        "entry_id": 62017,
+        "name": "deck_en_manual03_Linkto_1_8",
+        "offset": 1327104,
+        "size": 13216,
+        "payload_sha256": "sha256:7782b10900ec476e58aa25d37edc88a5ce398d880e563b6eeac1851788a707af",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 544,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 256,
+        "offset_y": 684,
+        "canvas_width": 544,
+        "canvas_height": 46,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0017-deck_en_manual03_Linkto_1_8.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 3,
+      "parent_name": "deck_en_manual03",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual03_Linkto_1_8:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 8 “System Menu”",
+          "russian": "Подробнее на стр. 8 «Системное меню».",
+          "confidence": "exact",
+          "page_references": [
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 18,
+        "entry_id": 62018,
+        "name": "deck_en_manual03_Linkto_2_10",
+        "offset": 1341440,
+        "size": 13482,
+        "payload_sha256": "sha256:87d4b5946ac2c05ecedde2f54d01e68e9f315ff6c40ad90ffcc481d44d3be80c",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 560,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 256,
+        "offset_y": 791,
+        "canvas_width": 560,
+        "canvas_height": 47,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0018-deck_en_manual03_Linkto_2_10.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 3,
+      "parent_name": "deck_en_manual03",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual03_Linkto_2_10:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Message Log”",
+          "russian": "Подробнее на стр. 10 «Журнал сообщений».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 19,
+        "entry_id": 62019,
+        "name": "deck_en_manual03_Linkto_3_9",
+        "offset": 1355776,
+        "size": 11050,
+        "payload_sha256": "sha256:e8fe96d6c6c42d6bbd79eb08ca4b82adb1097b32fb2bbbf48694df5fce381130",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 448,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 256,
+        "offset_y": 931,
+        "canvas_width": 448,
+        "canvas_height": 47,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0019-deck_en_manual03_Linkto_3_9.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 3,
+      "parent_name": "deck_en_manual03",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual03_Linkto_3_9:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Jump”",
+          "russian": "Подробнее на стр. 9 «Переход между выборами».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 20,
+        "entry_id": 62020,
+        "name": "deck_en_manual03_Linkto_4_9",
+        "offset": 1368064,
+        "size": 13916,
+        "payload_sha256": "sha256:ba4e001c1aa2cf0e6ebea94219981c3825a1f0df0efe17c0b803c1d2a1505042",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 592,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 1184,
+        "offset_y": 560,
+        "canvas_width": 592,
+        "canvas_height": 46,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0020-deck_en_manual03_Linkto_4_9.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 3,
+      "parent_name": "deck_en_manual03",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual03_Linkto_4_9:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Skip and Rewind”",
+          "russian": "Подробнее на стр. 9 «Пропуск и перемотка назад».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 21,
+        "entry_id": 62021,
+        "name": "deck_en_manual03_Linkto_5_10",
+        "offset": 1382400,
+        "size": 12898,
+        "payload_sha256": "sha256:63f9fae23b12c370d2acc8d4809f282be49b576132210c4bf7b0b5fca858b066",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 528,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 1184,
+        "offset_y": 667,
+        "canvas_width": 528,
+        "canvas_height": 46,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0021-deck_en_manual03_Linkto_5_10.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 3,
+      "parent_name": "deck_en_manual03",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual03_Linkto_5_10:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Auto Mode”",
+          "russian": "Подробнее на стр. 10 «Авторежим».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 22,
+        "entry_id": 62022,
+        "name": "deck_en_manual04",
+        "offset": 1396736,
+        "size": 97122,
+        "payload_sha256": "sha256:6d2740ed961ed565c26dfbe77d6eafe5411ca5d995be17f3cd944c22ac69f3a5",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 958,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 28,
+        "canvas_width": 1824,
+        "canvas_height": 958,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0022-deck_en_manual04.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 4,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Two-column controller reference. Left table covers face/shoulder buttons; right table covers sticks, trackpad and platform-specific menu/view controls. Six Linkto overlays replace green references.",
+      "font_notes": "Rounded sans-serif with bold action labels. Main title and page badge use white lettering with electric-blue outline/glow. Controller marks are icon art.",
+      "color_notes": "Transparent/white page; black copy/rules; green cross-references in base; Linkto overlays white with blue outline. Platform button symbols remain monochrome black/white.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual04:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "Basic Controls",
+          "russian": "Основное управление",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual04:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 4",
+          "russian": "СТР. 4",
+          "confidence": "exact",
+          "page_references": [
+            4
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:003",
+          "order": 3,
+          "region": "intro",
+          "role": "section heading",
+          "english": "Controller",
+          "russian": "Контроллер",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual04:004",
+          "order": 4,
+          "region": "intro",
+          "role": "body",
+          "english": "By placing the Steam Deck in the Docking Station and connecting a controller to the dock, you can also play the game using a controller.",
+          "russian": "Если установить Steam Deck в док-станцию и подключить к ней контроллер, в игру также можно играть с контроллера.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual04:005",
+          "order": 5,
+          "region": "left table",
+          "role": "control",
+          "english": "D-pad — Move cursor.",
+          "russian": "Крестовина — перемещать курсор.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "D-pad"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:006",
+          "order": 6,
+          "region": "left table",
+          "role": "control",
+          "english": "A / Cross — Confirm selected option. / Advance messages.",
+          "russian": "A / крест — подтвердить выбранный пункт. / Перейти к следующей реплике.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "A",
+            "Cross"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:007",
+          "order": 7,
+          "region": "left table",
+          "role": "control",
+          "english": "B / Circle — Cancel. / Close screen. Show the next full message.",
+          "russian": "B / круг — отмена. / Закрыть экран. Показать следующую реплику целиком.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "B",
+            "Circle"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:008",
+          "order": 8,
+          "region": "left table",
+          "role": "control",
+          "english": "X / Triangle — Open the System Menu.",
+          "russian": "X / треугольник — открыть системное меню.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "X",
+            "Triangle"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:009",
+          "order": 9,
+          "region": "left table",
+          "role": "cross-reference",
+          "english": "See details on page 8 “System Menu”",
+          "russian": "Подробнее на стр. 8 «Системное меню».",
+          "confidence": "exact",
+          "page_references": [
+            8
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:010",
+          "order": 10,
+          "region": "left table",
+          "role": "control",
+          "english": "Y / Square — Show Message Log.",
+          "russian": "Y / квадрат — открыть журнал сообщений.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Y",
+            "Square"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:011",
+          "order": 11,
+          "region": "left table",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Message Log”",
+          "russian": "Подробнее на стр. 10 «Журнал сообщений».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:012",
+          "order": 12,
+          "region": "left table",
+          "role": "control",
+          "english": "R1 / RB — Switch page. / Skip message while pressed.",
+          "russian": "R1 / RB — сменить страницу. / Удерживать для пропуска реплик.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "R1",
+            "RB"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:013",
+          "order": 13,
+          "region": "left table",
+          "role": "control",
+          "english": "L1 / LB — Switch page. / Rewind message while pressed.",
+          "russian": "L1 / LB — сменить страницу. / Удерживать для перемотки реплик назад.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "L1",
+            "LB"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:014",
+          "order": 14,
+          "region": "left table",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Skip and Rewind”",
+          "russian": "Подробнее на стр. 9 «Пропуск и перемотка назад».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:015",
+          "order": 15,
+          "region": "right table",
+          "role": "control",
+          "english": "Tilt the Left stick to the Right. — Jump to the next choice.",
+          "russian": "Отклонить левый стик вправо — перейти к следующему выбору.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Left stick"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:016",
+          "order": 16,
+          "region": "right table",
+          "role": "control",
+          "english": "Tilt the Left stick to the Left. — Jump to the previous choice.",
+          "russian": "Отклонить левый стик влево — перейти к предыдущему выбору.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Left stick"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:017",
+          "order": 17,
+          "region": "right table",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Jump”",
+          "russian": "Подробнее на стр. 9 «Переход между выборами».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:018",
+          "order": 18,
+          "region": "right table",
+          "role": "control",
+          "english": "Press Right stick. / Press the top area of the right trackpad. — Switch language.",
+          "russian": "Нажать правый стик. / Нажать верхнюю часть правого трекпада. — Сменить язык.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Right stick",
+            "right trackpad"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:019",
+          "order": 19,
+          "region": "right table",
+          "role": "control",
+          "english": "OPTIONS button / Menu button / Start button — Quick Save.",
+          "russian": "Кнопка OPTIONS / кнопка MENU / кнопка START — быстрое сохранение.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "OPTIONS",
+            "MENU",
+            "START"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:020",
+          "order": 20,
+          "region": "right table",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Quick Save”",
+          "russian": "Подробнее на стр. 10 «Быстрое сохранение».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:021",
+          "order": 21,
+          "region": "right table",
+          "role": "control",
+          "english": "Press touch pad / View button / Back button — Toggle Auto Mode on/off.",
+          "russian": "Нажать сенсорную панель / кнопка VIEW / кнопка BACK — включить или выключить авторежим.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "VIEW",
+            "BACK"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual04:022",
+          "order": 22,
+          "region": "right table",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Auto Mode”",
+          "russian": "Подробнее на стр. 10 «Авторежим».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 23,
+        "entry_id": 62023,
+        "name": "deck_en_manual04_Linkto_1_8",
+        "offset": 1495040,
+        "size": 13164,
+        "payload_sha256": "sha256:8673e9f283d1ae7306941c889000cce6393d100ea8c3e45f6da4f2cab90fbcc9",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 560,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 256,
+        "offset_y": 604,
+        "canvas_width": 560,
+        "canvas_height": 47,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0023-deck_en_manual04_Linkto_1_8.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 4,
+      "parent_name": "deck_en_manual04",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual04_Linkto_1_8:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 8 “System Menu”",
+          "russian": "Подробнее на стр. 8 «Системное меню».",
+          "confidence": "exact",
+          "page_references": [
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 24,
+        "entry_id": 62024,
+        "name": "deck_en_manual04_Linkto_2_10",
+        "offset": 1509376,
+        "size": 13454,
+        "payload_sha256": "sha256:bcce75c723eb13608b7bbe4ca3a8032fd7d98ef62f2a5309bbbf42411177993f",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 576,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 256,
+        "offset_y": 724,
+        "canvas_width": 576,
+        "canvas_height": 47,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0024-deck_en_manual04_Linkto_2_10.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 4,
+      "parent_name": "deck_en_manual04",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual04_Linkto_2_10:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Message Log”",
+          "russian": "Подробнее на стр. 10 «Журнал сообщений».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 25,
+        "entry_id": 62025,
+        "name": "deck_en_manual04_Linkto_3_9",
+        "offset": 1523712,
+        "size": 13804,
+        "payload_sha256": "sha256:59ae193975d14558c9279790d9c9ddb8915ecbfaf82e3706db875f1a122897d9",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 592,
+        "height": 47,
+        "bpp": 8,
+        "offset_x": 256,
+        "offset_y": 920,
+        "canvas_width": 592,
+        "canvas_height": 47,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0025-deck_en_manual04_Linkto_3_9.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 4,
+      "parent_name": "deck_en_manual04",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual04_Linkto_3_9:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Skip and Rewind”",
+          "russian": "Подробнее на стр. 9 «Пропуск и перемотка назад».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 26,
+        "entry_id": 62026,
+        "name": "deck_en_manual04_Linkto_4_9",
+        "offset": 1538048,
+        "size": 11068,
+        "payload_sha256": "sha256:75f39fdadbd28b12b3799145ea23bdfb55f3547c3549520a67e5f048352ba14a",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 448,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 1376,
+        "offset_y": 393,
+        "canvas_width": 448,
+        "canvas_height": 46,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0026-deck_en_manual04_Linkto_4_9.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 4,
+      "parent_name": "deck_en_manual04",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual04_Linkto_4_9:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 9 “Jump”",
+          "russian": "Подробнее на стр. 9 «Переход между выборами».",
+          "confidence": "exact",
+          "page_references": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 27,
+        "entry_id": 62027,
+        "name": "deck_en_manual04_Linkto_5_10",
+        "offset": 1550336,
+        "size": 12268,
+        "payload_sha256": "sha256:7eca4cb544c0827479f15d78d2348600873aa1ef11cda0b1b3bba93dd4b1ce24",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 384,
+        "height": 75,
+        "bpp": 8,
+        "offset_x": 1376,
+        "offset_y": 675,
+        "canvas_width": 384,
+        "canvas_height": 75,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0027-deck_en_manual04_Linkto_5_10.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 4,
+      "parent_name": "deck_en_manual04",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual04_Linkto_5_10:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Quick Save”",
+          "russian": "Подробнее на стр. 10 «Быстрое сохранение».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 28,
+        "entry_id": 62028,
+        "name": "deck_en_manual04_Linkto_6_10",
+        "offset": 1562624,
+        "size": 12152,
+        "payload_sha256": "sha256:e2e5071bddfdafc848f7c5125e5ea9a78bc1df236f9e621299d4a07f077c53d3",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 384,
+        "height": 73,
+        "bpp": 8,
+        "offset_x": 1376,
+        "offset_y": 873,
+        "canvas_width": 384,
+        "canvas_height": 73,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0028-deck_en_manual04_Linkto_6_10.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 4,
+      "parent_name": "deck_en_manual04",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual04_Linkto_6_10:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 10 “Auto Mode”",
+          "russian": "Подробнее на стр. 10 «Авторежим».",
+          "confidence": "exact",
+          "page_references": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 29,
+        "entry_id": 62029,
+        "name": "deck_en_manual05",
+        "offset": 1574912,
+        "size": 90250,
+        "payload_sha256": "sha256:37590354d106f4310bde83842466f03cb06ada74d30171d65ff07a07c5db834e",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 787,
+        "bpp": 8,
+        "offset_x": 48,
+        "offset_y": 19,
+        "canvas_width": 1824,
+        "canvas_height": 787,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0029-deck_en_manual05.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 5,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Title-screen guide. Intro paragraph spans the top. Left column lists five title-menu items; right column lists gallery/music/records and contains a pale-blue CG-controls box. Two Linkto overlays replace green references.",
+      "font_notes": "Rounded sans-serif body and menu labels; blue labels are bold uppercase. Main title is a rounded white display face with blue outline/glow.",
+      "color_notes": "Transparent/white page; black body; royal-blue menu labels; green references; pale powder-blue CG box with blue heading; overlays white with blue outline.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual05:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "How to Start the Game",
+          "russian": "Как начать игру",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual05:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 5",
+          "russian": "СТР. 5",
+          "confidence": "exact",
+          "page_references": [
+            5
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:003",
+          "order": 3,
+          "region": "intro",
+          "role": "body",
+          "english": "“Summer Pockets REFLECTION BLUE” is a 1 player game. The title screen and menus show up a few seconds after the game starts up. Use the D-pad to align the cursor and press the A button, or tap the screen.",
+          "russian": "Summer Pockets REFLECTION BLUE — игра для одного игрока. Через несколько секунд после запуска появятся титульный экран и меню. Переместите курсор крестовиной и нажмите кнопку A либо коснитесь экрана.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "D-pad",
+            "A"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:004",
+          "order": 4,
+          "region": "main",
+          "role": "section heading",
+          "english": "Title Screen",
+          "russian": "Титульный экран",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual05:005",
+          "order": 5,
+          "region": "left menu",
+          "role": "menu item",
+          "english": "START — Play the game from the beginning.",
+          "russian": "START — начать игру с начала.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "START"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:006",
+          "order": 6,
+          "region": "left menu",
+          "role": "menu item",
+          "english": "LOAD — Load a save and continue.",
+          "russian": "LOAD — загрузить сохранение и продолжить игру.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "LOAD"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:007",
+          "order": 7,
+          "region": "left menu",
+          "role": "cross-reference",
+          "english": "See details on page 13 “Load”",
+          "russian": "Подробнее на стр. 13 «Загрузка».",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:008",
+          "order": 8,
+          "region": "left menu",
+          "role": "menu item",
+          "english": "OPTIONS — Open the Options screen to change the settings.",
+          "russian": "OPTIONS — открыть экран настроек.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "OPTIONS"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:009",
+          "order": 9,
+          "region": "left menu",
+          "role": "cross-reference",
+          "english": "See details on page 11 “Options”",
+          "russian": "Подробнее на стр. 11 «Настройки».",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:010",
+          "order": 10,
+          "region": "left menu",
+          "role": "menu item",
+          "english": "MANUAL — Open this manual. You can also open it from the System Menu.",
+          "russian": "MANUAL — открыть это руководство. Его также можно открыть из системного меню.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MANUAL"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:011",
+          "order": 11,
+          "region": "left menu",
+          "role": "menu item",
+          "english": "EXIT — Exit the game.",
+          "russian": "EXIT — выйти из игры.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "EXIT"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:012",
+          "order": 12,
+          "region": "right menu",
+          "role": "menu item",
+          "english": "GALLERY — View the CGs already seen while playing the game. Press X button to select and play a BGM track from “MUSIC”.",
+          "russian": "GALLERY — просмотреть иллюстрации, уже открытые во время игры. В разделе MUSIC нажмите кнопку X, чтобы выбрать и воспроизвести музыкальную композицию.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "GALLERY",
+            "MUSIC",
+            "X"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:013",
+          "order": 13,
+          "region": "CG box",
+          "role": "heading",
+          "english": "CG Viewing Controls",
+          "russian": "Управление просмотром иллюстраций",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual05:014",
+          "order": 14,
+          "region": "CG box",
+          "role": "control",
+          "english": "View variants: A button / Tap / L1•R1 button / Flick Left or Right",
+          "russian": "Сменить вариант: кнопка A / касание / кнопки L1 и R1 / смахивание влево или вправо.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "A",
+            "L1",
+            "R1"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:015",
+          "order": 15,
+          "region": "CG box",
+          "role": "control",
+          "english": "Scroll: D-pad / Left thumbstick / Drag Up or Down",
+          "russian": "Прокрутка: крестовина / левый стик / перетаскивание вверх или вниз.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "D-pad",
+            "Left thumbstick"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:016",
+          "order": 16,
+          "region": "CG box",
+          "role": "control",
+          "english": "Zoom In/Out: Left thumbstick up/down while holding down the Y button. Pinch In or Pinch Out",
+          "russian": "Масштаб: отклоняйте левый стик вверх или вниз, удерживая кнопку Y. / Сведите или разведите пальцы.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Left thumbstick",
+            "Y"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:017",
+          "order": 17,
+          "region": "right menu",
+          "role": "menu item",
+          "english": "MUSIC — Listen to music played during the game.",
+          "russian": "MUSIC — слушать музыку из игры.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MUSIC"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual05:018",
+          "order": 18,
+          "region": "right menu",
+          "role": "menu item",
+          "english": "RECORDS — See your game records here.",
+          "russian": "RECORDS — просмотреть игровые достижения и статистику.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "RECORDS"
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 30,
+        "entry_id": 62030,
+        "name": "deck_en_manual05_Linkto_1_13",
+        "offset": 1667072,
+        "size": 11118,
+        "payload_sha256": "sha256:52175d20917718beda69f54d015efec41cbfe48c0e189181a6eadcd9bbdbc69d",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 464,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 224,
+        "offset_y": 422,
+        "canvas_width": 464,
+        "canvas_height": 45,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0030-deck_en_manual05_Linkto_1_13.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 5,
+      "parent_name": "deck_en_manual05",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual05_Linkto_1_13:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 13 “Load”",
+          "russian": "Подробнее на стр. 13 «Загрузка».",
+          "confidence": "exact",
+          "page_references": [
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 31,
+        "entry_id": 62031,
+        "name": "deck_en_manual05_Linkto_2_11",
+        "offset": 1679360,
+        "size": 12020,
+        "payload_sha256": "sha256:c7b00f3cbf03a5632b3e905cde2759fbcf6ca1d4c5fe41627f28aa13947409c2",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 496,
+        "height": 45,
+        "bpp": 8,
+        "offset_x": 224,
+        "offset_y": 562,
+        "canvas_width": 496,
+        "canvas_height": 45,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0031-deck_en_manual05_Linkto_2_11.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 5,
+      "parent_name": "deck_en_manual05",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual05_Linkto_2_11:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 11 “Options”",
+          "russian": "Подробнее на стр. 11 «Настройки».",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 32,
+        "entry_id": 62032,
+        "name": "deck_en_manual06",
+        "offset": 1691648,
+        "size": 1157096,
+        "payload_sha256": "sha256:ca8039597ecb1f0f79b80f840301d5a8c96afef1a08517cb835c8c26e97b0d3d",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 928,
+        "bpp": 32,
+        "offset_x": 48,
+        "offset_y": 8,
+        "canvas_width": 1824,
+        "canvas_height": 928,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0032-deck_en_manual06.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 6,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Gameplay overview split into left and right columns. Left combines prose with three annotated screenshots; right explains the shortcut menu with a magnified crop and four command rows. One Linkto overlay replaces the green page-11 reference.",
+      "font_notes": "Rounded sans-serif body; blue bold headings and callout labels. Main title uses white rounded display letters with blue outline/glow. Embedded screenshots use the game's serif UI font.",
+      "color_notes": "Transparent/white page; black body; royal-blue headings/callout rules; green reference; screenshots framed in pale blue; overlay white with blue outline.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual06:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "How to Play the Game",
+          "russian": "Как играть",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual06:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 6",
+          "russian": "СТР. 6",
+          "confidence": "exact",
+          "page_references": [
+            6
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:003",
+          "order": 3,
+          "region": "left intro",
+          "role": "body",
+          "english": "“Summer Pockets REFLECTION BLUE” is an adventure game where you read through dialogue displayed on the game screen. Choices are given in the process, and the story develops differently depending on your decisions.",
+          "russian": "Summer Pockets REFLECTION BLUE — приключенческая игра, в которой вы читаете диалоги на экране. По ходу игры вам предстоит делать выбор, и от ваших решений зависит развитие сюжета.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual06:004",
+          "order": 4,
+          "region": "left middle",
+          "role": "section heading",
+          "english": "Choices",
+          "russian": "Выборы",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual06:005",
+          "order": 5,
+          "region": "left middle",
+          "role": "body",
+          "english": "To select the choices, move the cursor with the D-pad and use the A button to confirm.",
+          "russian": "Чтобы выбрать вариант, переместите курсор крестовиной и подтвердите выбор кнопкой A.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "D-pad",
+            "A"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:006",
+          "order": 6,
+          "region": "choice screenshot",
+          "role": "choice",
+          "english": "Give me a new cup of shaved ice, please.",
+          "russian": "Дайте мне ещё одну порцию стружечного льда, пожалуйста.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual06:007",
+          "order": 7,
+          "region": "choice screenshot",
+          "role": "choice",
+          "english": "Please fling some shaved ice at me.",
+          "russian": "А теперь, пожалуйста, швырните в меня немного стружечного льда.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual06:008",
+          "order": 8,
+          "region": "choice screenshot",
+          "role": "shortcut labels",
+          "english": "MENU / SKIP / AUTO / VOICE",
+          "russian": "MENU / SKIP / AUTO / VOICE",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU",
+            "SKIP",
+            "AUTO",
+            "VOICE"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:009",
+          "order": 9,
+          "region": "left lower",
+          "role": "section heading",
+          "english": "Map",
+          "russian": "Карта",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual06:010",
+          "order": 10,
+          "region": "left lower",
+          "role": "body",
+          "english": "As you progress through the game, new locations will be added to the map screen. Select an icon on the map to choose your destination. Use the A button or tap to select the icon for where you want to go.",
+          "russian": "По мере прохождения на карте будут появляться новые места. Выберите значок на карте, чтобы указать пункт назначения. Нажмите кнопку A или коснитесь нужного значка.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "A"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:011",
+          "order": 11,
+          "region": "map screenshot",
+          "role": "map UI",
+          "english": "AM / 7 / 30 / Secret Base / SELECT / TORISHIROJIMA MAP",
+          "russian": "AM / 7 / 30 / Тайная база / ВЫБРАТЬ / КАРТА ТОРИСИРОДЗИМЫ",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "AM",
+            "SELECT"
+          ],
+          "note": "The numerals are part of the date/time badge; the island label is all caps."
+        },
+        {
+          "segment_id": "deck_en_manual06:012",
+          "order": 12,
+          "region": "right",
+          "role": "section heading",
+          "english": "SHORTCUT MENU",
+          "russian": "БЫСТРОЕ МЕНЮ",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "SHORTCUT MENU"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:013",
+          "order": 13,
+          "region": "right",
+          "role": "body",
+          "english": "The Shortcut Menu is displayed to the right of the message window. The Shortcut Menu can be set to “Hide” from the “Basic” section in the OPTIONS screen.",
+          "russian": "Быстрое меню отображается справа от окна сообщений. Его можно скрыть, выбрав Hide в разделе Basic на экране OPTIONS.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Hide",
+            "Basic",
+            "OPTIONS"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:014",
+          "order": 14,
+          "region": "right",
+          "role": "cross-reference",
+          "english": "See details on page 11 “Shortcut Menu”",
+          "russian": "Подробнее на стр. 11 «Быстрое меню».",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:015",
+          "order": 15,
+          "region": "right screenshot",
+          "role": "shortcut labels",
+          "english": "MENU / SKIP / AUTO / VOICE",
+          "russian": "MENU / SKIP / AUTO / VOICE",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU",
+            "SKIP",
+            "AUTO",
+            "VOICE"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:016",
+          "order": 16,
+          "region": "right",
+          "role": "shortcut function",
+          "english": "MENU — Opens the System Menu screen.",
+          "russian": "MENU — открывает системное меню.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "MENU"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:017",
+          "order": 17,
+          "region": "right",
+          "role": "shortcut function",
+          "english": "SKIP — Fast-forwards text that has already been read. Can be disabled by tapping the icon again.",
+          "russian": "SKIP — быстро прокручивает уже прочитанный текст. Чтобы отключить, коснитесь значка ещё раз.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "SKIP"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:018",
+          "order": 18,
+          "region": "right",
+          "role": "shortcut function",
+          "english": "AUTO — Automatically advances text. Can be disabled by tapping the icon again.",
+          "russian": "AUTO — автоматически перелистывает текст. Чтобы отключить, коснитесь значка ещё раз.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "AUTO"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:019",
+          "order": 19,
+          "region": "right",
+          "role": "shortcut function",
+          "english": "VOICE — Replays voiced dialogue. This option is not available for unvoiced text.",
+          "russian": "VOICE — повторно воспроизводит озвученную реплику. Для неозвученного текста эта функция недоступна.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "VOICE"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual06:020",
+          "order": 20,
+          "region": "message screenshot",
+          "role": "speaker name",
+          "english": "Shizuku",
+          "russian": "Сидзуку",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual06:021",
+          "order": 21,
+          "region": "message screenshot",
+          "role": "dialogue",
+          "english": "“Haeri!? Tsumugi, this is my new friend!”",
+          "russian": "«Хаири?! Цумуги, это моя новая подруга!»",
+          "confidence": "exact",
+          "note": "The raster visibly spells 'Haeri'."
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 33,
+        "entry_id": 62033,
+        "name": "deck_en_manual06_Linkto_1_11",
+        "offset": 2848768,
+        "size": 13420,
+        "payload_sha256": "sha256:8f7b8d57ac874c5accba8c05d0875330a38f7664219032fc38c56d84e1ab4999",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 592,
+        "height": 46,
+        "bpp": 8,
+        "offset_x": 992,
+        "offset_y": 272,
+        "canvas_width": 592,
+        "canvas_height": 46,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0033-deck_en_manual06_Linkto_1_11.png"
+      },
+      "entry_type": "linkto_overlay",
+      "page_number": 6,
+      "parent_name": "deck_en_manual06",
+      "transcription_scope": "All visible English in this overlay entry.",
+      "layout_notes": "Single transparent replacement strip positioned by catalog offset over its parent page. Text is left aligned; a destination page numeral is right aligned for contents overlays, while cross-reference overlays form one or two compact lines beginning with a right-arrow marker.",
+      "font_notes": "Rounded bold sans-serif matching the parent manual. Raster-only identification; preserve the compact width and existing line break for two-line overlays.",
+      "color_notes": "White fill with vivid electric-blue outline and soft outer glow on transparency. Preserve transparent background and anti-aliased blue edge pixels.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual06_Linkto_1_11:001",
+          "order": 1,
+          "region": "full overlay",
+          "role": "cross-reference",
+          "english": "See details on page 11 “Shortcut Menu”",
+          "russian": "Подробнее на стр. 11 «Быстрое меню».",
+          "confidence": "exact",
+          "page_references": [
+            11
+          ]
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "archive": "MANUAL_DECK.PAK",
+        "index": 34,
+        "entry_id": 62034,
+        "name": "deck_en_manual07",
+        "offset": 2863104,
+        "size": 554578,
+        "payload_sha256": "sha256:b35e220bf18dcd7c5c50ad664478158a0b9f4eac379bd812fb5273ff759670d4",
+        "format": "CZ1",
+        "header_length": 28,
+        "width": 1824,
+        "height": 960,
+        "bpp": 32,
+        "offset_x": 48,
+        "offset_y": 8,
+        "canvas_width": 1824,
+        "canvas_height": 960,
+        "png": "build/steam/ui-assets/MANUAL_DECK/images/0034-deck_en_manual07.png"
+      },
+      "entry_type": "manual_page",
+      "page_number": 7,
+      "parent_name": null,
+      "transcription_scope": "All visible English, including embedded screenshot UI and dialogue where legible; Japanese logo text is intentionally excluded.",
+      "layout_notes": "Minigame overview in two columns. Intro, map icons, warning box, and table-tennis explanation occupy the left; icon mechanic plus Islamon and Islapong sections occupy the right. Screenshots and Help-button art are embedded; there are no Linkto overlays.",
+      "font_notes": "Rounded sans-serif body with bold blue labels; subsection titles use black bold sans with butterfly ornaments and rules. Main title is white rounded display lettering with blue outline/glow. Embedded game UI uses mixed serif/display fonts.",
+      "color_notes": "Transparent/white page; black copy; royal-blue labels and callouts; pale powder-blue warning box; screenshots framed in blue; Help buttons are glossy blue icons.",
+      "segments": [
+        {
+          "segment_id": "deck_en_manual07:001",
+          "order": 1,
+          "region": "top left",
+          "role": "title",
+          "english": "Minigame",
+          "russian": "Мини-игры",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:002",
+          "order": 2,
+          "region": "top right",
+          "role": "page badge",
+          "english": "PAGE 7",
+          "russian": "СТР. 7",
+          "confidence": "exact",
+          "page_references": [
+            7
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual07:003",
+          "order": 3,
+          "region": "left intro",
+          "role": "body",
+          "english": "As you progress through the game, you'll unlock the “Table Tennis”, “Islamon Battle”, and “Islapong Battle” minigames. Select the icons below from the map screen to start. (If you choose not to play, it will not affect the main story.)",
+          "russian": "По мере прохождения откроются мини-игры «Настольный теннис», «Битва исламонов» и «Ислапонг». Чтобы начать, выберите соответствующий значок на карте. (Отказ от мини-игр не повлияет на основной сюжет.)",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:004",
+          "order": 4,
+          "region": "left icon row",
+          "role": "map icon",
+          "english": "Secret Base (Table tennis)",
+          "russian": "Тайная база (настольный теннис)",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:005",
+          "order": 5,
+          "region": "left icon row",
+          "role": "map icon",
+          "english": "Islamon Battle",
+          "russian": "Битва исламонов",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:006",
+          "order": 6,
+          "region": "left icon row",
+          "role": "map icon",
+          "english": "Islapong Battle",
+          "russian": "Ислапонг",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:007",
+          "order": 7,
+          "region": "left warning box",
+          "role": "note",
+          "english": "Depending on how far you've progressed in the game, selecting the “Secret Base” may move you forward in the main story.",
+          "russian": "В зависимости от вашего прогресса выбор «Тайной базы» может продвинуть основной сюжет.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:008",
+          "order": 8,
+          "region": "left warning box",
+          "role": "note",
+          "english": "You can only play either Islamon Battle or Islapong Battle.",
+          "russian": "Можно сыграть только в одну из двух мини-игр: «Битва исламонов» или «Ислапонг».",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:009",
+          "order": 9,
+          "region": "left warning box",
+          "role": "note",
+          "english": "During the minigames, with some exceptions, you are unable to rewind scenes.",
+          "russian": "Во время мини-игр, за редкими исключениями, перемотка сцен назад недоступна.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:010",
+          "order": 10,
+          "region": "left lower",
+          "role": "section heading",
+          "english": "Table tennis",
+          "russian": "Настольный теннис",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:011",
+          "order": 11,
+          "region": "left lower",
+          "role": "body",
+          "english": "Do some table tennis training with Tenzen. Hit the ball to return shots at the right timing when it meets the icon on screen.",
+          "russian": "Потренируйтесь в настольном теннисе с Тэндзэном. Отбивайте мяч в тот момент, когда он совпадёт со значком на экране.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:012",
+          "order": 12,
+          "region": "left lower",
+          "role": "control",
+          "english": "Return ball: A button / Tap",
+          "russian": "Отбить мяч: кнопка A / касание.",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "A"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual07:013",
+          "order": 13,
+          "region": "left callout",
+          "role": "label",
+          "english": "Intensity gauge",
+          "russian": "Шкала напряжения",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:014",
+          "order": 14,
+          "region": "left callout",
+          "role": "body",
+          "english": "This will increase more the better you return shots. When this reaches its maximum, Tenzen will be in the zone and his shots will become harder to return.",
+          "russian": "Чем лучше вы отбиваете удары, тем быстрее заполняется шкала. Когда она достигнет максимума, Тэндзэн войдёт в раж, и отбивать его удары станет сложнее.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:015",
+          "order": 15,
+          "region": "table-tennis screenshot",
+          "role": "HUD",
+          "english": "INTENSITY GAUGE / SCORE 150 / 1 combo / What's the matter? / B Pause",
+          "russian": "ШКАЛА НАПРЯЖЕНИЯ / СЧЁТ 150 / КОМБО 1 / «Что такое?» / B Пауза",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "B",
+            "Pause"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual07:016",
+          "order": 16,
+          "region": "table-tennis screenshot",
+          "role": "callout label",
+          "english": "Icon",
+          "russian": "Значок",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:017",
+          "order": 17,
+          "region": "right upper",
+          "role": "section heading",
+          "english": "Icon",
+          "russian": "Значок",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:018",
+          "order": 18,
+          "region": "right upper",
+          "role": "body",
+          "english": "The icon's level changes when you successfully return a shot. When it reaches its maximum level, a special icon will appear, and you will be able to acquire more points and use killer shots. (If you start the Table Tennis minigame with the “a rally with a fixed number of hits” setting, the level will not increase.)",
+          "russian": "Уровень значка меняется после каждого успешно отбитого мяча. На максимальном уровне появится особый значок: он позволит получать больше очков и выполнять сокрушительные удары. (Если начать мини-игру «Настольный теннис» в режиме «розыгрыш с фиксированным числом ударов», уровень повышаться не будет.)",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:019",
+          "order": 19,
+          "region": "right middle",
+          "role": "section heading",
+          "english": "Islamon Battle",
+          "russian": "Битва исламонов",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:020",
+          "order": 20,
+          "region": "right middle",
+          "role": "body",
+          "english": "Catch the Islamons living on the island and use them to battle your rivals for the highest rank!",
+          "russian": "Ловите живущих на острове исламонов и сражайтесь ими с соперниками за высший ранг!",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:021",
+          "order": 21,
+          "region": "right middle",
+          "role": "button label",
+          "english": "Help / Help button",
+          "russian": "Help / кнопка справки",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Help"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual07:022",
+          "order": 22,
+          "region": "right middle",
+          "role": "body",
+          "english": "Check the rules and controls for the Islamon Battle.",
+          "russian": "Посмотреть правила и управление «Битвы исламонов».",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:023",
+          "order": 23,
+          "region": "right lower",
+          "role": "section heading",
+          "english": "Islapong Battle",
+          "russian": "Ислапонг",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:024",
+          "order": 24,
+          "region": "right lower",
+          "role": "body",
+          "english": "Play table tennis against your rivals on the island. In the qualifier singles rallies, you can select an opponent from the map screen. They will become a potential doubles partner when you defeat them. Compete through the main doubles tournament after that in order to win the top spot.",
+          "russian": "Играйте в настольный теннис против соперников с острова. В одиночных отборочных матчах соперника можно выбрать на карте. Побеждённый игрок станет возможным партнёром для парной игры. Затем пройдите основной парный турнир и завоюйте первое место.",
+          "confidence": "exact"
+        },
+        {
+          "segment_id": "deck_en_manual07:025",
+          "order": 25,
+          "region": "right lower",
+          "role": "button label",
+          "english": "Help / Help button",
+          "russian": "Help / кнопка справки",
+          "confidence": "exact",
+          "preserved_button_labels": [
+            "Help"
+          ]
+        },
+        {
+          "segment_id": "deck_en_manual07:026",
+          "order": 26,
+          "region": "right lower",
+          "role": "body",
+          "english": "Check the rules and controls for the Islapong Battle.",
+          "russian": "Посмотреть правила и управление «Ислапонга».",
+          "confidence": "exact"
+        }
+      ]
+    }
+  ],
+  "status": "draft",
+  "canonical_asset_id": "manual_deck_01_07",
+  "archive_sha256": "sha256:4da13d20fbc23893466e2c6f26b44931b3b90394b41da4fe78f8093d936bd202",
+  "source_draft_sha256": "sha256:e4aab4fa4323e012c50b69a235a21f64583770290f030234305eb37e7fecf0f3"
+}
