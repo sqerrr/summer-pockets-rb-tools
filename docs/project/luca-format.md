@@ -276,6 +276,14 @@ u16  codes[code_count]
 `U+2026`, `U+275D/U+275E` и `U+300A/U+300B`. По DEC-0033 речь внутри речи,
 цитаты, названия и ирония используют прямые ASCII-кавычки U+0022.
 
+Наличие `U+2026` не означает пригодную русскую типографику: штатное отображение
+показывает три точки на средней линии как CJK-многоточие (`FND-0085`).
+Канонический текст по-прежнему хранит стандартный Unicode. Для активного
+профиля `source_sets.steam_luca.build_text_substitutions` заменяет `U+2026` на
+три `U+002E` только при сборке русского слота. Receipt фиксирует число
+затронутых сегментов и вхождений; полный read-back и игровой кадр подтвердили
+точки у базовой линии (`FND-0086`).
+
 ## Инварианты сборки
 
 - Всегда начинать с `files/SCRIPT.PAK.orig`.
@@ -368,6 +376,7 @@ shim также не планируется без отдельного изме
 | `game-tools/probes/scan_luca_scripts.py` | полный языковой подсчёт без вывода сюжета |
 | `game-tools/probes/validate_luca_relocation.py` | стресс-тест произвольной длины |
 | `game-tools/probes/scan_luca_fonts.py` | проверка Unicode-карт шрифтов |
+| `game-tools/build_luca_release.py` | production/full-preview сборка сегментов и полный read-back |
 | `game-tools/build_luca_test.py` | сборка и read-back русских тестовых строк |
 | `game-tools/luca_image.py` | строгий декодер CZ0-CZ3 и lossless encoder CZ0 |
 | `game-tools/build_luca_opening_images.py` | сборка одобренных стартовых интертитров в OTHCG.PAK |

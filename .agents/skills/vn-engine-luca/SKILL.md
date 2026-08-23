@@ -73,6 +73,19 @@ powershell -File game-tools/game_steam.ps1 -Action exit
 Claims about rendering require a screenshot. Claims about structure require an
 independent read-back and exact counts of scripts, records and references.
 
+## Canonical Build
+
+```bash
+python game-tools/build_luca_release.py --full-preview
+python game-tools/build_luca_release.py
+```
+
+`--full-preview` собирает весь `reviewed` и более высокий текст до route audit,
+но не повышает статусы, не пишет style-ledger events и не является release
+evidence. Команда без флага остаётся production build и требует текущие route
+audits. Оба режима выполняют одинаковые pristine/hash, relocation, structural
+validation и полный independent read-back.
+
 ## Production Lookup
 
 For each segment:
@@ -84,15 +97,17 @@ For each segment:
 4. Apply Russian to slot 1 only through `relocate_script_records()`.
 5. Rebuild from the pristine archive and validate all references.
 
-The production segment-to-PAK adapter is not yet implemented. Do not represent
-the diagnostic `build_luca_test.py` as a release builder.
+Production segment-to-PAK adapter реализован в `build_luca_release.py`.
+Диагностический `build_luca_test.py` по-прежнему не является release builder.
 
 ## Fonts And Punctuation
 
 The regular LUCA font maps all 66 Russian letters plus `—`, `…`, `❝` and `❞`.
-It does not map `«»`. Canonical translation retains standard Unicode; any
-display substitution or INFO-table patch belongs to build configuration and
-must be verified separately.
+It does not map `«»`, and its `…` glyph sits on the CJK midline. Canonical
+translation retains standard Unicode; the Steam/LUCA source-set configuration
+replaces `U+2026` with three baseline `U+002E` only during build. Keep this
+substitution in build configuration and verify it through receipt, independent
+read-back, and an in-game screenshot.
 
 ## Opening Images
 

@@ -69,6 +69,8 @@ source_sets:
     - zh-Hans
     working_source_language: ja
     build_slot: 1
+    build_text_substitutions:
+      "\u2026": "..."
     slots:
     - index: 0
       language: ja

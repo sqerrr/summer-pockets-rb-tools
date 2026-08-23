@@ -14,6 +14,7 @@
 |------|------------|
 | `luca.py` | PAK, байткод, строки, LZW, глобальная релокация и валидация ссылок |
 | `export_luca_sources.py` | Детерминированный каталог `ja`/`en`/`zh-Hans` и безопасный манифест |
+| `build_luca_release.py` | Production и full-preview сборка канонических сегментов с независимым read-back |
 | `build_luca_test.py` | Диагностическая сборка русских строк; **не** release builder |
 | `luca_image.py` | Строгий декодер CZ0-CZ3 и lossless encoder CZ0 |
 | `build_luca_opening_images.py` | Сборка одобренных стартовых интертитров из `translation/ui/opening-titles.json` |
@@ -22,6 +23,24 @@
 Полный исходный текст создаётся только в игнорируемом `source/parsed/`.
 Канонический русский хранится прямым Unicode и попадает в PAK только через
 relocation-safe сборку.
+
+Production build требует текущего route audit и после успешного read-back
+повышает реально записанные `reviewed`-строки до `playable`:
+
+```bash
+python game-tools/build_luca_release.py
+```
+
+Полный preview включает весь `reviewed` и более высокий текст без route audit,
+но не меняет статусы и ledgers и не является release evidence:
+
+```bash
+python game-tools/build_luca_release.py --full-preview
+```
+
+Preview пишет отдельные `build/steam/SCRIPT.russian-full-preview.PAK` и
+`build/steam/full-preview-receipt.json`. Оба режима проверяют pristine hash,
+глобальную релокацию, ссылки и каждую записанную строку чтением из нового PAK.
 
 Стартовые интертитры собираются отдельно из hash-pinned pristine
 `build/steam/OTHCG.pristine.PAK`. Канонический файл содержит все 17 строк,

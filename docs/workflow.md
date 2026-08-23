@@ -131,6 +131,12 @@ fix и recheck не повышены.
 4. Выполнять независимый read-back, smoke test и выборочную визуальную проверку.
 5. Присваивать `playable` только тексту, реально вошедшему в успешный билд.
 
+Для проверки всего текущего `reviewed`-текста до художественного аудита есть
+явный `build_luca_release.py --full-preview`. Он использует тот же pristine,
+релокацию, структурную проверку и полный read-back, но не считается production
+build, не пишет `build_readback` и не повышает статусы. Обычная команда без
+флага по-прежнему требует актуальный route audit.
+
 Для Steam/LUCA исходник — `SCRIPT.PAK.orig`, а изменение длины требует
 релокации и `validate_script_references()`. Для legacy Siglus действуют
 отдельные правила `Scene.pck.orig`, TTF и carrier encoding.

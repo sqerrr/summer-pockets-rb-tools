@@ -39,6 +39,10 @@ from luca import (  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 SPEAKER_MARKER = re.compile(r"^@([^@\r\n]+)@")
 DEFAULT_STATUSES = ("reviewed", "playable", "lqa", "approved")
+PRODUCTION_OUTPUT = Path("build/steam/SCRIPT.russian.PAK")
+PRODUCTION_RECEIPT = Path("build/steam/release-receipt.json")
+FULL_PREVIEW_OUTPUT = Path("build/steam/SCRIPT.russian-full-preview.PAK")
+FULL_PREVIEW_RECEIPT = Path("build/steam/full-preview-receipt.json")
 
 
 def digest_file(path: Path) -> str:
@@ -202,6 +206,26 @@ def load_speaker_labels(path: Path) -> dict[str, str]:
     return labels
 
 
+def load_build_text_substitutions(source_config: dict) -> tuple[tuple[str, str], ...]:
+    raw = source_config.get("build_text_substitutions") or {}
+    if not isinstance(raw, dict):
+        raise SystemExit("ОШИБКА: build_text_substitutions должен быть объектом")
+    substitutions = []
+    for source, replacement in raw.items():
+        if not isinstance(source, str) or not source:
+            raise SystemExit("ОШИБКА: исходник build_text_substitutions должен быть непустой строкой")
+        if not isinstance(replacement, str):
+            raise SystemExit("ОШИБКА: замена build_text_substitutions должна быть строкой")
+        substitutions.append((source, replacement))
+    return tuple(substitutions)
+
+
+def build_text(text: str, substitutions: tuple[tuple[str, str], ...]) -> str:
+    for source, replacement in substitutions:
+        text = text.replace(source, replacement)
+    return text
+
+
 def slot_text(original: str, translation: str, speaker: str | None,
               labels: dict[str, str]) -> str:
     """Собрать текст языкового слота.
@@ -223,25 +247,39 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=ROOT / "config" / "project.yaml")
     parser.add_argument("--source-set", default="steam_luca")
-    parser.add_argument("--output", type=Path,
-                        default=ROOT / "build" / "steam" / "SCRIPT.russian.PAK")
-    parser.add_argument("--status", nargs="+", default=list(DEFAULT_STATUSES))
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--status", nargs="+")
     parser.add_argument(
         "--reviewed-route", nargs="+", metavar="ROUTE",
         help=("включать status=reviewed только из указанных route; "
               "остальные выбранные статусы остаются глобальными"))
-    parser.add_argument("--receipt", type=Path,
-                        default=ROOT / "build" / "steam" / "release-receipt.json")
-    return parser.parse_args(argv)
+    parser.add_argument("--receipt", type=Path)
+    parser.add_argument(
+        "--full-preview", action="store_true",
+        help=("собрать весь reviewed+ текст без route audit; не повышает статусы "
+              "и не создаёт production ledger events"))
+    args = parser.parse_args(argv)
+    if args.full_preview and args.reviewed_route is not None:
+        parser.error("--full-preview нельзя сочетать с --reviewed-route")
+    if args.full_preview and args.status is not None:
+        parser.error("--full-preview использует фиксированные reviewed+ статусы")
+    return args
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    build_mode = "full_preview" if args.full_preview else "production"
+    statuses = tuple(args.status or DEFAULT_STATUSES)
+    output = args.output or ROOT / (
+        FULL_PREVIEW_OUTPUT if args.full_preview else PRODUCTION_OUTPUT)
+    receipt_path = args.receipt or ROOT / (
+        FULL_PREVIEW_RECEIPT if args.full_preview else PRODUCTION_RECEIPT)
 
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
     source_config = config["source_sets"][args.source_set]
     archive = ROOT / source_config["archive"]
     build_slot = int(source_config["build_slot"])
+    text_substitutions = load_build_text_substitutions(source_config)
 
     actual_hash = digest_file(archive)
     if actual_hash != source_config["archive_sha256"].lower():
@@ -252,12 +290,14 @@ def main(argv: list[str] | None = None) -> int:
                        if args.reviewed_route is not None else None)
     route_by_scene = load_scene_routes(config) if reviewed_routes is not None else None
     translations, skipped_status, skipped_reviewed_by_route = load_translations(
-        seg_dir, set(args.status), route_by_scene, reviewed_routes)
+        seg_dir, set(statuses), route_by_scene, reviewed_routes)
     labels = load_speaker_labels(ROOT / "translation" / "speakers.jsonl")
     if not translations:
         raise SystemExit("ОШИБКА: нечего собирать, подходящих сегментов нет")
-    style_runs = style_build_preflight(
-        config, seg_dir, {str(item["scene_id"]) for item in translations.values()})
+    style_runs = {}
+    if not args.full_preview:
+        style_runs = style_build_preflight(
+            config, seg_dir, {str(item["scene_id"]) for item in translations.values()})
 
     pak = Pak(archive)
     metadata_index = next(
@@ -266,8 +306,12 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     edits: dict[tuple[int, int], bytes] = {}
-    expected: list[tuple[int, int, str]] = []
+    expected: dict[int, list[tuple[int, str]]] = {}
     written_reviewed_source_ids: set[str] = set()
+    substitution_counts = {
+        source: {"replacement": replacement, "segments": 0, "occurrences": 0}
+        for source, replacement in text_substitutions
+    }
     grew = 0
     for entry in pak.entries[:metadata_index]:
         data = pak.read_entry(entry)
@@ -282,7 +326,14 @@ def main(argv: list[str] | None = None) -> int:
                     f"ОШИБКА: {item['segment_id']} указывает на запись "
                     f"{classified.classification}, а не на переводимую")
             value = classified.strings[build_slot]
-            text = slot_text(value.text, item["text"], item["speaker"], labels)
+            translated = item["text"]
+            for source, _replacement in text_substitutions:
+                occurrences = translated.count(source)
+                if occurrences:
+                    substitution_counts[source]["segments"] += 1
+                    substitution_counts[source]["occurrences"] += occurrences
+            translated = build_text(translated, text_substitutions)
+            text = slot_text(value.text, translated, item["speaker"], labels)
             replacement = encode_luca_string(text, value.encoding)
             if len(replacement) > value.end_offset - value.offset:
                 grew += 1
@@ -293,72 +344,93 @@ def main(argv: list[str] | None = None) -> int:
             )
             if item["status"] == "reviewed":
                 written_reviewed_source_ids.add(source_id)
-            expected.append((entry.index, record.offset, text))
+            expected.setdefault(entry.index, []).append((record.offset, text))
 
     missing = len(translations) - len(edits)
     if missing:
         raise SystemExit(f"ОШИБКА: {missing} сегментов не нашли свою запись в архиве")
 
     relocation = relocate_script_records(pak, edits)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    pak.build(args.output, relocation.replacements)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    pak.build(output, relocation.replacements)
 
-    built = Pak(args.output)
+    built = Pak(output)
     validation = validate_script_references(built)
 
     # Независимая обратная вычитка: текст читается из собранного архива заново,
     # а не сверяется с тем, что мы туда положили в памяти.
     by_index = {entry.index: entry for entry in built.entries}
     readback = 0
-    for entry_index, record_offset, text in expected:
+    for entry_index, expected_records in expected.items():
         entry = by_index[entry_index]
-        records = list(iter_script_records(built.read_entry(entry)))
-        wanted = relocation.offset_maps[entry_index][record_offset]
-        record = next(r for r in records if r.offset == wanted)
-        if classify_source_record(record).strings[build_slot].text != text:
-            raise SystemExit(f"ОШИБКА: обратная вычитка разошлась на {entry_index}:{wanted}")
-        readback += 1
+        records = {record.offset: record for record in iter_script_records(
+            built.read_entry(entry))}
+        for record_offset, text in expected_records:
+            wanted = relocation.offset_maps[entry_index][record_offset]
+            record = records.get(wanted)
+            if record is None:
+                raise SystemExit(
+                    f"ОШИБКА: обратная вычитка не нашла запись {entry_index}:{wanted}")
+            if classify_source_record(record).strings[build_slot].text != text:
+                raise SystemExit(
+                    f"ОШИБКА: обратная вычитка разошлась на {entry_index}:{wanted}")
+            readback += 1
 
-    output_hash = digest_file(args.output)
-    promoted = promote_built_segments(seg_dir, written_reviewed_source_ids)
+    output_hash = digest_file(output)
+    promoted = 0
+    if not args.full_preview:
+        promoted = promote_built_segments(seg_dir, written_reviewed_source_ids)
     receipt = {
         "schema_version": 1,
-        "output": str(args.output.relative_to(ROOT)),
+        "build_mode": build_mode,
+        "route_audit_enforced": not args.full_preview,
+        "output": str(output.relative_to(ROOT)),
         "output_sha256": output_hash,
-        "statuses": sorted(args.status),
+        "statuses": sorted(statuses),
         "reviewed_routes": (sorted(reviewed_routes)
                             if reviewed_routes is not None else None),
         "skipped_reviewed_by_route": skipped_reviewed_by_route,
         "segments_written": len(edits),
         "readback": readback,
+        "build_text_substitutions": [
+            {
+                "source": source,
+                "source_codepoints": [f"U+{ord(char):04X}" for char in source],
+                **substitution_counts[source],
+            }
+            for source, _replacement in text_substitutions
+        ],
         "style_runs": style_runs,
         "promoted_to_playable": promoted,
     }
-    args.receipt.parent.mkdir(parents=True, exist_ok=True)
-    args.receipt.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n",
+    receipt_path.parent.mkdir(parents=True, exist_ok=True)
+    receipt_path.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n",
                             encoding="utf-8")
-    ledger_path = ROOT / config.get("paths", {}).get(
-        "style_ledger", "translation/style-ledger.jsonl")
-    ledger = read_jsonl(ledger_path)
-    for route, run_id in sorted(style_runs.items()):
-        ledger.append({
-            "schema_version": 1,
-            "event": "build_readback",
-            "run_id": run_id,
-            "route": route,
-            "output_sha256": output_hash,
-            "written": len(edits),
-            "readback": readback,
-            "receipt": str(args.receipt.relative_to(ROOT)),
-        })
-    write_jsonl_atomic(ledger_path, ledger)
+    if not args.full_preview:
+        ledger_path = ROOT / config.get("paths", {}).get(
+            "style_ledger", "translation/style-ledger.jsonl")
+        ledger = read_jsonl(ledger_path)
+        for route, run_id in sorted(style_runs.items()):
+            ledger.append({
+                "schema_version": 1,
+                "event": "build_readback",
+                "run_id": run_id,
+                "route": route,
+                "output_sha256": output_hash,
+                "written": len(edits),
+                "readback": readback,
+                "receipt": str(receipt_path.relative_to(ROOT)),
+            })
+        write_jsonl_atomic(ledger_path, ledger)
 
     print(f"pristine: {archive}")
     print(f"pristine sha256: {actual_hash}")
-    print(f"output: {args.output}")
+    print(f"режим сборки: {build_mode}")
+    print(f"route audit: {'enforced' if not args.full_preview else 'not enforced'}")
+    print(f"output: {output}")
     print(f"output sha256: {output_hash}")
-    print(f"output size: {args.output.stat().st_size}")
-    print(f"статусы в сборке: {', '.join(sorted(args.status))}")
+    print(f"output size: {output.stat().st_size}")
+    print(f"статусы в сборке: {', '.join(sorted(statuses))}")
     reviewed_scope = (", ".join(sorted(reviewed_routes))
                       if reviewed_routes is not None else "all")
     print(f"reviewed_routes: {reviewed_scope}")
@@ -368,9 +440,16 @@ def main(argv: list[str] | None = None) -> int:
     print(f"слот: {build_slot} ({source_config['slots'][build_slot]['language']})")
     print(f"проверено: records={validation['records']} "
           f"references={validation['references']} labels={validation['labels']}")
-    print(f"обратная вычитка совпала: {readback}/{len(expected)}")
+    print(f"обратная вычитка совпала: {readback}/{len(edits)}")
+    for substitution in receipt["build_text_substitutions"]:
+        codepoints = "+".join(substitution["source_codepoints"])
+        print(
+            f"build-text замена {codepoints} -> {substitution['replacement']!r}: "
+            f"{substitution['occurrences']} вхождений в "
+            f"{substitution['segments']} сегментах"
+        )
     print(f"статус playable присвоен: {promoted}")
-    print(f"receipt: {args.receipt}")
+    print(f"receipt: {receipt_path}")
     return 0
 
 

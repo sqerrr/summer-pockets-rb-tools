@@ -762,6 +762,160 @@ def test_release_default_still_preflights_all_reviewed_routes(tmp_path):
         builder.ROOT = old_root
 
 
+def test_release_full_preview_builds_without_mutating_project(tmp_path, monkeypatch,
+                                                              capsys):
+    root = Path(__file__).parents[2]
+    builder = load_module(root / "game-tools/build_luca_release.py",
+                          "luca_release_full_preview_test")
+    (tmp_path / "translation/segments").mkdir(parents=True)
+    write_jsonl(tmp_path / "translation/scenes.jsonl", [
+        {"scene_id": "SCN0001", "route": "BLK0002"},
+        {"scene_id": "SCN0002", "route": "BLK0003"},
+    ])
+    write_jsonl(tmp_path / "translation/segments/SCN0001.jsonl", [{
+        "id": "SEG-1", "source_id": "SRC-1", "scene_id": "SCN0001",
+        "translation": "Первый текст…", "status": "reviewed",
+    }])
+    write_jsonl(tmp_path / "translation/segments/SCN0002.jsonl", [{
+        "id": "SEG-2", "source_id": "SRC-2", "scene_id": "SCN0002",
+        "translation": "Второй текст.", "status": "reviewed",
+    }])
+    write_jsonl(tmp_path / "translation/speakers.jsonl", [])
+    write_jsonl(tmp_path / "translation/style-ledger.jsonl", [{
+        "schema_version": 1, "event": "ledger_initialized",
+    }])
+    config = {
+        "source_sets": {"steam_luca": {
+            "archive": "pristine.pak",
+            "archive_sha256": "sha256:source",
+            "build_slot": 1,
+            "build_text_substitutions": {"…": "..."},
+            "slots": [
+                {"language": "ja"}, {"language": "en"}, {"language": "zh-Hans"},
+            ],
+        }},
+        "paths": {
+            "segments": "translation/segments",
+            "scenes": "translation/scenes.jsonl",
+            "style_ledger": "translation/style-ledger.jsonl",
+        },
+        "workflow": {"style_service_routes": []},
+    }
+    config_path = tmp_path / "config.json"
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+    output = tmp_path / "build/steam/SCRIPT.russian-full-preview.PAK"
+    receipt_path = tmp_path / "build/steam/full-preview-receipt.json"
+    segment_before = {
+        path: path.read_bytes()
+        for path in sorted((tmp_path / "translation/segments").glob("*.jsonl"))
+    }
+    ledger_path = tmp_path / "translation/style-ledger.jsonl"
+    ledger_before = ledger_path.read_bytes()
+    built_text_by_offset = {}
+
+    class FakeRecord:
+        def __init__(self, offset, built_text=None):
+            self.offset = offset
+            self.params = b"old"
+            self.built_text = built_text
+
+    script_entry = SimpleNamespace(index=0, entry_id=1, name="script")
+    metadata_entry = SimpleNamespace(index=1, entry_id=2, name="_build_time")
+
+    class FakePak:
+        def __init__(self, path):
+            self.entries = [script_entry, metadata_entry]
+            self.entry_count = 2
+            if path == output:
+                self.records = [
+                    FakeRecord(offset, built_text_by_offset[offset])
+                    for offset in sorted(built_text_by_offset)
+                ]
+            else:
+                self.records = [FakeRecord(10), FakeRecord(20)]
+
+        def read_entry(self, entry):
+            return self.records if entry.index == 0 else []
+
+        def build(self, path, replacements):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"fake-preview-pak")
+
+    def classify(record):
+        text = record.built_text if record.built_text is not None else "old"
+        value = SimpleNamespace(text=text, encoding="utf-8", offset=0, end_offset=3)
+        return SimpleNamespace(classification="translatable", strings=[value, value, value])
+
+    def relocate(_pak, edits):
+        for (_entry_index, offset), payload in edits.items():
+            built_text_by_offset[offset] = payload.decode("utf-8")
+        return SimpleNamespace(
+            replacements=edits,
+            offset_maps={0: {offset: offset for offset in built_text_by_offset}},
+        )
+
+    old_root = builder.ROOT
+    builder.ROOT = tmp_path
+    monkeypatch.setattr(builder, "Pak", FakePak)
+    monkeypatch.setattr(builder, "digest_file", lambda path: (
+        "sha256:output" if path == output else "sha256:source"))
+    monkeypatch.setattr(builder, "iter_script_records", lambda rows: iter(rows))
+    source_ids = ["SRC-1", "SRC-2"]
+    monkeypatch.setattr(builder, "make_source_id",
+                        lambda _entry_id, ordinal: source_ids[ordinal])
+    monkeypatch.setattr(builder, "classify_source_record", classify)
+    monkeypatch.setattr(builder, "encode_luca_string",
+                        lambda text, _encoding: text.encode("utf-8"))
+    monkeypatch.setattr(builder, "relocate_script_records", relocate)
+    monkeypatch.setattr(builder, "validate_script_references", lambda _pak: {
+        "records": 2, "references": 0, "labels": 0,
+    })
+    monkeypatch.setattr(
+        builder, "style_build_preflight",
+        lambda *_args: pytest.fail("full preview must not run route audit preflight"))
+    try:
+        assert builder.main([
+            "--config", str(config_path), "--full-preview",
+        ]) == 0
+    finally:
+        builder.ROOT = old_root
+
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    assert receipt["build_mode"] == "full_preview"
+    assert receipt["route_audit_enforced"] is False
+    assert receipt["segments_written"] == 2
+    assert receipt["readback"] == 2
+    assert receipt["build_text_substitutions"] == [{
+        "source": "…",
+        "source_codepoints": ["U+2026"],
+        "replacement": "...",
+        "segments": 1,
+        "occurrences": 1,
+    }]
+    assert receipt["promoted_to_playable"] == 0
+    assert receipt["style_runs"] == {}
+    assert output.read_bytes() == b"fake-preview-pak"
+    assert built_text_by_offset[10] == "Первый текст..."
+    assert ledger_path.read_bytes() == ledger_before
+    for path, before in segment_before.items():
+        assert path.read_bytes() == before
+        assert builder.read_jsonl(path)[0]["status"] == "reviewed"
+    output_text = capsys.readouterr().out
+    assert "режим сборки: full_preview" in output_text
+    assert "route audit: not enforced" in output_text
+    assert "обратная вычитка совпала: 2/2" in output_text
+
+
+def test_release_full_preview_rejects_scoped_status_or_route():
+    root = Path(__file__).parents[2]
+    builder = load_module(root / "game-tools/build_luca_release.py",
+                          "luca_release_full_preview_args_test")
+    with pytest.raises(SystemExit):
+        builder.parse_args(["--full-preview", "--status", "reviewed"])
+    with pytest.raises(SystemExit):
+        builder.parse_args(["--full-preview", "--reviewed-route", "BLK0002"])
+
+
 def test_release_reviewed_route_rejects_unknown_or_empty_route(tmp_path):
     root = Path(__file__).parents[2]
     builder = load_module(root / "game-tools/build_luca_release.py",
