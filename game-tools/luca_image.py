@@ -1,4 +1,4 @@
-"""Decode LUCA/RealLive CZ0-CZ3 images and write lossless CZ0 images.
+"""Decode LUCA/RealLive CZ0-CZ4 images and write lossless CZ0 images.
 
 The CZ1-CZ3 decoder is ported from GARbro's ImageCZ.cs:
 Copyright (C) 2019 by morkt, distributed under the MIT License.
@@ -11,30 +11,51 @@ import struct
 
 
 @dataclass(frozen=True)
+class CzMetadata:
+    version: int
+    header_length: int
+    width: int
+    height: int
+    bpp: int
+    offset_x: int
+    offset_y: int
+    canvas_width: int
+    canvas_height: int
+
+
+@dataclass(frozen=True)
 class CzImage:
     version: int
     width: int
     height: int
     bpp: int
     pixels: bytes
+    palette: bytes | None = None
     offset_x: int = 0
     offset_y: int = 0
     canvas_width: int | None = None
     canvas_height: int | None = None
 
     def __post_init__(self):
-        expected = self.width * self.height * self.bpp // 8
-        if self.bpp not in (8, 32):
+        bytes_per_pixel = 1 if self.bpp in (8, 248) else 4
+        expected = self.width * self.height * bytes_per_pixel
+        if self.bpp not in (8, 32, 248):
             raise ValueError(f"unsupported CZ bits per pixel: {self.bpp}")
         if len(self.pixels) != expected:
             raise ValueError(f"CZ pixel size mismatch: expected {expected}, got {len(self.pixels)}")
+        if self.bpp in (8, 248):
+            color_count = 256
+            if self.palette is None or len(self.palette) != color_count * 4:
+                raise ValueError(f"indexed CZ images with marker {self.bpp} require {color_count} RGBA colors")
+        elif self.palette is not None:
+            raise ValueError("non-indexed CZ images must not contain a palette")
 
 
-def _read_metadata(data: bytes):
+def read_cz_metadata(data: bytes) -> CzMetadata:
     if len(data) < 0x10 or data[:2] != b"CZ" or data[3] != 0:
         raise ValueError("not a CZ image")
     version_byte = data[2]
-    if version_byte not in b"0123":
+    if version_byte not in b"01234":
         raise ValueError(f"unsupported CZ version byte: {version_byte:#x}")
     version = version_byte - ord("0")
     header_length, width, height, bpp, reserved = struct.unpack_from("<IHHHH", data, 4)
@@ -42,8 +63,6 @@ def _read_metadata(data: bytes):
         raise ValueError(f"invalid CZ header length: {header_length}")
     if width <= 0 or height <= 0:
         raise ValueError(f"invalid CZ dimensions: {width}x{height}")
-    if bpp not in (8, 32):
-        raise ValueError(f"unsupported CZ bits per pixel: {bpp}")
     if reserved != 4:
         raise ValueError(f"unexpected CZ reserved value: {reserved}")
     offset_x = offset_y = 0
@@ -53,7 +72,38 @@ def _read_metadata(data: bytes):
         offset_x, offset_y, canvas_width, canvas_height = struct.unpack_from("<hhHH", data, 0x10)
         if canvas_width <= 0 or canvas_height <= 0:
             raise ValueError(f"invalid CZ canvas dimensions: {canvas_width}x{canvas_height}")
-    return version, header_length, width, height, bpp, offset_x, offset_y, canvas_width, canvas_height
+    return CzMetadata(
+        version,
+        header_length,
+        width,
+        height,
+        bpp,
+        offset_x,
+        offset_y,
+        canvas_width,
+        canvas_height,
+    )
+
+
+def _read_metadata(data: bytes):
+    metadata = read_cz_metadata(data)
+    if metadata.version > 4:
+        raise ValueError(f"unsupported CZ version: {metadata.version}")
+    if metadata.bpp not in (8, 32, 248):
+        raise ValueError(f"unsupported CZ bits per pixel: {metadata.bpp}")
+    if metadata.version == 4 and metadata.bpp != 32:
+        raise ValueError(f"CZ4 requires 32 bits per pixel, got {metadata.bpp}")
+    return (
+        metadata.version,
+        metadata.header_length,
+        metadata.width,
+        metadata.height,
+        metadata.bpp,
+        metadata.offset_x,
+        metadata.offset_y,
+        metadata.canvas_width,
+        metadata.canvas_height,
+    )
 
 
 def _range_offset(part: bytes, source: int):
@@ -168,6 +218,33 @@ def _decode_cz1_payload(data: bytes, offset: int, expected_total: int):
     return output
 
 
+def _decode_cz4_pixels(raw: bytes, width: int, height: int) -> bytes:
+    pixel_count = width * height
+    if len(raw) != pixel_count * 4:
+        raise ValueError(f"CZ4 raw size mismatch: expected {pixel_count * 4}, got {len(raw)}")
+
+    rgb = bytearray(raw[:pixel_count * 3])
+    alpha = bytearray(raw[pixel_count * 3:])
+    rgb_stride = width * 3
+    block_height = (height + 2) // 3
+    for y in range(height):
+        if y % block_height == 0:
+            continue
+        rgb_start = y * rgb_stride
+        for index in range(rgb_start, rgb_start + rgb_stride):
+            rgb[index] = (rgb[index] + rgb[index - rgb_stride]) & 0xFF
+        alpha_start = y * width
+        for index in range(alpha_start, alpha_start + width):
+            alpha[index] = (alpha[index] + alpha[index - width]) & 0xFF
+
+    rgba = bytearray(pixel_count * 4)
+    rgba[0::4] = rgb[0::3]
+    rgba[1::4] = rgb[1::3]
+    rgba[2::4] = rgb[2::3]
+    rgba[3::4] = alpha
+    return bytes(rgba)
+
+
 def decode_cz(data: bytes):
     (
         version,
@@ -180,14 +257,24 @@ def decode_cz(data: bytes):
         canvas_width,
         canvas_height,
     ) = _read_metadata(data)
-    expected_size = width * height * bpp // 8
+    bytes_per_pixel = 1 if bpp in (8, 248) else 4
+    expected_size = width * height * bytes_per_pixel
+    palette = None
+    payload_offset = header_length
+    if bpp in (8, 248):
+        color_count = 256
+        palette_end = payload_offset + color_count * 4
+        if palette_end > len(data):
+            raise ValueError("CZ palette is truncated")
+        palette = data[payload_offset:palette_end]
+        payload_offset = palette_end
     if version == 0:
-        end = header_length + expected_size
+        end = payload_offset + expected_size
         if end != len(data):
             raise ValueError(f"CZ0 payload size mismatch: expected file size {end}, got {len(data)}")
-        pixels = bytearray(data[header_length:end])
+        pixels = bytearray(data[payload_offset:end])
     else:
-        pixels = _decode_cz1_payload(data, header_length, expected_size)
+        pixels = _decode_cz1_payload(data, payload_offset, expected_size)
         if version == 2:
             if len(pixels) % 4:
                 raise ValueError("CZ2 output is not uint32-aligned")
@@ -202,7 +289,7 @@ def decode_cz(data: bytes):
                         values[index] = (values[index] + values[index - stride]) & 0xFFFFFFFF
             pixels = bytearray(struct.pack(f"<{len(values)}I", *values))
         elif version == 3:
-            stride = width * bpp // 8
+            stride = width * bytes_per_pixel
             third = (height + 2) // 3
             for y in range(height):
                 destination = y * stride
@@ -210,12 +297,15 @@ def decode_cz(data: bytes):
                     previous = destination - stride
                     for x in range(stride):
                         pixels[destination + x] = (pixels[destination + x] + pixels[previous + x]) & 0xFF
+        elif version == 4:
+            pixels = bytearray(_decode_cz4_pixels(bytes(pixels), width, height))
     return CzImage(
         version=version,
         width=width,
         height=height,
         bpp=bpp,
         pixels=bytes(pixels),
+        palette=palette,
         offset_x=offset_x,
         offset_y=offset_y,
         canvas_width=canvas_width,
@@ -245,4 +335,20 @@ def encode_cz0(image: CzImage):
         image.width,
         image.height,
     )
-    return bytes(header) + image.pixels
+    palette = image.palette or b""
+    return bytes(header) + palette + image.pixels
+
+
+def rgba_pixels(image: CzImage) -> bytes:
+    """Return top-down RGBA bytes for either indexed or true-color CZ images."""
+    if image.bpp == 32:
+        return image.pixels
+    if image.palette is None:
+        raise ValueError("indexed CZ image has no palette")
+    output = bytearray(len(image.pixels) * 4)
+    for destination, index in enumerate(image.pixels):
+        source = index * 4
+        if source + 4 > len(image.palette):
+            raise ValueError(f"CZ palette index is out of range: {index}")
+        output[destination * 4:destination * 4 + 4] = image.palette[source:source + 4]
+    return bytes(output)

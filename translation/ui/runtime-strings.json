@@ -1,0 +1,3275 @@
+{
+  "schema_version": 1,
+  "asset_id": "runtime_ui_strings",
+  "status": "draft",
+  "target": {
+    "profile": "steam_luca",
+    "file": "SummerPocketsRB.exe",
+    "packed_sha256": "sha256:cddebe8e27acdb0f57679ba46b2224c599f9bc149a2ac8e54e3da36a9d8a94ca",
+    "steamless_unpacked_sha256": "sha256:c30e660484903c75589421d4ab78dc19f4cb87b76ee0ae89adfb5d53c3cdc3b0",
+    "language_slot": "english"
+  },
+  "source_catalog": "build/steam/ui-exe-strings.jsonl",
+  "source_draft_sha256": "sha256:57dea7e003f9b0f1cdeca77c018ad829ab71e2854211d3029794380471cc0796",
+  "target_ui": "1920x1080",
+  "entry_count": 324,
+  "category_counts": {
+    "button_label": 25,
+    "date_label": 15,
+    "dialog": 11,
+    "extra_label": 3,
+    "language": 2,
+    "legal_notice": 1,
+    "music_title": 58,
+    "navigation": 12,
+    "options_help": 18,
+    "options_label": 114,
+    "playlist_message": 8,
+    "save_manager": 5,
+    "save_message": 16,
+    "voice_name": 19,
+    "voice_ui": 17
+  },
+  "entries": [
+    {
+      "file_offset_hex": "0x6E0560",
+      "text_en": "Opening",
+      "text_ru": "Заставка",
+      "category": "extra_label",
+      "notes": "Вероятная видимая подпись раздела вступления в галерее; требует проверки в игре. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7210336,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6E1508",
+      "text_en": "Play",
+      "text_ru": "Воспроизвести",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7214344,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6E1F88",
+      "text_en": "English",
+      "text_ru": "Русский",
+      "category": "language",
+      "notes": "Английский языковой слот используется для русского; видимая метка заменена на «Русский».",
+      "status": "draft",
+      "file_offset": 7217032,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E1FA8",
+      "text_en": "Yes",
+      "text_ru": "Да",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7217064,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E1FBC",
+      "text_en": "No",
+      "text_ru": "Нет",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7217084,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E1FD4",
+      "text_en": "Close",
+      "text_ru": "Назад",
+      "category": "button_label",
+      "notes": "LQA: «Закрыть» обрезалось в нижней кнопке; «Назад» помещается и соответствует действию.",
+      "status": "draft",
+      "file_offset": 7217108,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2038",
+      "text_en": "Clear data (system data) was saved.",
+      "text_ru": "Данные прохождения (системные данные) сохранены.",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки.",
+      "status": "draft",
+      "file_offset": 7217208,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E20C8",
+      "text_en": "Quick save data does not exist.",
+      "text_ru": "Данных быстрого сохранения нет.",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки.",
+      "status": "draft",
+      "file_offset": 7217352,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2140",
+      "text_en": "Quick save cannot be used.",
+      "text_ru": "Быстрое сохранение недоступно.",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки.",
+      "status": "draft",
+      "file_offset": 7217472,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E21B8",
+      "text_en": "Quick load cannot be used.",
+      "text_ru": "Быстрая загрузка недоступна.",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки.",
+      "status": "draft",
+      "file_offset": 7217592,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2238",
+      "text_en": "Would you like to jump to the selected message?",
+      "text_ru": "Перейти к выбранной реплике?",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7217720,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E22B8",
+      "text_en": "Quick save is in progress.",
+      "text_ru": "Идёт быстрое сохранение.",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки.",
+      "status": "draft",
+      "file_offset": 7217848,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2338",
+      "text_en": "System data save in progress...",
+      "text_ru": "Идёт сохранение системных данных…",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки.",
+      "status": "draft",
+      "file_offset": 7217976,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E23F0",
+      "text_en": "$A1The system data is corrupted and can not be loaded. \n$A1Do you want to try again?",
+      "text_ru": "$A1Системные данные повреждены и не могут быть загружены.\n$A1Повторить попытку?",
+      "category": "dialog",
+      "notes": "Полное NUL-терминированное многострочное поле; прежний экспорт ошибочно выделял только внутренний суффикс.",
+      "status": "draft",
+      "file_offset": 7218160,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2610",
+      "text_en": "(System data includes game progress, OPTIONS settings, etc.)",
+      "text_ru": "(Системные данные содержат прогресс игры, настройки и прочее.)",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки.",
+      "status": "draft",
+      "file_offset": 7218704,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2780",
+      "text_en": "$A1The voice collection data is corrupted and can not be loaded. \n$A1Do you want to try again?",
+      "text_ru": "$A1Данные коллекции голосов повреждены и не могут быть загружены.\n$A1Повторить попытку?",
+      "category": "dialog",
+      "notes": "Полное NUL-терминированное многострочное поле; прежний экспорт ошибочно выделял только внутренний суффикс.",
+      "status": "draft",
+      "file_offset": 7219072,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2890",
+      "text_en": "$A1The voice collection data is corrupted, so changes cannot be saved.\n$A1Discard corrupted data and save?",
+      "text_ru": "$A1Данные коллекции голосов повреждены, поэтому изменения нельзя сохранить.\n$A1Удалить повреждённые данные и сохранить заново?",
+      "category": "save_message",
+      "notes": "Полное NUL-терминированное многострочное поле; прежний экспорт ошибочно выделял только внутренний суффикс.",
+      "status": "draft",
+      "file_offset": 7219344,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2958",
+      "text_en": "Quick save data is corrupted and cannot be loaded.",
+      "text_ru": "Быстрое сохранение повреждено и не загружается.",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7219544,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E29E0",
+      "text_en": "Do you wish to load this save?",
+      "text_ru": "Загрузить это сохранение?",
+      "category": "dialog",
+      "notes": "Текст системного диалога; формулировка рассчитана на окно 1920x1080.",
+      "status": "draft",
+      "file_offset": 7219680,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2A60",
+      "text_en": "The saved data is corrupted and cannot be loaded.",
+      "text_ru": "Сохранение повреждено и не загружается.",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7219808,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2B28",
+      "text_en": "A reading error occurred.\nThe file may be corrupted.",
+      "text_ru": "Произошла ошибка чтения.\nВозможно, файл повреждён.",
+      "category": "save_message",
+      "notes": "Полное NUL-терминированное многострочное поле; прежний экспорт ошибочно выделял только внутренний суффикс.",
+      "status": "draft",
+      "file_offset": 7220008,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2BB0",
+      "text_en": "Do you wish to save?",
+      "text_ru": "Сохранить?",
+      "category": "dialog",
+      "notes": "Текст системного диалога; формулировка рассчитана на окно 1920x1080.",
+      "status": "draft",
+      "file_offset": 7220144,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2BF8",
+      "text_en": "Are you sure you wish to overwrite data?",
+      "text_ru": "Перезаписать сохранение?",
+      "category": "dialog",
+      "notes": "Текст системного диалога; формулировка рассчитана на окно 1920x1080. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7220216,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2C58",
+      "text_en": "$A1Data save in progress...",
+      "text_ru": "$A1Идёт сохранение данных…",
+      "category": "save_message",
+      "notes": "Управляющий токен $A1 сохранён точно.",
+      "status": "draft",
+      "file_offset": 7220312,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2CC8",
+      "text_en": "$A1System data save in progress...",
+      "text_ru": "$A1Идёт сохранение системных данных…",
+      "category": "save_message",
+      "notes": "Управляющий токен $A1 сохранён точно.",
+      "status": "draft",
+      "file_offset": 7220424,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2D58",
+      "text_en": "$A1Clear data (system data) save in progress...",
+      "text_ru": "$A1Идёт сохранение данных прохождения (системных данных)…",
+      "category": "save_message",
+      "notes": "Управляющий токен $A1 сохранён точно.",
+      "status": "draft",
+      "file_offset": 7220568,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2DE8",
+      "text_en": "Save completed.",
+      "text_ru": "Сохранение завершено.",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки.",
+      "status": "draft",
+      "file_offset": 7220712,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2E20",
+      "text_en": "Are you sure you wish to delete this save data?",
+      "text_ru": "Удалить это сохранение?",
+      "category": "dialog",
+      "notes": "Текст системного диалога; формулировка рассчитана на окно 1920x1080.",
+      "status": "draft",
+      "file_offset": 7220768,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2E80",
+      "text_en": "This cannot be deleted.",
+      "text_ru": "Эти данные нельзя удалить.",
+      "category": "save_message",
+      "notes": "Системное сообщение сохранения или загрузки.",
+      "status": "draft",
+      "file_offset": 7220864,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2ED0",
+      "text_en": "Return to the menu?",
+      "text_ru": "Вернуться в меню?",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту.",
+      "status": "draft",
+      "file_offset": 7220944,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2F28",
+      "text_en": "Return to the title screen?",
+      "text_ru": "Вернуться на титульный экран?",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту.",
+      "status": "draft",
+      "file_offset": 7221032,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E2FA0",
+      "text_en": "Would you like to restore this page to the default settings?",
+      "text_ru": "Сбросить настройки этой страницы?",
+      "category": "dialog",
+      "notes": "Текст системного диалога; формулировка рассчитана на окно 1920x1080. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7221152,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3038",
+      "text_en": "Switching fonts...",
+      "text_ru": "Смена шрифта…",
+      "category": "dialog",
+      "notes": "Текст системного диалога; формулировка рассчитана на окно 1920x1080.",
+      "status": "draft",
+      "file_offset": 7221304,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E30A0",
+      "text_en": "Do you wish to jump to the next choice?",
+      "text_ru": "Перейти к следующему выбору?",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту.",
+      "status": "draft",
+      "file_offset": 7221408,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3120",
+      "text_en": "Do you wish to jump to the next chapter?",
+      "text_ru": "Перейти к следующей главе?",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту.",
+      "status": "draft",
+      "file_offset": 7221536,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E31C0",
+      "text_en": "Do you wish to jump to the next chapter or choice?",
+      "text_ru": "Перейти к следующей главе или выбору?",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту.",
+      "status": "draft",
+      "file_offset": 7221696,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3248",
+      "text_en": "Jumping to the next choice ...",
+      "text_ru": "Переход к следующему выбору…",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту.",
+      "status": "draft",
+      "file_offset": 7221832,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3350",
+      "text_en": "Stopped here because of unread text.",
+      "text_ru": "Остановлено у непрочитанного текста.",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7222096,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E33E8",
+      "text_en": "Do you wish to jump to the previous choice?",
+      "text_ru": "Перейти к предыдущему выбору?",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту.",
+      "status": "draft",
+      "file_offset": 7222248,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3478",
+      "text_en": "Do you wish to jump to the beginning of this chapter?",
+      "text_ru": "Перейти к началу этой главы?",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту.",
+      "status": "draft",
+      "file_offset": 7222392,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3510",
+      "text_en": "Do you wish to jump to the previous chapter?",
+      "text_ru": "Перейти к предыдущей главе?",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту.",
+      "status": "draft",
+      "file_offset": 7222544,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3598",
+      "text_en": "Do you wish to jump to the beginning of the game?",
+      "text_ru": "Перейти к началу игры?",
+      "category": "navigation",
+      "notes": "Подтверждение или статус перехода по тексту.",
+      "status": "draft",
+      "file_offset": 7222680,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3630",
+      "text_en": "$A1There is no voice clip to save.",
+      "text_ru": "$A1Нет голосового фрагмента для сохранения.",
+      "category": "voice_ui",
+      "notes": "Управляющий токен $A1 сохранён точно.",
+      "status": "draft",
+      "file_offset": 7222832,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E36C0",
+      "text_en": "$A1The voice clip list is full.\n$A1You cannot save any more voice clips.",
+      "text_ru": "$A1Список голосовых фрагментов заполнен.\n$A1Больше голосовых фрагментов сохранить нельзя.",
+      "category": "voice_ui",
+      "notes": "Полное NUL-терминированное многострочное поле; прежний экспорт ошибочно выделял только внутренний суффикс.",
+      "status": "draft",
+      "file_offset": 7222976,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3740",
+      "text_en": "The playlist is full.",
+      "text_ru": "Список воспроизведения заполнен.",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7223104,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3790",
+      "text_en": "Save voice clips in any order you wish.",
+      "text_ru": "Сохраняйте голосовые фрагменты в любом порядке.",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7223184,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E37E8",
+      "text_en": "Select the music for continuous playback.",
+      "text_ru": "Выберите музыку для непрерывного воспроизведения.",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7223272,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E38F0",
+      "text_en": "$A1Resetting will delete all voice clips saved to this page.$d$A1Do you wish to continue?$d$A1(The voice clips will also be deleted from playlists.)",
+      "text_ru": "$A1При сбросе будут удалены все голосовые фрагменты с этой страницы.$d$A1Продолжить?$d$A1(Они также будут удалены из списков воспроизведения.)",
+      "category": "voice_ui",
+      "notes": "Управляющие токены $A1 и $d сохранены точно и в исходном количестве.",
+      "status": "draft",
+      "file_offset": 7223536,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3A20",
+      "text_en": "$A1Resetting will delete all voice clips saved to this $dplaylist and the music. Do you wish to continue?",
+      "text_ru": "$A1При сбросе будут удалены все голосовые фрагменты из этого $dсписка воспроизведения, а также музыка. Продолжить?",
+      "category": "voice_ui",
+      "notes": "Управляющие токены $A1 и $d сохранены точно; разрыв $d оставлен внутри исходной смысловой позиции.",
+      "status": "draft",
+      "file_offset": 7223840,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3AC0",
+      "text_en": "Edit this playlist.",
+      "text_ru": "Изменить этот список воспроизведения.",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7224000,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3AE8",
+      "text_en": " Add Voice Clips ",
+      "text_ru": " Добавить голосовые фрагменты ",
+      "category": "button_label",
+      "notes": "Начальный и конечный пробелы сохранены для существующей кнопочной раскладки.",
+      "status": "draft",
+      "file_offset": 7224040,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3B10",
+      "text_en": "Select Music",
+      "text_ru": "Выбрать музыку",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224080,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3B2C",
+      "text_en": "Reset",
+      "text_ru": "Сбросить",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224108,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3B34",
+      "text_en": "Cancel",
+      "text_ru": "Отмена",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224116,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3B50",
+      "text_en": "Back",
+      "text_ru": "Назад",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224144,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3B78",
+      "text_en": "Go to link",
+      "text_ru": "Открыть ссылку",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7224184,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3BAC",
+      "text_en": "Delete",
+      "text_ru": "Удалить",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224236,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3BD4",
+      "text_en": "Latest",
+      "text_ru": "Последнее",
+      "category": "button_label",
+      "notes": "Краткая подпись перехода к последнему доступному элементу; контекст требует LQA.",
+      "status": "draft",
+      "file_offset": 7224276,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3C18",
+      "text_en": "Defaults",
+      "text_ru": "По умолчанию",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224344,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3C60",
+      "text_en": "Sample Voice",
+      "text_ru": "Пример голоса",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7224416,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3CA0",
+      "text_en": "Controls",
+      "text_ru": "Управление",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7224480,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3CE8",
+      "text_en": "Languages",
+      "text_ru": "Языки",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7224552,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3D20",
+      "text_en": "Play Voice",
+      "text_ru": "Прослушать",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7224608,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3D58",
+      "text_en": "Jump",
+      "text_ru": "Перейти",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224664,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3D88",
+      "text_en": "Voice Collection",
+      "text_ru": "Коллекция голосов",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7224712,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3DD8",
+      "text_en": "Message Log",
+      "text_ru": "Журнал",
+      "category": "extra_label",
+      "notes": "Видимая подпись вне игрового текста. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7224792,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3DEC",
+      "text_en": "Del.",
+      "text_ru": "Удал.",
+      "category": "button_label",
+      "notes": "Сокращённая подпись удаления для компактной кнопки.",
+      "status": "draft",
+      "file_offset": 7224812,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3E10",
+      "text_en": "To Playlist",
+      "text_ru": "В список воспроизведения",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224848,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3E38",
+      "text_en": "To Voice Clip List",
+      "text_ru": "К списку голосовых фрагментов",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224888,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3E60",
+      "text_en": "Continuous Play",
+      "text_ru": "Непрерывное воспроизведение",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7224928,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3E78",
+      "text_en": "Edit",
+      "text_ru": "Изменить",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224952,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3E98",
+      "text_en": "Show Preview",
+      "text_ru": "Показать предпросмотр",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7224984,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3EC8",
+      "text_en": "Hide Preview",
+      "text_ru": "Скрыть предпросмотр",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7225032,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3EF8",
+      "text_en": "Hold (A) Continuous Play",
+      "text_ru": "Удерживайте (A): непрерывное воспроизведение",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7225080,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3F38",
+      "text_en": "Text preview.",
+      "text_ru": "Предпросмотр текста.",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7225144,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E3FB8",
+      "text_en": "$A1Please select the languages you would like to use.",
+      "text_ru": "$A1Выберите нужные языки.",
+      "category": "language",
+      "notes": "Управляющий токен $A1 сохранён точно.",
+      "status": "draft",
+      "file_offset": 7225272,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E40A0",
+      "text_en": "Settings such as text speed are reflected.",
+      "text_ru": "Здесь учитываются настройки, например скорость текста.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7225504,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E4180",
+      "text_en": "Changes to Sound API settings will be applied after exiting and restarting the game.",
+      "text_ru": "Изменения настроек Sound API вступят в силу после перезапуска игры.",
+      "category": "options_help",
+      "notes": "Техническое имя Sound API оставлено без перевода.",
+      "status": "draft",
+      "file_offset": 7225728,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E4250",
+      "text_en": "There are no keywords.",
+      "text_ru": "Ключевых слов нет.",
+      "category": "extra_label",
+      "notes": "Видимая подпись вне игрового текста.",
+      "status": "draft",
+      "file_offset": 7225936,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E4268",
+      "text_en": "Next",
+      "text_ru": "Далее",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7225960,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E4288",
+      "text_en": "Playlist",
+      "text_ru": "Список воспроизведения",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7225992,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E42C8",
+      "text_en": "(You can put a voice clip here.)",
+      "text_ru": "(Сюда можно добавить голосовой фрагмент.)",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7226056,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E4348",
+      "text_en": "(Cannot add more voice clips. You can only select music.)",
+      "text_ru": "(Больше голосовых фрагментов добавить нельзя. Можно выбрать только музыку.)",
+      "category": "voice_ui",
+      "notes": "Интерфейс коллекции голосовых фрагментов.",
+      "status": "draft",
+      "file_offset": 7226184,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E4410",
+      "text_en": "There is saved data that was automatically created \n$A(1)before the game crashed due to an error. \n$A(1)Would you like to load this saved data?",
+      "text_ru": "Есть автоматически созданное сохранение, сделанное \n$A(1)перед аварийным завершением игры. \n$A(1)Загрузить это сохранение?",
+      "category": "dialog",
+      "notes": "Полное NUL-терминированное многострочное поле; прежний экспорт ошибочно выделял только внутренний суффикс.",
+      "status": "draft",
+      "file_offset": 7226384,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6E9B78",
+      "text_en": "Voice Collection Data",
+      "text_ru": "Данные коллекции голосов",
+      "category": "save_manager",
+      "notes": "Интерфейс управления сохранениями и системными данными.",
+      "status": "draft",
+      "file_offset": 7248760,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6E9BA8",
+      "text_en": "System Data",
+      "text_ru": "Системные данные",
+      "category": "save_manager",
+      "notes": "Интерфейс управления сохранениями и системными данными.",
+      "status": "draft",
+      "file_offset": 7248808,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F1410",
+      "text_en": "$A1There is unsaved data.\n$A1Are you sure you wish to quit the game?",
+      "text_ru": "$A1Есть несохранённые данные.\n$A1Выйти из игры?",
+      "category": "dialog",
+      "notes": "Полное NUL-терминированное многострочное поле; прежний экспорт ошибочно выделял только внутренний суффикс.",
+      "status": "draft",
+      "file_offset": 7279632,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6F1458",
+      "text_en": "Are you sure you wish to quit the game?",
+      "text_ru": "Выйти из игры?",
+      "category": "dialog",
+      "notes": "Отдельное вхождение диалога выхода без управляющего токена.",
+      "status": "draft",
+      "file_offset": 7279704,
+      "build_scope": "core"
+    },
+    {
+      "file_offset_hex": "0x6F27A0",
+      "text_en": "Delete all saved data\nExit",
+      "text_ru": "Удалить все сохранения\nВыйти",
+      "category": "button_label",
+      "notes": "Полное NUL-терминированное поле; прежний экспорт ошибочно выделял внутренний ASCII-суффикс.",
+      "status": "draft",
+      "file_offset": 7284640,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F2970",
+      "text_en": "$A1Do you delete all saved data including system data from the cloud \n$A1and return the game to the initial state? (Deleting it can not be undone)",
+      "text_ru": "$A1Удалить из облака все сохранения, включая системные данные,\n$A1и вернуть игру в исходное состояние? (Отменить удаление нельзя.)",
+      "category": "save_manager",
+      "notes": "Полное NUL-терминированное поле; прежний экспорт ошибочно выделял внутренний ASCII-суффикс.",
+      "status": "draft",
+      "file_offset": 7285104,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F2A08",
+      "text_en": "Deleting save data ...",
+      "text_ru": "Удаление данных…",
+      "category": "save_manager",
+      "notes": "Интерфейс управления сохранениями и системными данными. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7285256,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F2AA8",
+      "text_en": "Deletion is completed.",
+      "text_ru": "Удаление завершено.",
+      "category": "save_manager",
+      "notes": "Интерфейс управления сохранениями и системными данными.",
+      "status": "draft",
+      "file_offset": 7285416,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F5440",
+      "text_en": "This product is a work of fiction.\nAll names, characters, organizations, locations, incidents, and occupations\nare the products of the authors’ imagination or used in a fictitious manner.\nAny resemblance to actual persons, living or dead, or actual events is purely coincidential.\n$S016＿\n$SThis product is owned by VISUAL ARTS Co., Ltd.\nUnauthorized lending, reproduction, duplication, modification, \nor redistribution over the internet and use of P2P software to share and \ndistribute without the express written consent of VISUAL ARTS Co., Ltd. is \nprohibited by law.\n$S016＿\n$SIllegal uploading of videos to the internet is steadily rising.\nThe unauthorized uploading of in-game music, video records, etc. is strictly forbidden except for demo purposes and actions may be taken according to your country's law. ",
+      "text_ru": "Данное произведение является вымышленным.\nВсе имена, персонажи, организации, места, события и профессии\nсозданы авторами или используются в вымышленном виде.\nЛюбое сходство с реальными лицами, живыми или умершими, либо событиями случайно.\n$S016＿\n$SПрава на данный продукт принадлежат VISUAL ARTS Co., Ltd.\nПрокат, воспроизведение, копирование, изменение, \nраспространение через интернет и использование P2P-программ для обмена \nбез письменного разрешения VISUAL ARTS Co., Ltd. запрещены законом.\n$S016＿\n$SЧисло незаконных публикаций видео в интернете продолжает расти.\nПубликация игровой музыки, видеозаписей и других материалов без разрешения строго запрещена; к нарушителям могут быть применены меры согласно законодательству их страны. ",
+      "category": "legal_notice",
+      "notes": "Полное NUL-терминированное поле; прежний экспорт ошибочно выделял внутренний ASCII-суффикс.",
+      "status": "draft",
+      "file_offset": 7296064,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6380",
+      "text_en": "Proceed",
+      "text_ru": "Продолжить",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7299968,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6928",
+      "text_en": "Off",
+      "text_ru": "Выкл.",
+      "category": "options_label",
+      "notes": "LQA: строка используется на вкладке «Текст 1», поэтому входит в первую волну.",
+      "status": "draft",
+      "file_offset": 7301416,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F6938",
+      "text_en": "Sea,You & Me",
+      "text_ru": "Море, ты и я",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301432,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6958",
+      "text_en": "Sea,Your Memory",
+      "text_ru": "Море, твоя память",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301464,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6968",
+      "text_en": "Sea,You Next",
+      "text_ru": "Море, теперь ты",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301480,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6978",
+      "text_en": "White with You",
+      "text_ru": "Белое рядом с тобой",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301496,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6988",
+      "text_en": "White Loneliness",
+      "text_ru": "Белое одиночество",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301512,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F69A0",
+      "text_en": "Adventure for Black",
+      "text_ru": "Приключение для чёрного",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301536,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F69B8",
+      "text_en": "Other side Blue",
+      "text_ru": "Синева по ту сторону",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301560,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F69C8",
+      "text_en": "Wing of Glass",
+      "text_ru": "Стеклянное крыло",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301576,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F69D8",
+      "text_en": "Golden Hours",
+      "text_ru": "Золотые часы",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301592,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F69E8",
+      "text_en": "Alongside Chirping Cicadas",
+      "text_ru": "Под стрекот цикад",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301608,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6A68",
+      "text_en": "How to Spend the Summer Vacation",
+      "text_ru": "Как провести летние каникулы",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301736,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6A90",
+      "text_en": "The Heat Haze Above the Hill",
+      "text_ru": "Марево над холмом",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301776,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6B08",
+      "text_en": "Summer Lullaby",
+      "text_ru": "Летняя колыбельная",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301896,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6B18",
+      "text_en": "Sunshine Leisure",
+      "text_ru": "Отдых под солнцем",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7301912,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6BA0",
+      "text_en": "Forget the Heat For Just This Moment",
+      "text_ru": "Хоть ненадолго забудь о жаре",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302048,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6BC8",
+      "text_en": "Doing Homework on August 32nd",
+      "text_ru": "Домашняя работа тридцать второго августа",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302088,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6C38",
+      "text_en": "The Timeweave",
+      "text_ru": "Ткань времени",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302200,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6C48",
+      "text_en": "Breaktime Under the Tree",
+      "text_ru": "Передышка под деревом",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302216,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6CC8",
+      "text_en": "The Sun On the Other Side of My Palm",
+      "text_ru": "Солнце по ту сторону ладони",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302344,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6CF0",
+      "text_en": "Dark Shadows",
+      "text_ru": "Тёмные тени",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302384,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6D68",
+      "text_en": "In the Gaps Between the Cicadas' Cries",
+      "text_ru": "В промежутках между криками цикад",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302504,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6E78",
+      "text_en": "Inside the Radiance",
+      "text_ru": "Внутри сияния",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302776,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6EF8",
+      "text_en": "Alka Tale -recall-",
+      "text_ru": "Сказание Альки -воспоминание-",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302904,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6F20",
+      "text_en": "Behind the Gaze",
+      "text_ru": "За взглядом",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302944,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6F30",
+      "text_en": "The Two's Adventure",
+      "text_ru": "Приключение вдвоём",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7302960,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6F98",
+      "text_en": "The Catbeard Brigade's Adventure",
+      "text_ru": "Приключение бригады Котоборода",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303064,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F6FC0",
+      "text_en": "Lost at Night",
+      "text_ru": "Заблудившись ночью",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303104,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7030",
+      "text_en": "This Memory, That Memory",
+      "text_ru": "Это воспоминание, то воспоминание",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303216,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7050",
+      "text_en": "Rainbow Butterflies",
+      "text_ru": "Радужные бабочки",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303248,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F70A8",
+      "text_en": "Tsumugi's Summer Vacation",
+      "text_ru": "Летние каникулы Цумуги",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303336,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F70C8",
+      "text_en": "Childish White",
+      "text_ru": "Детская белизна",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303368,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F70D8",
+      "text_en": "Twinkle of Alcor",
+      "text_ru": "Мерцание Алькора",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303384,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7120",
+      "text_en": "Summer Pockets",
+      "text_ru": "Summer Pockets",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303456,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7158",
+      "text_en": "Alka Tale -$S024 $Sstory$S024 $S-",
+      "text_ru": "Сказание Альки -$S024 $Sсюжет$S024 $S-",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод. Управляющие токены $S/$S024 сохранены точно.",
+      "status": "draft",
+      "file_offset": 7303512,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F71A0",
+      "text_en": "There He is Even Without Turning Back",
+      "text_ru": "Он там, даже не оглядываясь",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303584,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F71C8",
+      "text_en": "Frolic Summer",
+      "text_ru": "Беззаботное лето",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303624,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7248",
+      "text_en": "Summer Adventure",
+      "text_ru": "Летнее приключение",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303752,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7260",
+      "text_en": "Splash Green",
+      "text_ru": "Всплеск зелени",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303776,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7270",
+      "text_en": "Deep Blue Blue",
+      "text_ru": "Глубокая синяя синева",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303792,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7280",
+      "text_en": "Piece of Clear",
+      "text_ru": "Частица ясности",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303808,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7290",
+      "text_en": "Tender Purple",
+      "text_ru": "Нежный пурпур",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303824,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F72B0",
+      "text_en": "Run Red Run",
+      "text_ru": "Беги, красный, беги",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303856,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F72D0",
+      "text_en": "Summer Aster",
+      "text_ru": "Летняя астра",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303888,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F72E0",
+      "text_en": "Scent of the Seashore",
+      "text_ru": "Запах морского берега",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7303904,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7370",
+      "text_en": "Aster Lore -$S024 $Sblue$S024 $S-",
+      "text_ru": "Легенда об астре -$S024 $Sсинева$S024 $S-",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод. Управляющие токены $S/$S024 сохранены точно.",
+      "status": "draft",
+      "file_offset": 7304048,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7398",
+      "text_en": "Twinkle of Aster",
+      "text_ru": "Мерцание астры",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304088,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F73B0",
+      "text_en": "Aster Lore -$S024 $Sreflect$S024 $S-",
+      "text_ru": "Легенда об астре -$S024 $Sотражение$S024 $S-",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод. Управляющие токены $S/$S024 сохранены точно.",
+      "status": "draft",
+      "file_offset": 7304112,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F73D8",
+      "text_en": "A Lingering Warmth on the Breeze...",
+      "text_ru": "Тепло, оставшееся на ветру…",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304152,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7428",
+      "text_en": "Lover Universe",
+      "text_ru": "Вселенная влюблённых",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304232,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7458",
+      "text_en": "Alka Tale",
+      "text_ru": "Сказание Альки",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304280,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7490",
+      "text_en": "Lasting Moment",
+      "text_ru": "Миг, который длится",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304336,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F74B8",
+      "text_en": "Evening Medley of Fireworks",
+      "text_ru": "Вечернее попурри фейерверков",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304376,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F74E8",
+      "text_en": "Cradle of Wings",
+      "text_ru": "Колыбель крыльев",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304424,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F74F8",
+      "text_en": "Shiroha's Lullaby",
+      "text_ru": "Колыбельная Сирохи",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304440,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7560",
+      "text_en": "Aster Lore",
+      "text_ru": "Легенда об астре",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304544,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7580",
+      "text_en": "Hourglass of Summer",
+      "text_ru": "Летние песочные часы",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304576,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7598",
+      "text_en": "Into the Blue",
+      "text_ru": "В синеву",
+      "category": "music_title",
+      "notes": "Отображаемое название композиции; черновой литературный перевод.",
+      "status": "draft",
+      "file_offset": 7304600,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6F7C30",
+      "text_en": "Options",
+      "text_ru": "Настройки",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7306288,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7D00",
+      "text_en": "Basic",
+      "text_ru": "Общие",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7306496,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7D08",
+      "text_en": "Hide",
+      "text_ru": "Скрыть",
+      "category": "button_label",
+      "notes": "Короткая подпись кнопки для интерфейса 1920x1080.",
+      "status": "draft",
+      "file_offset": 7306504,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7D40",
+      "text_en": "Display",
+      "text_ru": "Показать",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7306560,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7D48",
+      "text_en": "Shortcut Menu",
+      "text_ru": "Быстрое меню",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7306568,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7DB8",
+      "text_en": "Previously Read Only",
+      "text_ru": "Только прочитанный текст",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7306680,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7DD0",
+      "text_en": "All",
+      "text_ru": "Весь текст",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7306704,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7E04",
+      "text_en": "Skip",
+      "text_ru": "Пропуск",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7306756,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7E0C",
+      "text_en": "Slow",
+      "text_ru": "Медленно",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7306764,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7E2C",
+      "text_en": "Fast",
+      "text_ru": "Быстро",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7306796,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7E50",
+      "text_en": "Fast Forward / Rewind Speed",
+      "text_ru": "Скорость перемотки",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7306832,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7E6C",
+      "text_en": "Bottom",
+      "text_ru": "Снизу",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7306860,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7E9C",
+      "text_en": "Center",
+      "text_ru": "По центру",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7306908,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7EB8",
+      "text_en": "Position of Choices",
+      "text_ru": "Положение выбора",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7306936,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7ED0",
+      "text_en": "Stop on New Message",
+      "text_ru": "Прерывать при переходе",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7306960,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7F70",
+      "text_en": "      No Stops      ",
+      "text_ru": "      Не прерывать      ",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7307120,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7FA4",
+      "text_en": "Voice",
+      "text_ru": "Озвучка",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7307172,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7FC0",
+      "text_en": "Positioned at ❝Yes❞",
+      "text_ru": "На ❝Да❞",
+      "category": "options_label",
+      "notes": "Полная UTF-8 подпись значения; исходные поддерживаемые кавычки ❝❞ сохранены.",
+      "status": "draft",
+      "file_offset": 7307200,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F7FD8",
+      "text_en": "Positioned at ❝No❞",
+      "text_ru": "На ❝Нет❞",
+      "category": "options_label",
+      "notes": "Полная UTF-8 подпись значения; исходные поддерживаемые кавычки ❝❞ сохранены.",
+      "status": "draft",
+      "file_offset": 7307224,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8010",
+      "text_en": "Initial Cursor Position",
+      "text_ru": "Кнопка по умолчанию",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7307280,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8038",
+      "text_en": "Disable",
+      "text_ru": "Выкл.",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7307320,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8064",
+      "text_en": "Min",
+      "text_ru": "Мин.",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7307364,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F806C",
+      "text_en": "Mid",
+      "text_ru": "Сред.",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7307372,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8074",
+      "text_en": "Max",
+      "text_ru": "Макс.",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7307380,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8090",
+      "text_en": "Controller Rumble Function",
+      "text_ru": "Вибрация контроллера",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7307408,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F80B0",
+      "text_en": "Voice: If you select No Stops, sound will continue to play even if you advance the text during voice playback. (It stops if there is sound on the next message.)",
+      "text_ru": "Озвучка: при выборе \"Не прерывать\" реплика продолжит звучать после перехода к следующей. Если в следующей реплике есть звук, текущая остановится.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7307440,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F83D0",
+      "text_en": "Initial Cursor Position: Sets the initial position of the cursor when a Yes/No choice is available.",
+      "text_ru": "Кнопка по умолчанию: задаёт начальный выбор в диалогах \"Да/Нет\".",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7308240,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8440",
+      "text_en": "Controller Rumble Function: Plug in a controller to use the controller Rumble function.",
+      "text_ru": "Вибрация: подключите контроллер, чтобы включить её.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7308352,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F86B0",
+      "text_en": "Fast Forward / Rewind Speed: Use C and Z to set the controller's fast forward/rewind speed. Pressing CTRL will set it to maximum playback speed.",
+      "text_ru": "Скорость перемотки: кнопками C и Z задаётся скорость перемотки на контроллере. CTRL включает максимальную скорость воспроизведения.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7308976,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8744",
+      "text_en": "Touch",
+      "text_ru": "Сенсор",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7309124,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8780",
+      "text_en": "Rewind",
+      "text_ru": "Назад",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7309184,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8788",
+      "text_en": "Jump (Forward)",
+      "text_ru": "Переход вперёд",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7309192,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8808",
+      "text_en": "Jump (Backward)",
+      "text_ru": "Переход назад",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7309320,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8820",
+      "text_en": "Drag in the message window to Skip.\nAuto skip by swiping (stop by tapping).",
+      "text_ru": "Проведите по окну сообщений, чтобы пропустить текст.\nДля автопропуска проведите пальцем; остановка — касанием.",
+      "category": "options_help",
+      "notes": "Полное NUL-терминированное поле с переводом строки; прежний экспорт ошибочно выделял только суффикс после LF.",
+      "status": "draft",
+      "file_offset": 7309344,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8A50",
+      "text_en": "Drag in the message window to Rewind.\nAuto rewind by swiping (stop by tapping).",
+      "text_ru": "Проведите по окну сообщений, чтобы перемотать назад.\nДля автоперемотки проведите пальцем; остановка — касанием.",
+      "category": "options_help",
+      "notes": "Полное NUL-терминированное поле с переводом строки; прежний экспорт ошибочно выделял только суффикс после LF.",
+      "status": "draft",
+      "file_offset": 7309904,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8AA0",
+      "text_en": "Swipe outside the message window jumps to next choice/chapter, or the end of previously read text.",
+      "text_ru": "Проведите вне окна сообщений, чтобы перейти к следующему выбору/главе или концу прочитанного текста.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7309984,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8D00",
+      "text_en": "Swipe outside the message window to jump to previous choice/chapter.",
+      "text_ru": "Проведите вне окна сообщений, чтобы перейти к предыдущему выбору/главе.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7310592,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8D50",
+      "text_en": "Swipe outside the message window to jump to the start of the next chapter or the end of previously read text.",
+      "text_ru": "Проведите вне окна сообщений, чтобы перейти к началу следующей главы или концу прочитанного текста.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7310672,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8F70",
+      "text_en": "Swipe outside the message window to jump to the previous chapter.",
+      "text_ru": "Проведите вне окна сообщений, чтобы перейти к предыдущей главе.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7311216,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F8FC0",
+      "text_en": "Swipe outside the message window to jump to the start of the next choice or to the latest previously read message.",
+      "text_ru": "Проведите вне окна сообщений, чтобы перейти к началу следующего выбора или последнему прочитанному сообщению.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7311296,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F91E0",
+      "text_en": "Swipe outside the message window to jump to the previous choice.",
+      "text_ru": "Проведите вне окна сообщений, чтобы перейти к предыдущему выбору.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7311840,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9224",
+      "text_en": "Orange",
+      "text_ru": "Оранжевый",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7311908,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9250",
+      "text_en": "Yellow",
+      "text_ru": "Жёлтый",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7311952,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9260",
+      "text_en": "Text1",
+      "text_ru": "Текст 1",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7311968,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9268",
+      "text_en": "Language",
+      "text_ru": "Язык",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7311976,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F92B0",
+      "text_en": "Gothic1",
+      "text_ru": "Gothic1",
+      "category": "options_label",
+      "notes": "Имя встроенной гарнитуры сохраняется в оригинале по результатам пользовательской LQA.",
+      "status": "draft",
+      "file_offset": 7312048,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F92D0",
+      "text_en": "Gothic2",
+      "text_ru": "Gothic2",
+      "category": "options_label",
+      "notes": "Имя встроенной гарнитуры сохраняется в оригинале по результатам пользовательской LQA.",
+      "status": "draft",
+      "file_offset": 7312080,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F92E8",
+      "text_en": "Gothic3",
+      "text_ru": "Gothic3",
+      "category": "options_label",
+      "notes": "Имя встроенной гарнитуры сохраняется в оригинале по результатам пользовательской LQA.",
+      "status": "draft",
+      "file_offset": 7312104,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F92FC",
+      "text_en": "Mincho",
+      "text_ru": "Mincho",
+      "category": "options_label",
+      "notes": "Имя встроенной гарнитуры сохраняется в оригинале по результатам пользовательской LQA.",
+      "status": "draft",
+      "file_offset": 7312124,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9318",
+      "text_en": "Modern",
+      "text_ru": "Modern",
+      "category": "options_label",
+      "notes": "Имя встроенной гарнитуры сохраняется в оригинале по результатам пользовательской LQA.",
+      "status": "draft",
+      "file_offset": 7312152,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9328",
+      "text_en": "Font",
+      "text_ru": "Шрифт",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312168,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9364",
+      "text_en": "Aqua",
+      "text_ru": "Бирюзовый",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312228,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F936C",
+      "text_en": "Navy",
+      "text_ru": "Тёмно-синий",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312236,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9394",
+      "text_en": "Black",
+      "text_ru": "Чёрный",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312276,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F93A0",
+      "text_en": "Window Color",
+      "text_ru": "Цвет окна",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312288,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F93F0",
+      "text_en": "Solid",
+      "text_ru": "Непрозрачно",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7312368,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9414",
+      "text_en": "Clear",
+      "text_ru": "Прозрачно",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7312404,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9430",
+      "text_en": "Window Transparency",
+      "text_ru": "Прозрачность окна",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312432,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9458",
+      "text_en": "Only Choices",
+      "text_ru": "Только выбор",
+      "category": "options_label",
+      "notes": "Сокращено по результатам пользовательской LQA: прежний вариант не помещался в элемент.",
+      "status": "draft",
+      "file_offset": 7312472,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F94A8",
+      "text_en": "On",
+      "text_ru": "Вкл.",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312552,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F94C8",
+      "text_en": "Previously Read Text",
+      "text_ru": "прочитанного текста",
+      "category": "options_label",
+      "notes": "Продолжение составной подписи после отдельной строки «Цвет»; падеж исправлен по пользовательской LQA.",
+      "status": "draft",
+      "file_offset": 7312584,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9500",
+      "text_en": "Color of",
+      "text_ru": "Цвет",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312640,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F950C",
+      "text_en": "Green",
+      "text_ru": "Зелёный",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312652,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9524",
+      "text_en": "Blue",
+      "text_ru": "Синий",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312676,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F952C",
+      "text_en": "Purple",
+      "text_ru": "Фиолетовый",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312684,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9538",
+      "text_en": "Red",
+      "text_ru": "Красный",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312696,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9560",
+      "text_en": "Read Text Color",
+      "text_ru": "Цвет прочитанного текста",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7312736,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9570",
+      "text_en": "Wait Time Per Character: In Auto Mode, this sets the wait time until the next message is displayed based on the number of characters in text.",
+      "text_ru": "Интервал на символ: в авторежиме задаёт задержку до следующего сообщения в зависимости от длины текста.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7312752,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9918",
+      "text_en": "Text2",
+      "text_ru": "Текст 2",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7313688,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9920",
+      "text_en": "Text Speed",
+      "text_ru": "Скорость текста",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7313696,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9978",
+      "text_en": "0 sec/char",
+      "text_ru": "0 с/символ",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7313784,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9988",
+      "text_en": "0.1 sec/char",
+      "text_ru": "0,1 с/символ",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7313800,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F99A8",
+      "text_en": "Wait Time Per Character",
+      "text_ru": "Задержка на символ",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7313832,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F99F0",
+      "text_en": "0 sec",
+      "text_ru": "0 с",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7313904,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9A00",
+      "text_en": "1 sec",
+      "text_ru": "1 с",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7313920,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9A10",
+      "text_en": "2 sec",
+      "text_ru": "2 с",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7313936,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9A2C",
+      "text_en": "3 sec",
+      "text_ru": "3 с",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7313964,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9A50",
+      "text_en": "Base Wait Time",
+      "text_ru": "Базовая задержка",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7314000,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9A60",
+      "text_en": "Sound",
+      "text_ru": "Звук",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7314016,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9AA8",
+      "text_en": "Master Volume",
+      "text_ru": "Общая громкость",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7314088,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9AF4",
+      "text_en": "SFX",
+      "text_ru": "Эффекты",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7314164,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9AF8",
+      "text_en": "System Sounds",
+      "text_ru": "Системные звуки",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7314168,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9B50",
+      "text_en": "Naruse Shiroha",
+      "text_ru": "Нарусэ Сироха",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314256,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9B60",
+      "text_en": "Sorakado Ao",
+      "text_ru": "Соракадо Ао",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314272,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9BB0",
+      "text_en": "Kushima Kamome",
+      "text_ru": "Кусима Камомэ",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314352,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9BC0",
+      "text_en": "Tsumugi Wenders",
+      "text_ru": "Цумуги Вендерс",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314368,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9C18",
+      "text_en": "Nomura Miki",
+      "text_ru": "Номура Мики",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314456,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9C38",
+      "text_en": "Mizuori Shizuku",
+      "text_ru": "Мидзуори Сидзуку",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314488,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9C48",
+      "text_en": "Kato Umi",
+      "text_ru": "Като Уми",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314504,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9C98",
+      "text_en": "Kamiyama Shiki",
+      "text_ru": "Камияма Сики",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314584,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9CA8",
+      "text_en": "Mitani Ryoichi",
+      "text_ru": "Митани Рёити",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314600,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9CC8",
+      "text_en": "Kano Tenzen",
+      "text_ru": "Кано Тэндзэн",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314632,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9D18",
+      "text_en": "Misaki Kyoko",
+      "text_ru": "Мисаки Кёко",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314712,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9D28",
+      "text_en": "Naruse Kobato",
+      "text_ru": "Нарусэ Кобато",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314728,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9D70",
+      "text_en": "Inari",
+      "text_ru": "Инари",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314800,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9D78",
+      "text_en": "Sorakado Ai",
+      "text_ru": "Соракадо Ай",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314808,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9DC4",
+      "text_en": "Nanami",
+      "text_ru": "Нанами",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314884,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9DE8",
+      "text_en": "Takahara Hairi",
+      "text_ru": "Такахара Хаири",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314920,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9DF8",
+      "text_en": "Misc(Female)",
+      "text_ru": "Другие (жен.)",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7314936,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9E68",
+      "text_en": "Misc(Male)",
+      "text_ru": "Другие (муж.)",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7315048,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9E78",
+      "text_en": "Takahara Umi",
+      "text_ru": "Такахара Уми",
+      "category": "voice_name",
+      "notes": "Отображаемое имя в настройках голосов; написание следует глоссарию и принятому проектному употреблению.",
+      "status": "draft",
+      "file_offset": 7315064,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9EC8",
+      "text_en": "keyboard",
+      "text_ru": "Клавиши",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315144,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9F18",
+      "text_en": "While Pressed",
+      "text_ru": "При удержании",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7315224,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9F28",
+      "text_en": "Start/Stop",
+      "text_ru": "Запуск/остановка",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315240,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9F80",
+      "text_en": "C (Skip)",
+      "text_ru": "C (пропуск)",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315328,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9F90",
+      "text_en": "Z (Rewind)",
+      "text_ru": "Z (назад)",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315344,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9FE8",
+      "text_en": "  Disable  ",
+      "text_ru": "  Отключить  ",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315432,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6F9FF8",
+      "text_en": "Quick Save",
+      "text_ru": "Быстрое сохранение",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315448,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA048",
+      "text_en": "Quick Load",
+      "text_ru": "Быстрая загрузка",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315528,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA0A8",
+      "text_en": "Switch Language",
+      "text_ru": "Сменить язык",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315624,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA108",
+      "text_en": "Up Arrow",
+      "text_ru": "Стрелка вверх",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315720,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA154",
+      "text_en": "Mouse",
+      "text_ru": "Мышь",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315796,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA1A8",
+      "text_en": "Hide Window",
+      "text_ru": "Скрыть окно",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315880,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA1B8",
+      "text_en": "System Menu",
+      "text_ru": "Системное меню",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7315896,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA210",
+      "text_en": "Right Click",
+      "text_ru": "ПКМ",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7315984,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA230",
+      "text_en": "Left+Right Click",
+      "text_ru": "ЛКМ + ПКМ",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7316016,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA248",
+      "text_en": "Mouse Wheel Button",
+      "text_ru": "СКМ",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7316040,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA2A8",
+      "text_en": "Rewind Once",
+      "text_ru": "На реплику назад",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7316136,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA2B8",
+      "text_en": "Wheel Up",
+      "text_ru": "Колесо вверх",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7316152,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA318",
+      "text_en": "Forward Once",
+      "text_ru": "На реплику вперёд",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7316248,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA328",
+      "text_en": "Wheel Down",
+      "text_ru": "Колесо вниз",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7316264,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA3A8",
+      "text_en": "Jump and Switch Pages",
+      "text_ru": "Переход и смена страниц",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7316392,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA3C0",
+      "text_en": "Return/Proceed Button",
+      "text_ru": "Кнопка назад/вперёд",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7316416,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA41C",
+      "text_en": "Enable",
+      "text_ru": "Включить",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7316508,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA438",
+      "text_en": "Gestures",
+      "text_ru": "Жесты",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7316536,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA478",
+      "text_en": "Dialog and Choices",
+      "text_ru": "Диалог и выбор",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7316600,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA500",
+      "text_en": "Snap Pointer",
+      "text_ru": "Привязка указателя",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7316736,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA510",
+      "text_en": "Gestures: Moving the cursor while holding the left button works the same way as Touch controls.",
+      "text_ru": "Жесты: перемещение курсора с зажатой левой кнопкой действует так же, как сенсорное управление.",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7316752,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA7C0",
+      "text_en": "Left+Right Click: Hold left button then right click to switch between languages (English/Simplified Chinese/Japanese).",
+      "text_ru": "Левая + правая кнопки: удерживайте левую кнопку и нажмите правую, чтобы переключать языки (русский/упрощённый китайский/японский).",
+      "category": "options_help",
+      "notes": "Справочный текст меню настроек.",
+      "status": "draft",
+      "file_offset": 7317440,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA868",
+      "text_en": "Game Ver. ",
+      "text_ru": "Версия игры: ",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317608,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA878",
+      "text_en": "Steam Deck: Proton ",
+      "text_ru": "Steam Deck: Proton ",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317624,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA88C",
+      "text_en": "System",
+      "text_ru": "Система",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317644,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA8D0",
+      "text_en": "Window",
+      "text_ru": "В окне",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317712,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA8D8",
+      "text_en": "Full Screen",
+      "text_ru": "Во весь экран",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317720,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA900",
+      "text_en": "Screen Mode",
+      "text_ru": "Режим экрана",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317760,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA940",
+      "text_en": "Auto",
+      "text_ru": "Авто",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317824,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA948",
+      "text_en": "66%",
+      "text_ru": "66%",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317832,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA94C",
+      "text_en": "50%",
+      "text_ru": "50%",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317836,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA950",
+      "text_en": "133%",
+      "text_ru": "133%",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317840,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA958",
+      "text_en": "100%",
+      "text_ru": "100%",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317848,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA960",
+      "text_en": "200%",
+      "text_ru": "200%",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317856,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA968",
+      "text_en": "150%",
+      "text_ru": "150%",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317864,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA970",
+      "text_en": "300%",
+      "text_ru": "300%",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317872,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA978",
+      "text_en": "266%",
+      "text_ru": "266%",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317880,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA990",
+      "text_en": "Window Size",
+      "text_ru": "Размер окна",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7317904,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FA9A0",
+      "text_en": "Changing the setting to ❝Auto❞ will open the window at a scale based on the Windows ❝Display❞ setting.\nChanging ❝%%❞ will scale the display, with the default resolution being %d×%d pixels.\n (Scale cannot be increased beyond the maximum resolution of your display.)",
+      "text_ru": "При выборе ❝Авто❞ окно откроется в масштабе, заданном параметром Windows ❝Экран❞.\nЗначение ❝%%❞ изменяет масштаб; базовое разрешение — %d×%d пикселей.\n (Масштаб нельзя увеличить сверх максимального разрешения экрана.)",
+      "category": "options_help",
+      "notes": "Полное NUL-терминированное многострочное поле; прежний экспорт ошибочно выделял только внутренний суффикс.",
+      "status": "draft",
+      "file_offset": 7317920,
+      "build_scope": "options"
+    },
+    {
+      "file_offset_hex": "0x6FBCA0",
+      "text_en": "Jan.",
+      "text_ru": "янв.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322784,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBCB8",
+      "text_en": "Mar.",
+      "text_ru": "мар.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322808,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBCC0",
+      "text_en": "Feb.",
+      "text_ru": "фев.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322816,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBCC8",
+      "text_en": "May",
+      "text_ru": "май",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322824,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBCCC",
+      "text_en": "Apr.",
+      "text_ru": "апр.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322828,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBCD4",
+      "text_en": "Jul.",
+      "text_ru": "июл.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322836,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBCDC",
+      "text_en": "Jun.",
+      "text_ru": "июн.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322844,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBCE4",
+      "text_en": "Sept.",
+      "text_ru": "сент.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322852,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBCEC",
+      "text_en": "Aug.",
+      "text_ru": "авг.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322860,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBCF4",
+      "text_en": "Nov.",
+      "text_ru": "нояб.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322868,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBCFC",
+      "text_en": "Oct.",
+      "text_ru": "окт.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7322876,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBD80",
+      "text_en": "Dec.",
+      "text_ru": "дек.",
+      "category": "date_label",
+      "notes": "Видимая часть даты или времени сохранения.",
+      "status": "draft",
+      "file_offset": 7323008,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBD9C",
+      "text_en": "No.%3d",
+      "text_ru": "№%3d",
+      "category": "date_label",
+      "notes": "printf-плейсхолдер %3d сохранён точно.",
+      "status": "draft",
+      "file_offset": 7323036,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBDA8",
+      "text_en": "%s %d, %04d",
+      "text_ru": "%s %d, %04d",
+      "category": "date_label",
+      "notes": "Все printf-плейсхолдеры и их порядок сохранены точно; порядок даты остаётся месяц-день-год ради безопасной подстановки.",
+      "status": "draft",
+      "file_offset": 7323048,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FBDB8",
+      "text_en": "%2d:%02d:%02d",
+      "text_ru": "%2d:%02d:%02d",
+      "category": "date_label",
+      "notes": "Все printf-плейсхолдеры сохранены точно.",
+      "status": "draft",
+      "file_offset": 7323064,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FC358",
+      "text_en": "Mute",
+      "text_ru": "Без звука",
+      "category": "options_label",
+      "notes": "Подпись параметра в меню настроек.",
+      "status": "draft",
+      "file_offset": 7324504,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FCC78",
+      "text_en": "Moon-Devourer Boobies",
+      "text_ru": "Груди, пожирающие луну",
+      "category": "music_title",
+      "notes": "Вероятное отображаемое шуточное название; контекст и степень эвфемизации требуют LQA.",
+      "status": "draft",
+      "file_offset": 7326840,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FD7D0",
+      "text_en": "Unable to save. The ❝%s❞ voice clip list is full.",
+      "text_ru": "Не удалось сохранить. Список голосовых фрагментов ❝%s❞ заполнен.",
+      "category": "voice_ui",
+      "notes": "Полное NUL-терминированное поле; прежний экспорт ошибочно выделял внутренний ASCII-суффикс.",
+      "status": "draft",
+      "file_offset": 7329744,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FDBA0",
+      "text_en": "BGM:%s",
+      "text_ru": "Музыка: %s",
+      "category": "playlist_message",
+      "notes": "printf-плейсхолдер %s сохранён точно. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7330720,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FDBA8",
+      "text_en": "Delete No. %02d?",
+      "text_ru": "Удалить № %02d?",
+      "category": "playlist_message",
+      "notes": "printf-плейсхолдер %02d сохранён точно.",
+      "status": "draft",
+      "file_offset": 7330728,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FDBD0",
+      "text_en": "BGM:%.15s ...",
+      "text_ru": "Музыка: %.15s…",
+      "category": "playlist_message",
+      "notes": "printf-плейсхолдер %.15s сохранён точно; многоточие приведено к U+2026. Терминология уточнена при редакторской проверке UI.",
+      "status": "draft",
+      "file_offset": 7330768,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FDC50",
+      "text_en": "Saved to No. %02d.",
+      "text_ru": "Сохранено под № %02d.",
+      "category": "playlist_message",
+      "notes": "printf-плейсхолдер %02d сохранён точно.",
+      "status": "draft",
+      "file_offset": 7330896,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FDC88",
+      "text_en": "Delete No. %02d from the playlist?",
+      "text_ru": "Удалить № %02d из списка воспроизведения?",
+      "category": "playlist_message",
+      "notes": "printf-плейсхолдер %02d сохранён точно.",
+      "status": "draft",
+      "file_offset": 7330952,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FDDF8",
+      "text_en": "$A1Delete No. %02d?$d(It will also be deleted from playlists.)",
+      "text_ru": "$A1Удалить № %02d?$d(Он также будет удалён из списков воспроизведения.)",
+      "category": "playlist_message",
+      "notes": "Управляющие токены $A1/$d и printf-плейсхолдер %02d сохранены точно.",
+      "status": "draft",
+      "file_offset": 7331320,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FDE60",
+      "text_en": "$A1There is already data saved to No. %02d.$d$A1Overwrite this data?$d$A1(If the file is overwritten, playlists will also change.)",
+      "text_ru": "$A1Под № %02d уже есть данные.$d$A1Перезаписать их?$d$A1(После перезаписи изменятся и списки воспроизведения.)",
+      "category": "playlist_message",
+      "notes": "Управляющие токены $A1/$d и printf-плейсхолдер %02d сохранены точно и в исходном количестве.",
+      "status": "draft",
+      "file_offset": 7331424,
+      "build_scope": "later"
+    },
+    {
+      "file_offset_hex": "0x6FDEE8",
+      "text_en": "Save to No. %02d?",
+      "text_ru": "Сохранить под № %02d?",
+      "category": "playlist_message",
+      "notes": "printf-плейсхолдер %02d сохранён точно.",
+      "status": "draft",
+      "file_offset": 7331560,
+      "build_scope": "later"
+    }
+  ]
+}

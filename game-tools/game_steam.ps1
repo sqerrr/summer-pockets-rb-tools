@@ -6,10 +6,12 @@
     game_steam.ps1 -Action shot [-Out path.png] [-Full]
     game_steam.ps1 -Action opening [-Out path-prefix] [-Frames 50] [-Interval 600]
     game_steam.ps1 -Action click -X 960 -Y 540
+    game_steam.ps1 -Action clickmsg -X 960 -Y 540
     game_steam.ps1 -Action key -Key ENTER
     game_steam.ps1 -Action keydown -Key LCTRL
     game_steam.ps1 -Action keyup -Key LCTRL
     game_steam.ps1 -Action info
+    game_steam.ps1 -Action move -Monitor 2
     game_steam.ps1 -Action state
     game_steam.ps1 -Action exit
     game_steam.ps1 -Action close
@@ -17,7 +19,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('launch', 'resume', 'opening', 'shot', 'click', 'key', 'keydown', 'keyup', 'state', 'info', 'exit', 'close')]
+    [ValidateSet('launch', 'resume', 'opening', 'shot', 'click', 'clickmsg', 'key', 'keydown', 'keyup', 'state', 'info', 'move', 'exit', 'close')]
     [string]$Action,
     [int]$Wait = 30,
     [string]$Out,
@@ -26,6 +28,7 @@ param(
     [string]$Key,
     [int]$Frames = 50,
     [int]$Interval = 600,
+    [int]$Monitor = 0,
     [switch]$Full
 )
 
@@ -40,6 +43,8 @@ while (-not (Test-Path (Join-Path $Root 'AGENTS.md'))) {
 $GameDir = Join-Path $Root 'Summer Pockets REFLECTION BLUE_Steam'
 $GameExe = Join-Path $GameDir 'SummerPocketsRB.exe'
 $ShotDir = Join-Path $PSScriptRoot 'shots-steam'
+$ReferenceWidth = 1920
+$ReferenceHeight = 1080
 
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
@@ -55,6 +60,8 @@ public class SteamGameWin32 {
     [DllImport("user32.dll")] public static extern bool GetClientRect(IntPtr h, out RECT r);
     [DllImport("user32.dll")] public static extern bool ClientToScreen(IntPtr h, ref POINT p);
     [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+    [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int cx, int cy, uint flags);
+    [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint msg, UIntPtr w, IntPtr l);
     [DllImport("user32.dll")] public static extern void mouse_event(uint f, uint x, uint y, uint d, IntPtr e);
     [DllImport("user32.dll")] public static extern void keybd_event(byte key, byte scan, uint flags, UIntPtr extra);
     [StructLayout(LayoutKind.Sequential)] public struct RECT { public int Left, Top, Right, Bottom; }
@@ -71,6 +78,10 @@ $KeyCodes = @{
     ESC = 0x1B
     SPACE = 0x20
     F1 = 0x70
+    LEFT = 0x25
+    UP = 0x26
+    RIGHT = 0x27
+    DOWN = 0x28
 }
 
 function Get-GameProcess {
@@ -99,10 +110,29 @@ function Get-ClientArea($hwnd) {
     }
 }
 
+function Convert-ReferencePoint($hwnd, [int]$x, [int]$y) {
+    $area = Get-ClientArea $hwnd
+    [pscustomobject]@{
+        X = [int][Math]::Round($x * $area.Width / $ReferenceWidth)
+        Y = [int][Math]::Round($y * $area.Height / $ReferenceHeight)
+    }
+}
+
 function Set-GameFocus($hwnd) {
     [void][SteamGameWin32]::ShowWindow($hwnd, 9)
     [void][SteamGameWin32]::SetForegroundWindow($hwnd)
     Start-Sleep -Milliseconds 250
+}
+
+function Move-GameToMonitor($hwnd, [int]$monitorNumber) {
+    if ($monitorNumber -le 0) { return }
+    $screens = [System.Windows.Forms.Screen]::AllScreens
+    if ($monitorNumber -gt $screens.Count) {
+        throw "Monitor $monitorNumber is unavailable; detected $($screens.Count) monitors"
+    }
+    $bounds = $screens[$monitorNumber - 1].Bounds
+    [void][SteamGameWin32]::SetWindowPos($hwnd, [IntPtr]::Zero, $bounds.X, $bounds.Y, 0, 0, 0x0005)
+    Start-Sleep -Milliseconds 300
 }
 
 function Start-Game([int]$waitSeconds) {
@@ -154,9 +184,10 @@ function Save-Shot($hwnd, [string]$path, [switch]$FullScreen) {
 
 function Get-GamePixel($hwnd, [int]$x, [int]$y) {
     $area = Get-ClientArea $hwnd
+    $point = Convert-ReferencePoint $hwnd $x $y
     $bitmap = New-Object System.Drawing.Bitmap(1, 1)
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-    $graphics.CopyFromScreen(($area.X + $x), ($area.Y + $y), 0, 0, (New-Object System.Drawing.Size(1, 1)))
+    $graphics.CopyFromScreen(($area.X + $point.X), ($area.Y + $point.Y), 0, 0, (New-Object System.Drawing.Size(1, 1)))
     $graphics.Dispose()
     $color = $bitmap.GetPixel(0, 0)
     $bitmap.Dispose()
@@ -185,11 +216,23 @@ function Get-ScreenState($hwnd) {
 function Invoke-ClientClick($hwnd, [int]$x, [int]$y) {
     Set-GameFocus $hwnd
     $area = Get-ClientArea $hwnd
-    [void][SteamGameWin32]::SetCursorPos(($area.X + $x), ($area.Y + $y))
+    $point = Convert-ReferencePoint $hwnd $x $y
+    [void][SteamGameWin32]::SetCursorPos(($area.X + $point.X), ($area.Y + $point.Y))
     Start-Sleep -Milliseconds 80
     [SteamGameWin32]::mouse_event(0x0002, 0, 0, 0, [IntPtr]::Zero)
     Start-Sleep -Milliseconds 50
     [SteamGameWin32]::mouse_event(0x0004, 0, 0, 0, [IntPtr]::Zero)
+}
+
+function Invoke-ClientMessageClick($hwnd, [int]$x, [int]$y) {
+    Set-GameFocus $hwnd
+    $point = Convert-ReferencePoint $hwnd $x $y
+    $lParam = [IntPtr](($point.Y -shl 16) -bor ($point.X -band 0xFFFF))
+    [void][SteamGameWin32]::PostMessage($hwnd, 0x0200, [UIntPtr]::Zero, $lParam)
+    Start-Sleep -Milliseconds 80
+    [void][SteamGameWin32]::PostMessage($hwnd, 0x0201, [UIntPtr]1, $lParam)
+    Start-Sleep -Milliseconds 50
+    [void][SteamGameWin32]::PostMessage($hwnd, 0x0202, [UIntPtr]::Zero, $lParam)
 }
 
 function Wait-ScreenState($hwnd, [string]$wanted, [int]$tries = 30) {
@@ -210,6 +253,7 @@ function Send-KeyEvent([string]$name, [bool]$release) {
 switch ($Action) {
     'launch' {
         $hwnd = Start-Game $Wait
+        Move-GameToMonitor $hwnd $Monitor
         $area = Get-ClientArea $hwnd
         $process = Get-GameProcess
         "PID $($process.Id), client $($area.Width)x$($area.Height) at ($($area.X),$($area.Y))"
@@ -219,6 +263,13 @@ switch ($Action) {
         if (-not $process) { 'Game is not running'; break }
         $area = Get-ClientArea $process.MainWindowHandle
         "PID $($process.Id), hwnd $($process.MainWindowHandle), client $($area.Width)x$($area.Height) at ($($area.X),$($area.Y))"
+    }
+    'move' {
+        if ($Monitor -le 0) { throw 'Specify a 1-based monitor number with -Monitor' }
+        $hwnd = Get-GameWindow
+        Move-GameToMonitor $hwnd $Monitor
+        $area = Get-ClientArea $hwnd
+        "Moved game to monitor $Monitor; client $($area.Width)x$($area.Height) at ($($area.X),$($area.Y))"
     }
     'state' {
         Get-ScreenState (Get-GameWindow)
@@ -266,6 +317,11 @@ switch ($Action) {
         $hwnd = Get-GameWindow
         Invoke-ClientClick $hwnd $X $Y
         "Clicked ($X,$Y)"
+    }
+    'clickmsg' {
+        $hwnd = Get-GameWindow
+        Invoke-ClientMessageClick $hwnd $X $Y
+        "Sent client click ($X,$Y)"
     }
     'key' {
         $hwnd = Get-GameWindow

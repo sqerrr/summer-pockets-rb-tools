@@ -1,0 +1,2382 @@
+{
+  "schema_version": 1,
+  "generated_for": "Steam/LUCA Russian English-slot replacement",
+  "scope": {
+    "archives": [
+      "SYSCG.PAK",
+      "PARTS.PAK",
+      "OTHCG.PAK"
+    ],
+    "included": "Baked, non-gameplay UI text visible or plausibly selected by the English language slot.",
+    "excluded": [
+      "MANUAL.PAK and MANUAL_DECK.PAK",
+      "gameplay HUD and controller sheets other than the user-requested message controls",
+      "the approved opening intertitles covered by DEC-0038",
+      "the __SYS_KM candy-shop minigame family"
+    ],
+    "confidence_meaning": {
+      "active": "Observed in an active-build screenshot and tied to this asset family.",
+      "likely": "English-slot or shared UI asset with a clear production role, but not directly captured in the inspected screenshots.",
+      "uncertain": "Duplicate/alternate family or undecodable sheet whose runtime selection was not established."
+    }
+  },
+  "counts": {
+    "total_entries": 60,
+    "by_archive": {
+      "OTHCG.PAK": 19,
+      "PARTS.PAK": 18,
+      "SYSCG.PAK": 23
+    },
+    "by_confidence": {
+      "active": 13,
+      "likely": 37,
+      "uncertain": 10
+    },
+    "by_archive_and_confidence": {
+      "OTHCG.PAK": {
+        "likely": 10,
+        "uncertain": 9
+      },
+      "PARTS.PAK": {
+        "active": 11,
+        "likely": 6,
+        "uncertain": 1
+      },
+      "SYSCG.PAK": {
+        "active": 2,
+        "likely": 21
+      }
+    }
+  },
+  "shared_text": {
+    "title_menu": {
+      "english": [
+        "START",
+        "ALKA",
+        "Pocket",
+        "LOAD",
+        "OPTIONS",
+        "MANUAL",
+        "EXIT",
+        "GALLERY",
+        "MUSIC",
+        "RECORD",
+        "ReSTART"
+      ],
+      "russian": [
+        "НАЧАТЬ",
+        "АЛКА",
+        "POCKET",
+        "ЗАГРУЗИТЬ",
+        "НАСТРОЙКИ",
+        "СПРАВКА",
+        "ВЫЙТИ",
+        "ГАЛЕРЕЯ",
+        "МУЗЫКА",
+        "ПРОГРЕСС",
+        "СНАЧАЛА"
+      ]
+    },
+    "system_menu": {
+      "english": [
+        "SAVE",
+        "LOAD",
+        "RECORD",
+        "OPTIONS",
+        "TITLE",
+        "QUICK SAVE",
+        "QUICK LOAD",
+        "MANUAL",
+        "EXIT"
+      ],
+      "russian": [
+        "СОХРАНИТЬ",
+        "ЗАГРУЗИТЬ",
+        "ПРОГРЕСС",
+        "НАСТРОЙКИ",
+        "ГЛАВНАЯ",
+        "БЫСТР. СОХР.",
+        "БЫСТР. ЗАГР.",
+        "СПРАВКА",
+        "ВЫЙТИ"
+      ]
+    },
+    "gameplay_message_controls": {
+      "english": [
+        "MENU",
+        "SKIP",
+        "AUTO",
+        "VOICE"
+      ],
+      "russian": [
+        "МЕНЮ",
+        "ПРОПУСК",
+        "АВТО",
+        "ГОЛОС"
+      ]
+    },
+    "music_credit_labels": {
+      "Composition": "Музыка",
+      "Arrangement": "Аранжировка",
+      "Vocals": "Вокал",
+      "Lyrics": "Слова",
+      "Adapted from German Folksong": "На основе немецкой народной песни"
+    },
+    "music_name_transliterations": {
+      "Jun Maeda": "Дзюн Маэда",
+      "bermei.inazawa": "bermei.inazawa",
+      "Ryo Mizutsuki": "Рё Мидзуцуки",
+      "Shinji Orito": "Синдзи Орито",
+      "Kazuki Yanagawa": "Кадзуки Янагава",
+      "Tomohiro Takeshita": "Томохиро Такэсита",
+      "Donmaru": "Донмару",
+      "Shoyu": "Сёю",
+      "Shoji Morifuji": "Сёдзи Морифудзи",
+      "Tsumugi Wenders": "Цумуги Вендерс",
+      "Hasama": "Хасама",
+      "Konomi Suzuki": "Кономи Судзуки",
+      "Kai": "Кай",
+      "Masato Nakayama": "Масато Накаяма",
+      "Yu Niijima": "Ю Ниидзима",
+      "YURiKA": "YURiKA",
+      "Runa Mizutani": "Руна Мидзутани",
+      "NanosizeMir": "NanosizeMir",
+      "Yuichirou Tsukagoshi": "Юитиро Цукагоси",
+      "Naruse Shiroha": "Нарусэ Сироха",
+      "rionos": "rionos"
+    },
+    "music_tracks": [
+      {
+        "n": 1,
+        "english": "Sea, You & Me",
+        "russian": "Море, ты и я",
+        "credits": {
+          "Composition": "Jun Maeda",
+          "Arrangement": "bermei.inazawa"
+        }
+      },
+      {
+        "n": 2,
+        "english": "Sea, You Next",
+        "russian": "Море, теперь ты",
+        "credits": {
+          "Composition": "Jun Maeda",
+          "Arrangement": "bermei.inazawa"
+        }
+      },
+      {
+        "n": 3,
+        "english": "Sea, Your Memory",
+        "russian": "Море, память о тебе",
+        "credits": {
+          "Composition": "Jun Maeda",
+          "Arrangement": "bermei.inazawa"
+        }
+      },
+      {
+        "n": 4,
+        "english": "White Loneliness",
+        "russian": "Белое одиночество",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 5,
+        "english": "White with You",
+        "russian": "Белое вместе с тобой",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 6,
+        "english": "Other side Blue",
+        "russian": "Синева по ту сторону",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Kazuki Yanagawa"
+        }
+      },
+      {
+        "n": 7,
+        "english": "Adventure for Black",
+        "russian": "Приключение в чёрном",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Kazuki Yanagawa"
+        }
+      },
+      {
+        "n": 8,
+        "english": "Golden Hours",
+        "russian": "Золотые часы",
+        "credits": {
+          "Composition": "Tomohiro Takeshita",
+          "Arrangement": "Tomohiro Takeshita"
+        }
+      },
+      {
+        "n": 9,
+        "english": "Wing of Glass",
+        "russian": "Стеклянное крыло",
+        "credits": {
+          "Composition": "Tomohiro Takeshita",
+          "Arrangement": "Tomohiro Takeshita"
+        }
+      },
+      {
+        "n": 10,
+        "english": "Alongside Chirping Cicadas",
+        "russian": "Под стрекот цикад",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 11,
+        "english": "How to Spend the Summer Vacation",
+        "russian": "Как провести летние каникулы",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Kazuki Yanagawa"
+        }
+      },
+      {
+        "n": 12,
+        "english": "The Heat Haze Above the Hill",
+        "russian": "Марево над холмом",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 13,
+        "english": "Summer Lullaby",
+        "russian": "Летняя колыбельная",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Shinji Orito"
+        }
+      },
+      {
+        "n": 14,
+        "english": "Sunshine Leisure",
+        "russian": "Солнечный досуг",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 15,
+        "english": "Forget the Heat For Just This Moment",
+        "russian": "Хоть на миг забудь о жаре",
+        "credits": {
+          "Composition": "Tomohiro Takeshita",
+          "Arrangement": "Tomohiro Takeshita"
+        }
+      },
+      {
+        "n": 16,
+        "english": "Doing Homework on August 32nd",
+        "russian": "Домашняя работа 32 августа",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 17,
+        "english": "The Timeweave",
+        "russian": "Ткань времени",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 18,
+        "english": "Breaktime Under the Tree",
+        "russian": "Отдых под деревом",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 19,
+        "english": "The Sun On the Other Side of My Palm",
+        "russian": "Солнце по ту сторону ладони",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 20,
+        "english": "Dark Shadows",
+        "russian": "Тёмные тени",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 21,
+        "english": "In the Gaps Between the Cicadas’ Cries",
+        "russian": "Между криками цикад",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Shinji Orito"
+        }
+      },
+      {
+        "n": 22,
+        "english": "The Night is Short, The Sky is Far Away...",
+        "russian": "Ночь коротка, небо далеко…",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 23,
+        "english": "The Beating Waves That Chronicles the Summer...",
+        "russian": "Волны, отсчитывающие лето…",
+        "credits": {
+          "Composition": "Tomohiro Takeshita",
+          "Arrangement": "Tomohiro Takeshita"
+        }
+      },
+      {
+        "n": 24,
+        "english": "Inside the Radiance",
+        "russian": "В сиянии",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 25,
+        "english": "Alka Tale -recall-",
+        "russian": "История Алки -воспоминание-",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Shinji Orito"
+        }
+      },
+      {
+        "n": 26,
+        "english": "Behind the Gaze",
+        "russian": "За взглядом",
+        "credits": {
+          "Composition": "Tomohiro Takeshita",
+          "Arrangement": "Tomohiro Takeshita"
+        }
+      },
+      {
+        "n": 27,
+        "english": "The Two’s Adventure",
+        "russian": "Приключение вдвоём",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 28,
+        "english": "The Catbeard Brigade’s Adventure",
+        "russian": "Приключение отряда Котоборода",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 29,
+        "english": "Lost at Night",
+        "russian": "Потерявшись ночью",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Shinji Orito"
+        }
+      },
+      {
+        "n": 30,
+        "english": "This Memory, That Memory",
+        "russian": "Эти воспоминания, те воспоминания",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Kazuki Yanagawa"
+        }
+      },
+      {
+        "n": 31,
+        "english": "Tsumugi’s Summer Vacation",
+        "russian": "Летние каникулы Цумуги",
+        "credits": {
+          "Vocals": "Tsumugi Wenders",
+          "Lyrics": "Hasama",
+          "Arrangement": "Ryo Mizutsuki",
+          "Composition": "Shinji Orito",
+          "Adapted from German Folksong": "Die Vogelhochzeit"
+        }
+      },
+      {
+        "n": 32,
+        "english": "Twinkle of Alcor",
+        "russian": "Мерцание Алькора",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 33,
+        "english": "Childish White",
+        "russian": "Детская белизна",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Shinji Orito"
+        }
+      },
+      {
+        "n": 34,
+        "english": "Summer Pockets",
+        "russian": "Летние карманы",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 35,
+        "english": "Alka Tale -story-",
+        "russian": "История Алки -повесть-",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 36,
+        "english": "There He is Even Without Turning Back",
+        "russian": "Он там, даже не оглядываясь",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Shoyu"
+        }
+      },
+      {
+        "n": 37,
+        "english": "Frolic Summer",
+        "russian": "Беззаботное лето",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 38,
+        "english": "Summer Adventure",
+        "russian": "Летнее приключение",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 39,
+        "english": "Deep Blue Blue",
+        "russian": "Глубокая синева",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Kazuki Yanagawa"
+        }
+      },
+      {
+        "n": 40,
+        "english": "Alka Tale",
+        "russian": "История Алки",
+        "credits": {
+          "Vocals": "Konomi Suzuki",
+          "Lyrics": "Kai",
+          "Composition": "Shinji Orito",
+          "Arrangement": "Masato Nakayama"
+        }
+      },
+      {
+        "n": 41,
+        "english": "Lasting Moment",
+        "russian": "Долгий миг",
+        "credits": {
+          "Vocals": "Konomi Suzuki",
+          "Lyrics": "Yu Niijima",
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 42,
+        "english": "Evening Medley of Fireworks",
+        "russian": "Вечернее попурри фейерверков",
+        "credits": {
+          "Vocals": "YURiKA",
+          "Lyrics": "Kai",
+          "Composition": "Tomohiro Takeshita",
+          "Arrangement": "Tomohiro Takeshita"
+        }
+      },
+      {
+        "n": 43,
+        "english": "Cradle of Wings",
+        "russian": "Колыбель крыльев",
+        "credits": {
+          "Vocals": "Runa Mizutani (NanosizeMir)",
+          "Lyrics": "Yu Niijima",
+          "Composition": "Shinji Orito",
+          "Arrangement": "Yuichirou Tsukagoshi (NanosizeMir)"
+        }
+      },
+      {
+        "n": 44,
+        "english": "Shiroha's Lullaby",
+        "russian": "Колыбельная Сирохи",
+        "credits": {
+          "Vocals": "Naruse Shiroha",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 45,
+        "english": "Stuffing My Pockets Full ～Sea, you again～",
+        "russian": "Набивая карманы ～Море, снова ты～",
+        "credits": {
+          "Vocals": "rionos",
+          "Lyrics": "Jun Maeda",
+          "Composition": "Jun Maeda",
+          "Arrangement": "bermei.inazawa"
+        }
+      },
+      {
+        "n": 46,
+        "english": "Rainbow Butterflies",
+        "russian": "Радужные бабочки",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Kazuki Yanagawa"
+        }
+      },
+      {
+        "n": 47,
+        "english": "Splash Green",
+        "russian": "Всплеск зелени",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Shoyu"
+        }
+      },
+      {
+        "n": 48,
+        "english": "Tender Purple",
+        "russian": "Нежный пурпур",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 49,
+        "english": "Piece of Clear",
+        "russian": "Кусочек ясности",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 50,
+        "english": "Run Red Run",
+        "russian": "Беги, красный, беги",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Shoji Morifuji"
+        }
+      },
+      {
+        "n": 51,
+        "english": "Summer Aster",
+        "russian": "Летняя астра",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Shoji Morifuji"
+        }
+      },
+      {
+        "n": 52,
+        "english": "Scent of the Seashore",
+        "russian": "Аромат морского берега",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 53,
+        "english": "Aster Lore -blue-",
+        "russian": "Легенда об астре -синева-",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 54,
+        "english": "Aster Lore -reflect-",
+        "russian": "Легенда об астре -отражение-",
+        "credits": {
+          "Composition": "Shinji Orito",
+          "Arrangement": "Shinji Orito"
+        }
+      },
+      {
+        "n": 55,
+        "english": "Twinkle of Aster",
+        "russian": "Мерцание астры",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 56,
+        "english": "A Lingering Warmth on the Breeze...",
+        "russian": "Тепло, оставшееся на ветру…",
+        "credits": {
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 57,
+        "english": "Lover Universe",
+        "russian": "Вселенная влюблённых",
+        "credits": {
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      },
+      {
+        "n": 58,
+        "english": "Aster Lore",
+        "russian": "Легенда об астре",
+        "credits": {
+          "Vocals": "Konomi Suzuki",
+          "Lyrics": "Kai",
+          "Composition": "Shinji Orito",
+          "Arrangement": "Yuichirou Tsukagoshi (NanosizeMir)"
+        }
+      },
+      {
+        "n": 59,
+        "english": "Hourglass of Summer",
+        "russian": "Песочные часы лета",
+        "credits": {
+          "Vocals": "Runa Mizutani (NanosizeMir)",
+          "Lyrics": "Kai",
+          "Composition": "Ryo Mizutsuki",
+          "Arrangement": "Ryo Mizutsuki"
+        }
+      },
+      {
+        "n": 60,
+        "english": "Into the Blue",
+        "russian": "В синеву",
+        "credits": {
+          "Vocals": "YURiKA",
+          "Lyrics": "Kai",
+          "Composition": "Donmaru",
+          "Arrangement": "Donmaru"
+        }
+      }
+    ]
+  },
+  "entries": [
+    {
+      "archive": "OTHCG.PAK",
+      "index": 161,
+      "entry_id": 25162,
+      "name": "__SYS_RC_BG01",
+      "confidence": "likely",
+      "category": "record_heading",
+      "language_status": "shared",
+      "english_text": [
+        "RECORD",
+        "達成率",
+        "%"
+      ],
+      "proposed_russian": [
+        "ПРОГРЕСС",
+        "ПРОЙДЕНО",
+        "%"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 32,
+        "layout": "record background with large top-left heading and top-right completion label"
+      },
+      "font_render_method": "Full-canvas CZ3 inpaint/redraw. Match the large white serif and compact right label; preserve decorative butterflies and the bottom tick ruler.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 164,
+      "entry_id": 25165,
+      "name": "__SYS_RC_BTN03",
+      "confidence": "likely",
+      "category": "record_number_heading",
+      "language_status": "shared",
+      "english_text": [
+        "NO"
+      ],
+      "proposed_russian": [
+        "№"
+      ],
+      "geometry": {
+        "width": 1208,
+        "height": 144,
+        "canvas_width": 1206,
+        "bpp": 32,
+        "layout": "two horizontal states, inactive over active, each with medal icon and label"
+      },
+      "font_render_method": "Replace the two NO glyph pairs with № while preserving inactive gray and active white state colors and the arrow wedge.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 204,
+      "entry_id": 25205,
+      "name": "__SYS_TM_BTN01",
+      "confidence": "uncertain",
+      "category": "alternate_title_button",
+      "language_status": "shared",
+      "english_text": [
+        "START"
+      ],
+      "proposed_russian": [
+        "НАЧАТЬ"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 132,
+        "canvas_width": 188,
+        "bpp": 32,
+        "layout": "three stacked states: normal, glow/selected, disabled"
+      },
+      "font_render_method": "Redraw all three serif states in place. Verify whether this duplicate title family is reachable before production.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 205,
+      "entry_id": 25206,
+      "name": "__SYS_TM_BTN02",
+      "confidence": "uncertain",
+      "category": "alternate_title_button",
+      "language_status": "shared",
+      "english_text": [
+        "CONTINUE"
+      ],
+      "proposed_russian": [
+        "ПРОДОЛЖИТЬ"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 132,
+        "canvas_width": 188,
+        "bpp": 32,
+        "layout": "three stacked states"
+      },
+      "font_render_method": "Three-state serif redraw; use horizontal condensation to fit the 188-pixel cell.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 206,
+      "entry_id": 25207,
+      "name": "__SYS_TM_BTN03",
+      "confidence": "uncertain",
+      "category": "alternate_title_button",
+      "language_status": "shared",
+      "english_text": [
+        "LOAD"
+      ],
+      "proposed_russian": [
+        "ЗАГРУЗИТЬ"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 132,
+        "canvas_width": 188,
+        "bpp": 32,
+        "layout": "three stacked states"
+      },
+      "font_render_method": "Three-state serif redraw.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 207,
+      "entry_id": 25208,
+      "name": "__SYS_TM_BTN04",
+      "confidence": "uncertain",
+      "category": "alternate_title_button",
+      "language_status": "shared",
+      "english_text": [
+        "CONFIG"
+      ],
+      "proposed_russian": [
+        "НАСТРОЙКИ"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 132,
+        "canvas_width": 188,
+        "bpp": 32,
+        "layout": "three stacked states"
+      },
+      "font_render_method": "Three-state serif redraw with moderate horizontal condensation.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 208,
+      "entry_id": 25209,
+      "name": "__SYS_TM_BTN05",
+      "confidence": "uncertain",
+      "category": "alternate_title_button",
+      "language_status": "shared",
+      "english_text": [
+        "EXTRA"
+      ],
+      "proposed_russian": [
+        "БОНУСЫ"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 132,
+        "canvas_width": 188,
+        "bpp": 32,
+        "layout": "three stacked states"
+      },
+      "font_render_method": "Three-state serif redraw.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 209,
+      "entry_id": 25210,
+      "name": "__SYS_TM_BTN06",
+      "confidence": "uncertain",
+      "category": "alternate_title_button",
+      "language_status": "shared",
+      "english_text": [
+        "QUIT"
+      ],
+      "proposed_russian": [
+        "ВЫЙТИ"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 132,
+        "canvas_width": 188,
+        "bpp": 32,
+        "layout": "three stacked states"
+      },
+      "font_render_method": "Three-state serif redraw.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 210,
+      "entry_id": 25211,
+      "name": "__SYS_TM_BTN07",
+      "confidence": "uncertain",
+      "category": "alternate_title_button",
+      "language_status": "shared",
+      "english_text": [
+        "ReSTART"
+      ],
+      "proposed_russian": [
+        "СНАЧАЛА"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 132,
+        "canvas_width": 188,
+        "bpp": 32,
+        "layout": "three stacked states"
+      },
+      "font_render_method": "Three-state serif redraw.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 211,
+      "entry_id": 25212,
+      "name": "__SYS_TM_BTN08",
+      "confidence": "uncertain",
+      "category": "alternate_title_button",
+      "language_status": "shared",
+      "english_text": [
+        "ALKA"
+      ],
+      "proposed_russian": [
+        "АЛКА"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 132,
+        "canvas_width": 188,
+        "bpp": 32,
+        "layout": "three stacked states"
+      },
+      "font_render_method": "Three-state serif redraw.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 212,
+      "entry_id": 25213,
+      "name": "__SYS_TM_BTN09",
+      "confidence": "uncertain",
+      "category": "alternate_title_button",
+      "language_status": "shared",
+      "english_text": [
+        "Pocket"
+      ],
+      "proposed_russian": [
+        "POCKET"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 132,
+        "canvas_width": 188,
+        "bpp": 32,
+        "layout": "three stacked states"
+      },
+      "font_render_method": "Three-state serif redraw.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 214,
+      "entry_id": 25215,
+      "name": "__SYS_TM_SETBTN_BG00aen",
+      "confidence": "likely",
+      "category": "title_setup_prompt",
+      "language_status": "english-specific",
+      "english_text": [
+        "Would you like to skip the prologue?",
+        "The title you receive in the prologue will default to \"Obedient Lucifer\".",
+        "This will not be reflected in your records."
+      ],
+      "proposed_russian": [
+        "Пропустить пролог?",
+        "Полученный в прологе титул по умолчанию будет «Послушный Люцифер».",
+        "В статистике это не отразится."
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 32,
+        "layout": "full-canvas prompt panel; large centered question and two smaller centered explanatory lines"
+      },
+      "font_render_method": "Inpaint English only and redraw in a clean rounded sans-serif: white fill, dark teal shadow, centered within the existing turquoise panel.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 217,
+      "entry_id": 25218,
+      "name": "__SYS_TM_SETBTN_BG00ben",
+      "confidence": "likely",
+      "category": "title_setup_prompt",
+      "language_status": "english-specific",
+      "english_text": [
+        "Would you like to skip the prologue?",
+        "The title you receive in the prologue will default to \"Obedient Lucifer\".",
+        "This will not be reflected in your records.",
+        "How would you like to be called by Umi?"
+      ],
+      "proposed_russian": [
+        "Пропустить пролог?",
+        "Полученный в прологе титул по умолчанию будет «Послушный Люцифер».",
+        "В статистике это не отразится.",
+        "Как Уми будет к вам обращаться?"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 32,
+        "layout": "expanded full-canvas prompt panel with four centered text blocks"
+      },
+      "font_render_method": "Same rounded sans-serif panel redraw as BG00aen; preserve the four original baselines and butterfly clear zones.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 220,
+      "entry_id": 25221,
+      "name": "__SYS_TM_SETBTN_BG00cen",
+      "confidence": "likely",
+      "category": "title_setup_prompt",
+      "language_status": "english-specific",
+      "english_text": [
+        "Please choose how Umi will call you."
+      ],
+      "proposed_russian": [
+        "Выберите, как Уми будет к вам обращаться."
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 32,
+        "layout": "wide pale illustrated panel with portrait above one centered line"
+      },
+      "font_render_method": "Redraw the single dark-teal sans-serif line; preserve portrait and pale scene. Fit within the original central width.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 223,
+      "entry_id": 25224,
+      "name": "__SYS_TM_SETBTN_BG00een",
+      "confidence": "likely",
+      "category": "title_setup_prompt",
+      "language_status": "english-specific",
+      "english_text": [
+        "How would you like to be called by Umi?"
+      ],
+      "proposed_russian": [
+        "Как Уми будет к вам обращаться?"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 32,
+        "layout": "turquoise prompt panel with portrait and one large centered question"
+      },
+      "font_render_method": "Redraw in the original white rounded sans-serif with dark teal shadow; preserve portrait and butterfly clear zones.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 225,
+      "entry_id": 25226,
+      "name": "__SYS_TM_SETBTN01",
+      "confidence": "likely",
+      "category": "title_setup_button",
+      "language_status": "shared",
+      "english_text": [
+        "YES"
+      ],
+      "proposed_russian": [
+        "ДА"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 192,
+        "bpp": 32,
+        "layout": "two stacked states: normal and cyan glow"
+      },
+      "font_render_method": "Redraw both display-serif states; preserve glow and exact state split.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 226,
+      "entry_id": 25227,
+      "name": "__SYS_TM_SETBTN02",
+      "confidence": "likely",
+      "category": "title_setup_button",
+      "language_status": "shared",
+      "english_text": [
+        "NO"
+      ],
+      "proposed_russian": [
+        "НЕТ"
+      ],
+      "geometry": {
+        "width": 192,
+        "height": 192,
+        "bpp": 32,
+        "layout": "two stacked states: normal and cyan glow"
+      },
+      "font_render_method": "Redraw both display-serif states; preserve glow and exact state split.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 230,
+      "entry_id": 25231,
+      "name": "__SYS_TM_SETBTN06",
+      "confidence": "likely",
+      "category": "title_setup_button",
+      "language_status": "shared",
+      "english_text": [
+        "OK"
+      ],
+      "proposed_russian": [
+        "ГОТОВО"
+      ],
+      "geometry": {
+        "width": 288,
+        "height": 192,
+        "bpp": 32,
+        "layout": "two stacked rounded-rectangle button states"
+      },
+      "font_render_method": "Redraw both serif button labels; preserve turquoise fills, white border and state ordering.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "OTHCG.PAK",
+      "index": 232,
+      "entry_id": 25233,
+      "name": "__SYS_TM_SETBTN07en",
+      "confidence": "likely",
+      "category": "title_setup_choice_labels",
+      "language_status": "english-specific",
+      "english_text": [
+        "Takahara-san",
+        "Hairi-san",
+        "Onii-chan"
+      ],
+      "proposed_russian": [
+        "Такахара-сан",
+        "Хаири-сан",
+        "они-тян"
+      ],
+      "geometry": {
+        "width": 928,
+        "height": 192,
+        "canvas_width": 924,
+        "bpp": 32,
+        "layout": "three horizontal choices repeated in two stacked states"
+      },
+      "font_render_method": "Redraw all six labels in the same white display serif; preserve separators, turquoise state strip and per-choice centers.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 46,
+      "entry_id": 64046,
+      "name": "CONFIG_TAB1_en",
+      "confidence": "uncertain",
+      "category": "options_tabs_legacy",
+      "language_status": "english-specific",
+      "english_text": [
+        "OPTIONS",
+        "Basic",
+        "Button1",
+        "Button2",
+        "Touch",
+        "Text1",
+        "Text2",
+        "Sound",
+        "Voice",
+        "Color"
+      ],
+      "proposed_russian": [
+        "НАСТРОЙКИ",
+        "Основные",
+        "Кнопки 1",
+        "Кнопки 2",
+        "Сенсор",
+        "Текст 1",
+        "Текст 2",
+        "Звук",
+        "Голоса",
+        "Цвет"
+      ],
+      "geometry": {
+        "width": 1280,
+        "height": 66,
+        "bpp": 8,
+        "layout": "single horizontal legacy options tab strip"
+      },
+      "font_render_method": "Raster redraw with a compact sans-serif matching this older black tab theme. Keep because it is a distinct English-slot asset, but verify runtime reachability before rendering.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 58,
+      "entry_id": 64058,
+      "name": "ext_pten",
+      "confidence": "likely",
+      "category": "extra_completion_headings",
+      "language_status": "english-specific",
+      "english_text": [
+        "Total Completion Rate",
+        "Completion Rate",
+        "%"
+      ],
+      "proposed_russian": [
+        "Общий прогресс",
+        "Прогресс",
+        "%"
+      ],
+      "geometry": {
+        "width": 592,
+        "height": 132,
+        "canvas_width": 590,
+        "bpp": 32,
+        "layout": "two centered serif heading rows with right-aligned percent signs"
+      },
+      "font_render_method": "Redraw in the original white serif with thin dark outline; preserve two baselines and percent anchors.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 60,
+      "entry_id": 64060,
+      "name": "EXTRA_HEADER",
+      "confidence": "likely",
+      "category": "extra_gallery_headers",
+      "language_status": "shared",
+      "english_text": [
+        "GALLERY",
+        "MUSIC",
+        "RECORD",
+        "No."
+      ],
+      "proposed_russian": [
+        "ГАЛЕРЕЯ",
+        "МУЗЫКА",
+        "ПРОГРЕСС",
+        "№"
+      ],
+      "geometry": {
+        "width": 632,
+        "height": 696,
+        "canvas_width": 630,
+        "bpp": 32,
+        "layout": "three large stacked headings plus numeric/page glyph rows and arrows"
+      },
+      "font_render_method": "Replace only heading and 'No.' glyph regions; retain digit atlases and arrows. Use the same engraved display serif and outline.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 93,
+      "entry_id": 64093,
+      "name": "legacy_pt",
+      "confidence": "active",
+      "category": "gameplay_message_controls",
+      "language_status": "shared",
+      "english_text": {
+        "reference": "shared_text.gameplay_message_controls",
+        "states": [
+          "disabled",
+          "normal",
+          "selected",
+          "pressed/glow"
+        ]
+      },
+      "proposed_russian": {
+        "reference": "shared_text.gameplay_message_controls"
+      },
+      "geometry": {
+        "width": 960,
+        "height": 240,
+        "bpp": 32,
+        "layout": "four 240x60 rows by four state columns; preserve icons at the left of every cell"
+      },
+      "font_render_method": "Clear only each label zone and redraw compact Russian text in all four state columns; preserve icons, state colors, alpha and cell geometry.",
+      "status": "draft",
+      "build_scope": "first_wave"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 94,
+      "entry_id": 64094,
+      "name": "load_bg",
+      "confidence": "active",
+      "category": "load_vertical_labels",
+      "language_status": "shared",
+      "english_text": [
+        "LOAD"
+      ],
+      "proposed_russian": [
+        "ЗАГРУЗКА"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 32,
+        "layout": "active full-screen load background with four integrated vertical edge labels"
+      },
+      "font_render_method": "Restore only the four English label zones from adjacent background pixels, then redraw rotated Russian text at the original anchors.",
+      "status": "draft",
+      "build_scope": "first_wave"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 95,
+      "entry_id": 64095,
+      "name": "load_bg_text_1280",
+      "confidence": "likely",
+      "category": "load_vertical_labels",
+      "language_status": "shared",
+      "english_text": [
+        "LOAD"
+      ],
+      "proposed_russian": [
+        "ЗАГРУЗКА"
+      ],
+      "geometry": {
+        "width": 1280,
+        "height": 720,
+        "bpp": 248,
+        "layout": "four vertical edge labels: upper/lower on left and right"
+      },
+      "font_render_method": "Render vertical Russian text by rotating a serif word mask; preserve the four anchors, white fill, blue outline and glow.",
+      "status": "draft",
+      "build_scope": "later",
+      "build_scope_reason": "LQA: the active 1920x1080 screen takes its visible labels from load_bg; this service mask did not affect the displayed LOAD text."
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 96,
+      "entry_id": 64096,
+      "name": "load_bg_text_1920",
+      "confidence": "active",
+      "category": "load_vertical_labels",
+      "language_status": "shared",
+      "english_text": [
+        "LOAD"
+      ],
+      "proposed_russian": [
+        "ЗАГРУЗКА"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 248,
+        "layout": "four vertical edge labels: upper/lower on left and right"
+      },
+      "font_render_method": "Same rotated serif redraw as the 1280 asset, at native 1920 geometry; confirmed by save-test-load-screen.png.",
+      "status": "draft",
+      "build_scope": "later",
+      "build_scope_reason": "LQA: the active screen still displayed the pristine LOAD labels after replacing this mask; load_bg is the verified visible source."
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 139,
+      "entry_id": 64139,
+      "name": "options_tab_en",
+      "confidence": "active",
+      "category": "options_tabs",
+      "language_status": "english-specific",
+      "english_text": [
+        "OPTIONS",
+        "Basic",
+        "Text1",
+        "Text2",
+        "Sound",
+        "Voice",
+        "Keyboard",
+        "Mouse",
+        "Touch",
+        "System"
+      ],
+      "proposed_russian": [
+        "НАСТРОЙКИ",
+        "Общие",
+        "Текст 1",
+        "Текст 2",
+        "Звук",
+        "Голоса",
+        "Клавиши",
+        "Мышь",
+        "Сенсор",
+        "Система"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 98,
+        "bpp": 32,
+        "layout": "full-width teal base tab bar with ten labels"
+      },
+      "font_render_method": "Redraw in a Times/Mincho-like display serif with white fill and subtle cyan edge; preserve divider x positions. Condense 'Клавиатура' if needed without changing cap height.",
+      "status": "draft",
+      "build_scope": "first_wave"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 142,
+      "entry_id": 64142,
+      "name": "options_tab2_en",
+      "confidence": "active",
+      "category": "options_tabs",
+      "language_status": "english-specific",
+      "english_text": [
+        "Basic",
+        "Text1",
+        "Text2",
+        "Sound",
+        "Voice",
+        "Keyboard",
+        "Mouse",
+        "Touch",
+        "System"
+      ],
+      "proposed_russian": [
+        "Общие",
+        "Текст 1",
+        "Текст 2",
+        "Звук",
+        "Голоса",
+        "Клавиши",
+        "Мышь",
+        "Сенсор",
+        "Система"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 98,
+        "bpp": 32,
+        "layout": "transparent selected-tab/glow strip aligned to options_tab_en"
+      },
+      "font_render_method": "Generate selected/glow variants from the base Russian tab masks, retaining cyan glow and underline geometry; confirmed by ui-options-basic.png.",
+      "status": "draft",
+      "build_scope": "first_wave"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 237,
+      "entry_id": 64237,
+      "name": "RECORD_BG",
+      "confidence": "likely",
+      "category": "record_heading",
+      "language_status": "shared",
+      "english_text": [
+        "RECORD",
+        "達成率",
+        "%"
+      ],
+      "proposed_russian": [
+        "ПРОГРЕСС",
+        "ПРОЙДЕНО",
+        "%"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 32,
+        "layout": "large top-left heading; completion-rate label at top-right; background integrated"
+      },
+      "font_render_method": "Inpaint only the two text zones and redraw: large white display serif for the heading, compact white label for completion rate. Preserve butterflies and turquoise bar.",
+      "status": "draft",
+      "build_scope": "later",
+      "build_scope_reason": "Exported pixels and active screenshot prove this background contains no text; headings come from EXTRA_HEADER and ext_pten."
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 238,
+      "entry_id": 64238,
+      "name": "RECORD_FRAME1",
+      "confidence": "active",
+      "category": "record_row_number_label",
+      "language_status": "shared",
+      "english_text": [
+        "No."
+      ],
+      "proposed_russian": [
+        "№"
+      ],
+      "geometry": {
+        "width": 1632,
+        "height": 72,
+        "canvas_width": 1630,
+        "bpp": 32,
+        "layout": "normal record row frame; No. bbox at x75..125, y24..49"
+      },
+      "font_render_method": "Replace only the No. glyph region; preserve medal, wedge, border and row geometry.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 239,
+      "entry_id": 64239,
+      "name": "RECORD_FRAME2",
+      "confidence": "active",
+      "category": "record_row_number_label",
+      "language_status": "shared",
+      "english_text": [
+        "No."
+      ],
+      "proposed_russian": [
+        "№"
+      ],
+      "geometry": {
+        "width": 1632,
+        "height": 72,
+        "canvas_width": 1630,
+        "bpp": 32,
+        "layout": "selected record row frame; No. bbox at x75..125, y24..49"
+      },
+      "font_render_method": "Replace only the No. glyph region; preserve selected-state artwork and row geometry.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 242,
+      "entry_id": 64242,
+      "name": "save_bg",
+      "confidence": "active",
+      "category": "save_vertical_labels",
+      "language_status": "shared",
+      "english_text": [
+        "SAVE"
+      ],
+      "proposed_russian": [
+        "СОХРАНЕНИЕ"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 32,
+        "layout": "active full-screen save background with four integrated vertical edge labels"
+      },
+      "font_render_method": "Restore only the four English label zones from adjacent background pixels, then redraw rotated Russian text at the original anchors.",
+      "status": "draft",
+      "build_scope": "first_wave"
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 243,
+      "entry_id": 64243,
+      "name": "save_bg_text_1280",
+      "confidence": "likely",
+      "category": "save_vertical_labels",
+      "language_status": "shared",
+      "english_text": [
+        "SAVE"
+      ],
+      "proposed_russian": [
+        "СОХРАНЕНИЕ"
+      ],
+      "geometry": {
+        "width": 1280,
+        "height": 720,
+        "bpp": 248,
+        "layout": "four vertical edge labels: upper/lower on left and right"
+      },
+      "font_render_method": "Render vertical Russian text by rotating a serif word mask; preserve the four anchors, white fill, pink outline and glow.",
+      "status": "draft",
+      "build_scope": "later",
+      "build_scope_reason": "LQA: the active 1920x1080 screen uses save_bg for the visible integrated labels; this service mask is not the displayed heading."
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 244,
+      "entry_id": 64244,
+      "name": "save_bg_text_1920",
+      "confidence": "active",
+      "category": "save_vertical_labels",
+      "language_status": "shared",
+      "english_text": [
+        "SAVE"
+      ],
+      "proposed_russian": [
+        "СОХРАНЕНИЕ"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 248,
+        "layout": "four vertical edge labels: upper/lower on left and right"
+      },
+      "font_render_method": "Same rotated serif redraw as the 1280 asset, at native 1920 geometry; confirmed by save-test-save-screen.png.",
+      "status": "draft",
+      "build_scope": "later",
+      "build_scope_reason": "LQA: replace save_bg instead; the active integrated SAVE labels are baked into that full-screen background."
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 398,
+      "entry_id": 64398,
+      "name": "system_icon_1280_en",
+      "confidence": "likely",
+      "category": "system_menu_icon_labels",
+      "language_status": "english-specific",
+      "english_text": {
+        "reference": "shared_text.system_menu",
+        "layout": "wide icon/label atlas"
+      },
+      "proposed_russian": {
+        "reference": "shared_text.system_menu"
+      },
+      "geometry": {
+        "width": 1624,
+        "height": 360,
+        "canvas_width": 1620,
+        "bpp": 248,
+        "layout": "1280-resolution wide atlas containing normal and alternate label/icon states"
+      },
+      "font_render_method": "Replace label masks only; preserve icon pixels. Use the same high-contrast serif, cyan/white state colors and per-cell clipping.",
+      "status": "draft",
+      "build_scope": "later",
+      "build_scope_reason": "Deferred because the ten-cell source atlas includes Back and Voice Collection, but its canonical proposed_russian reference resolves to the different nine-label shared_text.system_menu list. Production rendering must not guess the two missing Russian labels or map labels to the wrong icons."
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 401,
+      "entry_id": 64401,
+      "name": "system_icon_1920_en",
+      "confidence": "active",
+      "category": "system_menu_icon_labels",
+      "language_status": "english-specific",
+      "english_text": {
+        "reference": "shared_text.system_menu",
+        "layout": "wide icon/label atlas"
+      },
+      "proposed_russian": {
+        "reference": "shared_text.system_menu"
+      },
+      "geometry": {
+        "width": 2432,
+        "height": 540,
+        "canvas_width": 2430,
+        "bpp": 248,
+        "layout": "1920-resolution wide atlas containing normal and alternate label/icon states"
+      },
+      "font_render_method": "Same label-only redraw as the 1280 asset; active placement confirmed by full-preview-system-menu.png.",
+      "status": "draft",
+      "build_scope": "later",
+      "build_scope_reason": "Deferred because the ten-cell source atlas includes Back and Voice Collection, but its canonical proposed_russian reference resolves to the different nine-label shared_text.system_menu list. Production rendering must not guess the two missing Russian labels or map labels to the wrong icons."
+    },
+    {
+      "archive": "PARTS.PAK",
+      "index": 404,
+      "entry_id": 64404,
+      "name": "systemmenuen",
+      "confidence": "active",
+      "category": "system_menu_buttons",
+      "language_status": "english-specific",
+      "english_text": {
+        "reference": "shared_text.system_menu",
+        "states": [
+          "normal",
+          "selected/glow"
+        ],
+        "layout": "five primary buttons plus four secondary buttons"
+      },
+      "proposed_russian": {
+        "reference": "shared_text.system_menu"
+      },
+      "geometry": {
+        "width": 1576,
+        "height": 1260,
+        "canvas_width": 1575,
+        "bpp": 32,
+        "layout": "multi-cell circular-button atlas; upper five and lower four, each with normal and glow state"
+      },
+      "font_render_method": "Redraw labels within each circular button cell; preserve icons, clipping, glow and exact cell bounds. Confirm every long Russian label in the assembled menu screenshot.",
+      "status": "draft",
+      "build_scope": "first_wave"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 13,
+      "entry_id": 60014,
+      "name": "CGM_NAME00en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "NARUSE SHIROHA"
+      ],
+      "proposed_russian": [
+        "НАРУСЭ СИРОХА"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered name over a character-colored horizontal rule"
+      },
+      "font_render_method": "Redraw the alpha/raster strip with a narrow serif small-cap visual match; preserve rule color, ornaments and the exact 1704x60 canvas.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 16,
+      "entry_id": 60017,
+      "name": "CGM_NAME01en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "SORAKADO AO"
+      ],
+      "proposed_russian": [
+        "СОРАКАДО АО"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered name over a character-colored horizontal rule"
+      },
+      "font_render_method": "Same raster-strip redraw as CGM_NAME00en.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 19,
+      "entry_id": 60020,
+      "name": "CGM_NAME02en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "KUSHIMA KAMOME"
+      ],
+      "proposed_russian": [
+        "КУСИМА КАМОМЭ"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered name over a character-colored horizontal rule"
+      },
+      "font_render_method": "Same raster-strip redraw as CGM_NAME00en.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 22,
+      "entry_id": 60023,
+      "name": "CGM_NAME03en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "TSUMUGI WENDERS"
+      ],
+      "proposed_russian": [
+        "ЦУМУГИ ВЕНДЕРС"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered name over a character-colored horizontal rule"
+      },
+      "font_render_method": "Same raster-strip redraw as CGM_NAME00en.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 25,
+      "entry_id": 60026,
+      "name": "CGM_NAME04en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "NOMURA MIKI"
+      ],
+      "proposed_russian": [
+        "НОМУРА МИКИ"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered name over a character-colored horizontal rule"
+      },
+      "font_render_method": "Same raster-strip redraw as CGM_NAME00en.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 28,
+      "entry_id": 60029,
+      "name": "CGM_NAME05en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "MIZUORI SHIZUKU"
+      ],
+      "proposed_russian": [
+        "МИДЗУОРИ СИДЗУКУ"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered name over a character-colored horizontal rule"
+      },
+      "font_render_method": "Same raster-strip redraw as CGM_NAME00en.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 31,
+      "entry_id": 60032,
+      "name": "CGM_NAME06en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "KATO UMI"
+      ],
+      "proposed_russian": [
+        "КАТО УМИ"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered name over a character-colored horizontal rule"
+      },
+      "font_render_method": "Same raster-strip redraw as CGM_NAME00en.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 34,
+      "entry_id": 60035,
+      "name": "CGM_NAME07en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "KAMIYAMA SHIKI"
+      ],
+      "proposed_russian": [
+        "КАМИЯМА СИКИ"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered name over a character-colored horizontal rule"
+      },
+      "font_render_method": "Same raster-strip redraw as CGM_NAME00en.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 37,
+      "entry_id": 60038,
+      "name": "CGM_NAME08en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "DAILY LIFE"
+      ],
+      "proposed_russian": [
+        "БУДНИ"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered category name over a cyan horizontal rule"
+      },
+      "font_render_method": "Same raster-strip redraw as CGM_NAME00en.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 40,
+      "entry_id": 60041,
+      "name": "CGM_NAME09en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "Pocket"
+      ],
+      "proposed_russian": [
+        "POCKET"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered category name over a cyan horizontal rule"
+      },
+      "font_render_method": "Same raster-strip redraw as CGM_NAME00en.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 43,
+      "entry_id": 60044,
+      "name": "CGM_NAME10en",
+      "confidence": "likely",
+      "category": "cg_gallery_heading",
+      "language_status": "english-specific",
+      "english_text": [
+        "TAKAHARA UMI"
+      ],
+      "proposed_russian": [
+        "ТАКАХАРА УМИ"
+      ],
+      "geometry": {
+        "width": 1704,
+        "height": 60,
+        "bpp": 8,
+        "layout": "single centered name over a character-colored horizontal rule"
+      },
+      "font_render_method": "Same raster-strip redraw as CGM_NAME00en.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 46,
+      "entry_id": 60047,
+      "name": "CGM_SELECTen",
+      "confidence": "likely",
+      "category": "cg_gallery_selection_sheet",
+      "language_status": "english-specific",
+      "english_text": {
+        "likely": "Selection-state counterparts for the eleven English CG gallery category labels",
+        "labels_reference": "entries CGM_NAME00en through CGM_NAME10en"
+      },
+      "proposed_russian": {
+        "labels_reference": "entries CGM_NAME00en through CGM_NAME10en"
+      },
+      "geometry": {
+        "width": 4152,
+        "height": 684,
+        "bpp": 32,
+        "offset_y": 8,
+        "layout": "decoded CZ4 12x2 grid of 346x342 cells; eleven gallery labels plus one butterfly cell"
+      },
+      "font_render_method": "Decode CZ4, preserve every cell background/ornament, and replace only the eleven English label masks in both state rows.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 48,
+      "entry_id": 60049,
+      "name": "CGModePAGE",
+      "confidence": "likely",
+      "category": "cg_gallery_page_label",
+      "language_status": "shared",
+      "english_text": [
+        "No."
+      ],
+      "proposed_russian": [
+        "№"
+      ],
+      "geometry": {
+        "width": 88,
+        "height": 660,
+        "canvas_width": 84,
+        "bpp": 8,
+        "layout": "No. cell at y=0..60 followed by digit cells 0..9"
+      },
+      "font_render_method": "Replace only the first 60px No. cell; preserve all ten digit cells exactly.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 72,
+      "entry_id": 60073,
+      "name": "MCM_INFO__en",
+      "confidence": "likely",
+      "category": "music_gallery_info",
+      "language_status": "english-specific",
+      "english_text": {
+        "track_range": [
+          1,
+          45
+        ],
+        "includes_credits": true,
+        "reference": "shared_text.music_tracks"
+      },
+      "proposed_russian": {
+        "credit_labels_reference": "shared_text.music_credit_labels",
+        "preserve_track_titles": true,
+        "preserve_person_names": true
+      },
+      "geometry": {
+        "width": 1768,
+        "height": 4320,
+        "bpp": 8,
+        "layout": "45 vertically stacked title-and-credit rows with staggered title starts"
+      },
+      "font_render_method": "Replace only credit-label tokens; preserve every track title, person name and quoted source title byte-for-pixel in the rendered sheet.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 75,
+      "entry_id": 60076,
+      "name": "MCM_INFO_2__en",
+      "confidence": "likely",
+      "category": "music_gallery_info",
+      "language_status": "english-specific",
+      "english_text": {
+        "track_range": [
+          46,
+          60
+        ],
+        "includes_credits": true,
+        "reference": "shared_text.music_tracks"
+      },
+      "proposed_russian": {
+        "credit_labels_reference": "shared_text.music_credit_labels",
+        "preserve_track_titles": true,
+        "preserve_person_names": true
+      },
+      "geometry": {
+        "width": 1768,
+        "height": 1350,
+        "bpp": 8,
+        "layout": "15 vertically stacked title-and-credit rows"
+      },
+      "font_render_method": "Replace only credit-label tokens; preserve every track title, person name and quoted source title byte-for-pixel in the rendered sheet.",
+      "status": "draft",
+      "build_scope": "interface"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 78,
+      "entry_id": 60079,
+      "name": "MCM_LIST__en",
+      "confidence": "likely",
+      "category": "music_gallery_list",
+      "language_status": "english-specific",
+      "english_text": {
+        "track_range": [
+          1,
+          45
+        ],
+        "titles_only": true,
+        "reference": "shared_text.music_tracks"
+      },
+      "proposed_russian": {
+        "track_range": [
+          1,
+          45
+        ],
+        "reference": "shared_text.music_tracks"
+      },
+      "geometry": {
+        "width": 888,
+        "height": 3456,
+        "canvas_width": 884,
+        "bpp": 248,
+        "layout": "45 compact single-line title rows"
+      },
+      "font_render_method": "Redraw the compact serif list with the same row pitch and left anchors; abbreviate only if a translated title cannot fit after moderate horizontal condensation.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 81,
+      "entry_id": 60082,
+      "name": "MCM_LIST_2__en",
+      "confidence": "likely",
+      "category": "music_gallery_list",
+      "language_status": "english-specific",
+      "english_text": {
+        "track_range": [
+          46,
+          60
+        ],
+        "titles_only": true,
+        "reference": "shared_text.music_tracks"
+      },
+      "proposed_russian": {
+        "track_range": [
+          46,
+          60
+        ],
+        "reference": "shared_text.music_tracks"
+      },
+      "geometry": {
+        "width": 888,
+        "height": 1080,
+        "canvas_width": 884,
+        "bpp": 248,
+        "layout": "15 compact single-line title rows"
+      },
+      "font_render_method": "Same compact-list redraw as MCM_LIST__en.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 89,
+      "entry_id": 60090,
+      "name": "TITLE_COPYRIGHT01",
+      "confidence": "likely",
+      "category": "copyright",
+      "language_status": "shared",
+      "action": "retain_text_redraw_optional",
+      "english_text": [
+        "©2019 Key/VISUAL ARTS/PROTOTYPE"
+      ],
+      "proposed_russian": [
+        "© 2019 Key / VISUAL ARTS / PROTOTYPE"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 8,
+        "layout": "one small centered footer line near the bottom edge; dark state"
+      },
+      "font_render_method": "Keep rights-holder names unchanged. If redrawn, preserve the compact serif face, baseline and state color; this is not a semantic translation.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 90,
+      "entry_id": 60091,
+      "name": "TITLE_COPYRIGHT02",
+      "confidence": "likely",
+      "category": "copyright",
+      "language_status": "shared",
+      "action": "retain_text_redraw_optional",
+      "english_text": [
+        "©2019 Key/VISUAL ARTS/PROTOTYPE"
+      ],
+      "proposed_russian": [
+        "© 2019 Key / VISUAL ARTS / PROTOTYPE"
+      ],
+      "geometry": {
+        "width": 1920,
+        "height": 1080,
+        "bpp": 8,
+        "layout": "same footer placement as TITLE_COPYRIGHT01; blue-highlight state"
+      },
+      "font_render_method": "State-paired redraw only if spacing is normalized; preserve the blue outline/glow.",
+      "status": "draft",
+      "build_scope": "later"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 91,
+      "entry_id": 60092,
+      "name": "TITLE_MENU01",
+      "confidence": "active",
+      "category": "title_menu",
+      "language_status": "shared",
+      "english_text": {
+        "reference": "shared_text.title_menu",
+        "layout_rows": [
+          "START | LOAD | OPTIONS | MANUAL | EXIT",
+          "ALKA | LOAD | OPTIONS | MANUAL | EXIT",
+          "Pocket | LOAD | OPTIONS | MANUAL | EXIT",
+          "START | ALKA | Pocket | LOAD | OPTIONS | MANUAL | EXIT",
+          "GALLERY | MUSIC | RECORD",
+          "ReSTART | OPTIONS | MANUAL | EXIT"
+        ]
+      },
+      "proposed_russian": {
+        "reference": "shared_text.title_menu"
+      },
+      "geometry": {
+        "width": 1920,
+        "height": 456,
+        "bpp": 32,
+        "layout": "multi-row title and secondary-menu atlas; normal/base state"
+      },
+      "font_render_method": "Redraw all labels in a high-contrast display serif matched to the screenshot. Preserve every row anchor and separator mask; use horizontal condensation rather than smaller cap height.",
+      "status": "draft",
+      "build_scope": "first_wave"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 92,
+      "entry_id": 60093,
+      "name": "TITLE_MENU01_GLOW",
+      "confidence": "active",
+      "category": "title_menu",
+      "language_status": "shared",
+      "english_text": {
+        "reference": "shared_text.title_menu",
+        "state": "glow/selected counterpart"
+      },
+      "proposed_russian": {
+        "reference": "shared_text.title_menu"
+      },
+      "geometry": {
+        "width": 1920,
+        "height": 648,
+        "bpp": 32,
+        "layout": "source payload is fully transparent; runtime selection glow comes from TITLE_MENU01B_GLOW"
+      },
+      "font_render_method": "Preserve the pristine fully transparent payload; adding text here creates a duplicate runtime halo.",
+      "status": "draft",
+      "build_scope": "later",
+      "build_scope_reason": "LQA and source alpha inspection: this payload is fully transparent and must not receive replacement text."
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 93,
+      "entry_id": 60094,
+      "name": "TITLE_MENU01B",
+      "confidence": "likely",
+      "category": "title_secondary_menu",
+      "language_status": "shared",
+      "english_text": {
+        "reference": "shared_text.title_menu",
+        "state": "alternate/unlocked base palette"
+      },
+      "proposed_russian": {
+        "reference": "shared_text.title_menu"
+      },
+      "geometry": {
+        "width": 1920,
+        "height": 456,
+        "bpp": 32,
+        "layout": "alternate title/secondary-menu atlas"
+      },
+      "font_render_method": "Reuse the exact Russian glyph masks and anchors from TITLE_MENU01, recolored to this darker palette.",
+      "status": "draft",
+      "build_scope": "first_wave"
+    },
+    {
+      "archive": "SYSCG.PAK",
+      "index": 94,
+      "entry_id": 60095,
+      "name": "TITLE_MENU01B_GLOW",
+      "confidence": "likely",
+      "category": "title_secondary_menu",
+      "language_status": "shared",
+      "english_text": {
+        "reference": "shared_text.title_menu",
+        "state": "alternate/unlocked glow palette"
+      },
+      "proposed_russian": {
+        "reference": "shared_text.title_menu"
+      },
+      "geometry": {
+        "width": 1920,
+        "height": 456,
+        "bpp": 32,
+        "layout": "alternate selected/glow atlas"
+      },
+      "font_render_method": "Generate from TITLE_MENU01B with the original white glow and per-item highlight states.",
+      "status": "draft",
+      "build_scope": "first_wave"
+    }
+  ],
+  "out_of_archive_findings": [
+    {
+      "category": "startup_legal_notice",
+      "confidence": "active",
+      "archive_mapping": null,
+      "evidence": "build/steam/steamless-title-preview-title.png",
+      "reason": "The inspected legal prose is active and baked/rendered, but no exact entry containing it exists in the selected SYSCG/PARTS/OTHCG catalogues. It must be handled in the executable/runtime text pass, not falsely assigned to TITLE_COPYRIGHT01/02.",
+      "english_text": [
+        "This product is a work of fiction.",
+        "All names, characters, organizations, locations, incidents, and occupations are the products of the authors’ imagination or used in a fictitious manner.",
+        "Any resemblance to actual persons, living or dead, or actual events is purely coincidental.",
+        "This product is owned by VISUAL ARTS Co., Ltd.",
+        "Unauthorized lending, reproduction, duplication, modification, or redistribution over the internet and use of P2P software to share and distribute without the express written consent of VISUAL ARTS Co., Ltd. is prohibited by law.",
+        "Illegal uploading of videos to the internet is steadily rising.",
+        "The unauthorized uploading of in-game music, video records, etc. is strictly forbidden except for demo purposes and actions may be taken according to your country's law."
+      ],
+      "proposed_russian": [
+        "Это произведение является вымыслом.",
+        "Все имена, персонажи, организации, места, происшествия и занятия вымышлены авторами либо представлены в вымышленном виде.",
+        "Любое сходство с реальными лицами, живыми или умершими, а также с реальными событиями случайно.",
+        "Все права на данный продукт принадлежат VISUAL ARTS Co., Ltd.",
+        "Передача, воспроизведение, копирование, изменение и распространение через интернет, включая обмен по P2P, без письменного разрешения VISUAL ARTS Co., Ltd. запрещены законом.",
+        "Число незаконных публикаций видеозаписей в интернете растёт.",
+        "Публикация игровой музыки, видеозаписей и других материалов без разрешения строго запрещена, кроме демонстрационных целей; нарушители могут быть привлечены к ответственности по законам своей страны."
+      ],
+      "font_render_method": "Runtime/executable text replacement. Preserve the observed left-aligned sans-serif layout, paragraph spacing and the 1920x1080 safe margins; do not raster-patch an unrelated archive image."
+    }
+  ],
+  "evidence": {
+    "catalogues": [
+      "build/steam/ui-assets/SYSCG/catalog.jsonl",
+      "build/steam/ui-assets/PARTS/catalog.jsonl",
+      "build/steam/ui-assets/OTHCG/catalog.jsonl"
+    ],
+    "contact_sheets": [
+      "build/steam/ui-assets/SYSCG/contact-01.png",
+      "build/steam/ui-assets/SYSCG/contact-02.png",
+      "build/steam/ui-assets/PARTS/contact-01.png through contact-09.png",
+      "build/steam/ui-assets/OTHCG/contact-01.png",
+      "build/steam/ui-assets/OTHCG/contact-02.png"
+    ],
+    "screenshots": [
+      "build/steam/steamless-title-preview-title.png",
+      "build/steam/save-test-system-menu-clean.png",
+      "build/steam/save-test-save-screen.png",
+      "build/steam/save-test-load-screen.png",
+      "build/steam/ui-options-basic.png"
+    ]
+  },
+  "status": "draft",
+  "asset_id": "baked_ui_assets",
+  "source_draft_sha256": "sha256:aa3615fd301e9c1efcca637826831391a4146c5c32630c39cfd84682bd205fb1",
+  "archive_sha256": {
+    "SYSCG.PAK": "sha256:560a6328c8ac96049a56d49fd0923cf543c3c3ef16e4c4997d3d7bc28b8a19c5",
+    "PARTS.PAK": "sha256:d2e366030f104cca9ae8e0e1d4df03b192324728909aaaaef1fbf9f118b44485",
+    "OTHCG.PAK": "sha256:9f6bb18ee3e33ae51fc1dd9b0e89a8cdb5d702684690baf6ecdbbf1d24b24f6f"
+  }
+}

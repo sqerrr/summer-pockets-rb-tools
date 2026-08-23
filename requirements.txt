@@ -1,2 +1,4 @@
 PyYAML>=6.0,<7
 Pillow>=12,<13
+pefile>=2024.8.26,<2025
+capstone>=5.0.7,<6
