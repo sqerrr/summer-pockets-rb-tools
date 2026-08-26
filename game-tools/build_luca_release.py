@@ -199,10 +199,26 @@ def load_translations(seg_dir: Path, statuses: set[str],
 
 def load_speaker_labels(path: Path) -> dict[str, str]:
     labels = {}
+
+    def add_label(key: str | None, value: str) -> None:
+        if not key:
+            return
+        previous = labels.get(key)
+        if previous is not None and previous != value:
+            raise SystemExit(
+                f"ОШИБКА: ярлык говорящего {key!r} сопоставлен и с {previous!r}, и с {value!r}")
+        labels[key] = value
+
     for line in io.open(path, encoding="utf-8"):
         row = json.loads(line)
-        if row.get("preferred_ru"):
-            labels[row["source"]] = row["preferred_ru"]
+        preferred = row.get("preferred_ru")
+        if not preferred:
+            raise SystemExit(
+                f"ОШИБКА: у ярлыка говорящего {row['id']} ({row['source']}) нет preferred_ru")
+        add_label(row["source"], preferred)
+        add_label(row.get("romaji"), preferred)
+        for alias in row.get("aliases", []):
+            add_label(alias, preferred)
     return labels
 
 
@@ -233,13 +249,16 @@ def slot_text(original: str, translation: str, speaker: str | None,
     Ярлык говорящего живёт ведущим маркером `@…@` (FND-0041), а в сегментах он
     вынесен в отдельное поле. Маркер ставится тогда и только тогда, когда он был
     в исходном слоте: его появление или пропажа меняет разметку записи, а не
-    перевод. Если русской формы ярлыка нет, остаётся исходная - пустая подпись
-    хуже чужой.
+    перевод. Отсутствующая русская форма считается ошибкой сборки: иначе
+    английский ярлык незаметно протекает в полностью русский слот.
     """
     marker = SPEAKER_MARKER.match(original)
     if not marker:
         return translation
-    label = labels.get(speaker or "") or marker.group(1)
+    label = labels.get(speaker or "") or labels.get(marker.group(1))
+    if not label:
+        raise SystemExit(
+            f"ОШИБКА: нет русского ярлыка для speaker={speaker!r}, marker={marker.group(1)!r}")
     return f"@{label}@{translation}"
 
 

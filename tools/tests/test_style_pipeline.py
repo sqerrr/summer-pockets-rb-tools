@@ -580,6 +580,41 @@ def test_release_preflight_rejects_block_without_current_audit(tmp_path):
         builder.ROOT = old_root
 
 
+def test_release_speaker_labels_cover_source_romaji_and_aliases(tmp_path):
+    root = Path(__file__).parents[2]
+    builder = load_module(root / "game-tools/build_luca_release.py",
+                          "luca_release_speaker_test")
+    registry = tmp_path / "speakers.jsonl"
+    write_jsonl(registry, [
+        {
+            "id": "SPK-1", "source": "羽依里", "preferred_ru": "Хаири",
+            "romaji": "Hairi",
+        },
+        {
+            "id": "SPK-2", "source": "子供達", "preferred_ru": "Дети",
+            "aliases": ["Kids"],
+        },
+    ])
+
+    labels = builder.load_speaker_labels(registry)
+    assert builder.slot_text("@Hairi@Hello", "Привет", None, labels) == "@Хаири@Привет"
+    assert builder.slot_text("@Kids@Hello", "Привет", None, labels) == "@Дети@Привет"
+    assert builder.slot_text("@Hairi@Hello", "Привет", "羽依里", labels) == "@Хаири@Привет"
+    with pytest.raises(SystemExit, match="нет русского ярлыка"):
+        builder.slot_text("@Unknown@Hello", "Привет", None, labels)
+
+
+def test_release_speaker_registry_rejects_missing_translation(tmp_path):
+    root = Path(__file__).parents[2]
+    builder = load_module(root / "game-tools/build_luca_release.py",
+                          "luca_release_missing_speaker_test")
+    registry = tmp_path / "speakers.jsonl"
+    write_jsonl(registry, [{"id": "SPK-1", "source": "話者", "preferred_ru": None}])
+
+    with pytest.raises(SystemExit, match="нет preferred_ru"):
+        builder.load_speaker_labels(registry)
+
+
 def test_release_reviewed_route_keeps_higher_statuses_global(tmp_path, monkeypatch,
                                                              capsys):
     root = Path(__file__).parents[2]
