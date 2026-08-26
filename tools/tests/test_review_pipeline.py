@@ -674,7 +674,7 @@ def test_project_oneesan_question_has_structural_glossary_link():
     assert "OQ-SCN0027-02" in {row["id"] for row in related}
 
 
-def test_project_kakigori_question_has_structural_glossary_link():
+def test_resolved_kakigori_question_is_not_injected_into_other_scenes():
     vnctl = load_vnctl()
     root = Path(__file__).parents[2]
     config = vnctl.load_config(root)
@@ -683,7 +683,7 @@ def test_project_kakigori_question_has_structural_glossary_link():
     related = vnctl.related_questions(
         root, config, {"SCN0252"}, set(), glossary)
 
-    assert "OQ-SCN0015-01" in {row["id"] for row in related}
+    assert "OQ-SCN0015-01" not in {row["id"] for row in related}
 
 
 def test_review_ledger_serializes_concurrent_events(tmp_path):
